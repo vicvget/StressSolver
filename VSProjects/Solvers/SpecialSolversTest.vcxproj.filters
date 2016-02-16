@@ -1,0 +1,108 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
+    </Filter>
+    <Filter Include="Header Files\CommonSolvers">
+      <UniqueIdentifier>{6d0e9ef7-f8c6-44dc-9012-b6334c49121a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\OilMistSolver">
+      <UniqueIdentifier>{4afa8674-a1ae-41bc-82ad-070d6a136d40}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\StressSolver">
+      <UniqueIdentifier>{32879086-2047-4cf2-874f-3bfc48797dbc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\ThermalSolver">
+      <UniqueIdentifier>{1dab5cd2-2d40-4abc-ac7a-5292ad242b46}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\CommonSolvers">
+      <UniqueIdentifier>{0215acf5-9c3f-4bd9-be4c-45d8d68fb518}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\OilMistSolver">
+      <UniqueIdentifier>{edc5dc32-7d28-4d16-8733-0fcdbe45326d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\StressSolver">
+      <UniqueIdentifier>{e7358a42-73c4-47da-b1fa-a16c74533804}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\ThermalSolver">
+      <UniqueIdentifier>{06c59323-0c1f-48c2-97e0-61baee675e47}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\SmartPointer">
+      <UniqueIdentifier>{06fa4a8d-3432-4441-b2d1-b97c6ce6f33f}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\Solvers\callProgram\PerformanceCounter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Solvers\callProgram\CommonSolvers.cpp">
+      <Filter>Source Files\CommonSolvers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Solvers\callProgram\CommonSolversTest.cpp">
+      <Filter>Source Files\CommonSolvers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Solvers\callProgram\OilMistSolverTest.cpp">
+      <Filter>Source Files\OilMistSolver</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Solvers\callProgram\OilMistSolver.cpp">
+      <Filter>Source Files\OilMistSolver</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Solvers\callProgram\StressSolverTest.cpp">
+      <Filter>Source Files\StressSolver</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Solvers\callProgram\StressSolver.cpp">
+      <Filter>Source Files\StressSolver</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Solvers\callProgram\ThermalSolverTest.cpp">
+      <Filter>Source Files\ThermalSolver</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Solvers\callProgram\ThermalSolver.cpp">
+      <Filter>Source Files\ThermalSolver</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Solvers\callProgram\SpecialSolversTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\Solvers\CallProgram\PerformanceCounter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Solvers\callProgram\CommonSolvers.h">
+      <Filter>Header Files\CommonSolvers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Solvers\callProgram\CommonSolversTest.h">
+      <Filter>Header Files\CommonSolvers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Solvers\callProgram\OilMistSolver.h">
+      <Filter>Header Files\OilMistSolver</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Solvers\callProgram\OilMistSolverTest.h">
+      <Filter>Header Files\OilMistSolver</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Solvers\callProgram\StressSolver.h">
+      <Filter>Header Files\StressSolver</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Solvers\callProgram\StressSolverTest.h">
+      <Filter>Header Files\StressSolver</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Solvers\callProgram\ThermalSolver.h">
+      <Filter>Header Files\ThermalSolver</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Solvers\callProgram\ThermalSolverTest.h">
+      <Filter>Header Files\ThermalSolver</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\AdditionalModules\AuxiliaryModules\SmartPointers.h">
+      <Filter>Header Files\SmartPointer</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
