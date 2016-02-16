@@ -1,0 +1,54 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+	<ImportGroup Label="PropertySheets" />
+	<PropertyGroup Label="UserMacros">
+		<!-- Architecture suffix -->
+		<ArchitectureSuffix Condition="'$(PlatformShortName)' == 'x86'"></ArchitectureSuffix>
+		<ArchitectureSuffix Condition="'$(PlatformShortName)' == 'x64'">64</ArchitectureSuffix>
+		<!-- Debug suffix -->
+		<DebugSuffix Condition="'$(Configuration)' == 'Debug'">d</DebugSuffix>
+		<DebugSuffix Condition="'$(Configuration)' == 'DebugDll'">d</DebugSuffix>
+		<DebugSuffix Condition="'$(Configuration)' == 'DebugGnu'">d</DebugSuffix>
+		<DebugSuffix Condition="'$(Configuration)' == 'DebugMPI'">d</DebugSuffix>
+		<DebugSuffix Condition="'$(Configuration)' == 'Release'"></DebugSuffix>
+		<DebugSuffix Condition="'$(Configuration)' == 'ReleaseDll'"></DebugSuffix>
+		<DebugSuffix Condition="'$(Configuration)' == 'ReleaseGnu'"></DebugSuffix>
+		<DebugSuffix Condition="'$(Configuration)' == 'ReleaseMPI'"></DebugSuffix>
+		<!-- Toolset -->
+		<Toolset Condition="'$(PlatformToolset)' == 'v120'">vc12</Toolset>
+		<Toolset Condition="'$(PlatformToolset)' == 'v140'">vc14</Toolset>
+		<!-- Toolset suffix -->
+		<ToolsetSuffix Condition="'$(Toolset)' == 'vc12'">12</ToolsetSuffix>
+		<ToolsetSuffix Condition="'$(Toolset)' == 'vc14'">14</ToolsetSuffix>
+		<!-- Visual Studio version -->
+		<VisualStudioVersion Condition="'$(Toolset)' == 'vc12'">2013</VisualStudioVersion>
+		<VisualStudioVersion Condition="'$(Toolset)' == 'vc14'">2015</VisualStudioVersion>
+		<!-- Build path -->
+		<BuildPath>$(SolutionDir)..\_$(Configuration)\</BuildPath>
+		<!-- Path to compiled binary files -->
+		<BinaryPath>$(BuildPath)bin$(ArchitectureSuffix)\</BinaryPath>
+		<!-- Intermediate directory for build -->
+		<IntermediatePath>$(BuildPath)obj$(ArchitectureSuffix)\$(ProjectName)\</IntermediatePath>
+		<!-- Path to `Release` build directory -->
+		<ReleasePath>$(SolutionDir)..\_Release\</ReleasePath>
+		<!-- Path to `Debug` build directory -->
+		<DebugPath>$(SolutionDir)..\_Debug\</DebugPath>
+		<!-- Path to Google Test include files -->
+		<GtestInc>$(SolutionDir)..\Tests\gtest\include\</GtestInc>
+	</PropertyGroup>
+	<PropertyGroup>
+		<_PropertySheetDisplayName>Common</_PropertySheetDisplayName>
+		<OutDir>$(BinaryPath)</OutDir>
+		<IntDir>$(IntermediatePath)</IntDir>
+	</PropertyGroup>
+	<ItemDefinitionGroup>
+		<Link>
+			<AdditionalLibraryDirectories>$(BinaryPath);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+		</Link>
+	</ItemDefinitionGroup>
+	<ItemGroup>
+		<BuildMacro Include="ArchitectureSuffix">
+			<Value>$(ArchitectureSuffix)</Value>
+		</BuildMacro>
+	</ItemGroup>
+</Project>

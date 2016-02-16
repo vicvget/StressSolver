@@ -1,0 +1,177 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Header Files\ANTLR">
+      <UniqueIdentifier>{1b81e547-7a91-4d7d-9dd2-f09cae844cd0}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\AdditionalModules\MatlabInterface\MatlabInterface.g" />
+    <None Include="..\..\AdditionalModules\MatlabInterface\MatlabInterface.tokens" />
+    <None Include="..\..\ExternalModules\Antlr3Cpp\antlr3.inl">
+      <Filter>Header Files\ANTLR</Filter>
+    </None>
+    <None Include="..\..\ExternalModules\Antlr3Cpp\antlr3baserecognizer.inl">
+      <Filter>Header Files\ANTLR</Filter>
+    </None>
+    <None Include="..\..\ExternalModules\Antlr3Cpp\antlr3bitset.inl">
+      <Filter>Header Files\ANTLR</Filter>
+    </None>
+    <None Include="..\..\ExternalModules\Antlr3Cpp\antlr3collections.inl">
+      <Filter>Header Files\ANTLR</Filter>
+    </None>
+    <None Include="..\..\ExternalModules\Antlr3Cpp\antlr3commontoken.inl">
+      <Filter>Header Files\ANTLR</Filter>
+    </None>
+    <None Include="..\..\ExternalModules\Antlr3Cpp\antlr3commontree.inl">
+      <Filter>Header Files\ANTLR</Filter>
+    </None>
+    <None Include="..\..\ExternalModules\Antlr3Cpp\antlr3commontreeadaptor.inl">
+      <Filter>Header Files\ANTLR</Filter>
+    </None>
+    <None Include="..\..\ExternalModules\Antlr3Cpp\antlr3commontreenodestream.inl">
+      <Filter>Header Files\ANTLR</Filter>
+    </None>
+    <None Include="..\..\ExternalModules\Antlr3Cpp\antlr3cyclicdfa.inl">
+      <Filter>Header Files\ANTLR</Filter>
+    </None>
+    <None Include="..\..\ExternalModules\Antlr3Cpp\antlr3exception.inl">
+      <Filter>Header Files\ANTLR</Filter>
+    </None>
+    <None Include="..\..\ExternalModules\Antlr3Cpp\antlr3filestream.inl">
+      <Filter>Header Files\ANTLR</Filter>
+    </None>
+    <None Include="..\..\ExternalModules\Antlr3Cpp\antlr3input.inl">
+      <Filter>Header Files\ANTLR</Filter>
+    </None>
+    <None Include="..\..\ExternalModules\Antlr3Cpp\antlr3intstream.inl">
+      <Filter>Header Files\ANTLR</Filter>
+    </None>
+    <None Include="..\..\ExternalModules\Antlr3Cpp\antlr3lexer.inl">
+      <Filter>Header Files\ANTLR</Filter>
+    </None>
+    <None Include="..\..\ExternalModules\Antlr3Cpp\antlr3parser.inl">
+      <Filter>Header Files\ANTLR</Filter>
+    </None>
+    <None Include="..\..\ExternalModules\Antlr3Cpp\antlr3recognizersharedstate.inl">
+      <Filter>Header Files\ANTLR</Filter>
+    </None>
+    <None Include="..\..\ExternalModules\Antlr3Cpp\antlr3rewritestreams.inl">
+      <Filter>Header Files\ANTLR</Filter>
+    </None>
+    <None Include="..\..\ExternalModules\Antlr3Cpp\antlr3tokenstream.inl">
+      <Filter>Header Files\ANTLR</Filter>
+    </None>
+    <None Include="..\..\ExternalModules\Antlr3Cpp\antlr3treeparser.inl">
+      <Filter>Header Files\ANTLR</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\AdditionalModules\MatlabInterface\MatlabInterfaceLexer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\AdditionalModules\MatlabInterface\MatlabInterfaceParser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\AdditionalModules\MatlabInterface\MatlabInterface.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\AdditionalModules\MatlabInterface\MatlabInterfaceLexer.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\AdditionalModules\MatlabInterface\MatlabInterfaceParser.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ExternalModules\Antlr3Cpp\antlr3.hpp">
+      <Filter>Header Files\ANTLR</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ExternalModules\Antlr3Cpp\antlr3baserecognizer.hpp">
+      <Filter>Header Files\ANTLR</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ExternalModules\Antlr3Cpp\antlr3bitset.hpp">
+      <Filter>Header Files\ANTLR</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ExternalModules\Antlr3Cpp\antlr3collections.hpp">
+      <Filter>Header Files\ANTLR</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ExternalModules\Antlr3Cpp\antlr3commontoken.hpp">
+      <Filter>Header Files\ANTLR</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ExternalModules\Antlr3Cpp\antlr3commontree.hpp">
+      <Filter>Header Files\ANTLR</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ExternalModules\Antlr3Cpp\antlr3commontreeadaptor.hpp">
+      <Filter>Header Files\ANTLR</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ExternalModules\Antlr3Cpp\antlr3commontreenodestream.hpp">
+      <Filter>Header Files\ANTLR</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ExternalModules\Antlr3Cpp\antlr3convertutf.hpp">
+      <Filter>Header Files\ANTLR</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ExternalModules\Antlr3Cpp\antlr3cyclicdfa.hpp">
+      <Filter>Header Files\ANTLR</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ExternalModules\Antlr3Cpp\antlr3debugeventlistener.hpp">
+      <Filter>Header Files\ANTLR</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ExternalModules\Antlr3Cpp\antlr3defs.hpp">
+      <Filter>Header Files\ANTLR</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ExternalModules\Antlr3Cpp\antlr3errors.hpp">
+      <Filter>Header Files\ANTLR</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ExternalModules\Antlr3Cpp\antlr3exception.hpp">
+      <Filter>Header Files\ANTLR</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ExternalModules\Antlr3Cpp\antlr3filestream.hpp">
+      <Filter>Header Files\ANTLR</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ExternalModules\Antlr3Cpp\antlr3input.hpp">
+      <Filter>Header Files\ANTLR</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ExternalModules\Antlr3Cpp\antlr3interfaces.hpp">
+      <Filter>Header Files\ANTLR</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ExternalModules\Antlr3Cpp\antlr3intstream.hpp">
+      <Filter>Header Files\ANTLR</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ExternalModules\Antlr3Cpp\antlr3lexer.hpp">
+      <Filter>Header Files\ANTLR</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ExternalModules\Antlr3Cpp\antlr3memory.hpp">
+      <Filter>Header Files\ANTLR</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ExternalModules\Antlr3Cpp\antlr3parser.hpp">
+      <Filter>Header Files\ANTLR</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ExternalModules\Antlr3Cpp\antlr3recognizersharedstate.hpp">
+      <Filter>Header Files\ANTLR</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ExternalModules\Antlr3Cpp\antlr3rewritestreams.hpp">
+      <Filter>Header Files\ANTLR</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ExternalModules\Antlr3Cpp\antlr3tokenstream.hpp">
+      <Filter>Header Files\ANTLR</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ExternalModules\Antlr3Cpp\antlr3traits.hpp">
+      <Filter>Header Files\ANTLR</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ExternalModules\Antlr3Cpp\antlr3treeparser.hpp">
+      <Filter>Header Files\ANTLR</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\AdditionalModules\MatlabInterface\MatlabInterface.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
