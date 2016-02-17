@@ -33,7 +33,8 @@ public:
 			int nNodes,
 			double gridStep,
 			double timeStep,
-			int numThreads
+			int numThreads,
+			int stride
 		);
 
 	virtual

@@ -29,7 +29,8 @@ StressStrainFortranIterativeSolver::StressStrainFortranIterativeSolver
 		int nNodes,
 		double gridStep,
 		double timeStep,
-		int numThreads
+		int numThreads,
+		int stride
 	)
 	:
 		StressStrainFortranSolver
@@ -41,7 +42,8 @@ StressStrainFortranIterativeSolver::StressStrainFortranIterativeSolver
 				nNodes,
 				gridStep,
 				timeStep,
-				numThreads
+				numThreads,
+				stride
 			),
 		_iterationNumber(0)
 {
@@ -366,7 +368,7 @@ void StressStrainFortranIterativeSolver::GetDisplacement
 	for
 		(
 			int i = 0;
-			i < _nNodes;
+			i < _nElements;
 			i++,
 			internalIndex += 3
 		)
@@ -401,7 +403,7 @@ void StressStrainFortranIterativeSolver::GetStressesByFirstTheoryOfStrength
 	double fullRelativeShift;
 	double maxRelativeShift = 0;
 
-	for (int i = 0; i < _nNodes; i++)
+	for (int i = 0; i < _nElements; i++)
 	{
 		for (int j = 0; j < 3; j++)
 		{
@@ -464,7 +466,7 @@ void StressStrainFortranIterativeSolver::GetStressesByVonMises
 	double sigma[6];
 
 	FindStressStrainMatrix(mtx);
-	for (int nodeIndex = 0; nodeIndex < _nNodes; nodeIndex++)
+	for (int nodeIndex = 0; nodeIndex < _nElements; nodeIndex++)
 	{
 		/*for (int j = 0; j < 6; j++)
 		{
@@ -638,10 +640,10 @@ void StressStrainFortranIterativeSolver::pravsubfl()
 	//		stressStrainMatrix \
 	//	) \
 	//	num_threads(NumThreads)
-	for (j = 0; j < _nNodes; j++)
+	for (j = 0; j < _nElements; j++)
 	{
 		// NAD=j*6;
-		NADU = _nNodes * 2 * 6 + j * 6;
+		NADU = _nElements * 2 * 6 + j * 6;
 
 		for (i = 0; i < 6; i++) // можно вынести
 		{
@@ -684,7 +686,7 @@ void StressStrainFortranIterativeSolver::pravsubfl()
 #ifdef TIMER
 				_testTimer.Start(5);
 #endif		
-				linksh3(X1, X2, SL, VL, A, C, j, N2, _nNodes);
+				linksh3(X1, X2, SL, VL, A, C, j, N2, _nElements);
 				//linksh(X1, X2, SL, VL, A, C, j, N2, _nElements);
 				//linksh2(X1, X2, SL, VL, A, C, j, N2, _nElements);
 
@@ -864,7 +866,7 @@ void StressStrainFortranIterativeSolver::ApplyBoundary()
 	//BCT_stresstrainBoundaryForce = 3,
 	//BCT_stresstrainBoundarySealing = 4,
 
-	double* dataPointer = _dataInternal + _nNodes * 6 * 2;
+	double* dataPointer = _dataInternal + _nElements * 6 * 2;
 	vector<BoundaryParams>::iterator it = _boundaryParamsSet.begin();
 
 	while (it != _boundaryParamsSet.end())
@@ -904,9 +906,9 @@ void StressStrainFortranIterativeSolver::ApplyMass()
 	//_controlfp(0, EM_ZERODIVIDE);
 	//_control87(~_EM_ZERODIVIDE, _MCW_EM);
 #endif
-	double* accelerations = _dataInternal + _nNodes * 6 * 2;
+	double* accelerations = _dataInternal + _nElements * 6 * 2;
 
-	for (int i = 0; i < _nNodes; i++)
+	for (int i = 0; i < _nElements; i++)
 	{
 		for (int j = 0; j < 3; j++)
 		{
@@ -1018,7 +1020,7 @@ catch (const exceptions::CoreException& exception)
 */
 IsSealedFlagsList StressStrainFortranIterativeSolver::FormIsSealedFlagsList() const
 {
-	IsSealedFlagsList isSealedFlagsList(_nNodes);
+	IsSealedFlagsList isSealedFlagsList(_nElements);
 
 	for (const auto& boundaryParams : _boundaryParamsSet)
 	{
@@ -1077,7 +1079,7 @@ StressStrainFortranIterativeSolver::StiffnessMatrixType StressStrainFortranItera
 		double stiffnessEpsilon
 	)
 {
-	StiffnessMatrixType stiffnessMatrix(_nNodes);
+	StiffnessMatrixType stiffnessMatrix(_nElements);
 
 	FindStiffnessMatrix(stiffnessMatrix, isSealedFlagsList, stiffnessEpsilon);
 
@@ -1099,7 +1101,7 @@ void StressStrainFortranIterativeSolver::FindStiffnessMatrix
 		double stiffnessEpsilon
 	)
 {
-	for (int nodeId = 0; nodeId < _nNodes; ++nodeId)
+	for (int nodeId = 0; nodeId < _nElements; ++nodeId)
 	{
 		FindStiffnessMatrixForAdjElements(stiffnessMatrix, nodeId, isSealedFlagsList, stiffnessEpsilon);
 	}
@@ -1227,7 +1229,7 @@ void StressStrainFortranIterativeSolver::FindStiffnessMatrixForDof
 		double stiffnessEpsilon
 	)
 {
-	const double* forces = &_dataInternal[_nNodes * 2 * FreedomsCount];
+	const double* forces = &_dataInternal[_nElements * 2 * FreedomsCount];
 	const double* adjForces = &forces[adjNodeId * FreedomsCount];
 	const IsSealedFlags& isSealedFlags = isSealedFlagsList[adjNodeId];
 
@@ -1350,7 +1352,7 @@ void StressStrainFortranIterativeSolver::UpdateForcesForNode
 	int nLinks = 0;
 	j = nodeId;
 
-	NADU = _nNodes * 2 * 6 + j * 6;
+	NADU = _nElements * 2 * 6 + j * 6;
 
 	for (i = 0; i < 6; i++) // можно вынести
 	{
@@ -1376,7 +1378,7 @@ void StressStrainFortranIterativeSolver::UpdateForcesForNode
 			X2[1] = DY;
 			X2[2] = DZ;
 
-			linksh3(X1, X2, SL, VL, A, C, j, N2, _nNodes);
+			linksh3(X1, X2, SL, VL, A, C, j, N2, _nElements);
 			//linksh(X1, X2, SL, VL, A, C, j, N2, _nElements);
 
 			for (k = 0; k < 6; k++)
@@ -1472,7 +1474,7 @@ StiffnessRHSVector StressStrainFortranIterativeSolver::CreateStiffnessRHSVector
 		const IsSealedFlagsList& isSealedFlagsList
 	)	const
 {
-	StiffnessRHSVector stiffnessRHSVector(_nNodes * FreedomsCount);
+	StiffnessRHSVector stiffnessRHSVector(_nElements * FreedomsCount);
 
 	FindStiffnessRHSVector(stiffnessRHSVector);
 	ApplySealedElementsToStiffnessRHSVector(stiffnessRHSVector, isSealedFlagsList);

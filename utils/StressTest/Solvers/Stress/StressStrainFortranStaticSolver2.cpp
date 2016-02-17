@@ -25,7 +25,8 @@ StressStrainFortranStaticSolver2::StressStrainFortranStaticSolver2
 				nNodes, 
 				gridStep,
 				timeStep,
-				numThreads
+				numThreads,
+				3
 			)
 {
 }

@@ -39,8 +39,7 @@ struct Identity
 /** Унаследованный код на ФОРТРАНе
 */
 class StressStrainFortranIterativeSolver
-	:
-		public StressStrainFortranSolver
+	:public StressStrainFortranSolver
 {
 public:
 
@@ -54,7 +53,8 @@ public:
 			int nNodes,
 			double gridStep,
 			double timeStep,
-			int numThreads
+			int numThreads,
+			int stride
 		);
 
 #pragma region overriden
@@ -125,7 +125,7 @@ public:
 #pragma endregion
 
 
-protected:
+//protected:
 
 	// используемый тип матрицы жесткости (или кортеж матриц жетскости)
 	using StiffnessMatrixType = StiffnessMatrixPackedInCSCFormat;

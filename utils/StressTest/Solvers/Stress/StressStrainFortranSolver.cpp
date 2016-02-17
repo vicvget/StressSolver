@@ -39,21 +39,21 @@ StressStrainFortranSolver::StressStrainFortranSolver
 		double* params, 
 		int* links, 
 		int nLinks, 
-		double *nodes, 
-		int nNodes, 
+		double *gridElements, 
+		int nElements, 
 		double gridStep, 
 		double timeStep,
-		int numThreads
+		int numThreads,
+		int stride
 	)
 	:
-		StressStrainSolver(nNodes),
+		StressStrainSolver(nElements,stride),
 		_isFirstSolution(true),
 		_poissonRatio(0.)
 {
 	_isFirstIteration = true;
 	_nIteration = 0;
-	_nNodes = nNodes;	
-	_nVariables = nNodes * 6;
+	_nVariables = nElements * vecStride2;
 	METS = 0;
 
 	T = 0;										// время
@@ -73,9 +73,9 @@ StressStrainFortranSolver::StressStrainFortranSolver
 		<< " ################### NUMBER OF THREADS: " << NumThreads
 		<< " ################### NUM_THREADS: " << numThreads << std::endl;
 
-	//GRA = _dataRotationMtx;//new double [nNodes * 9];
+	//GRA = _dataRotationMtx;//new double [nElements * 9];
 
-	//for (int j = 0; j < nNodes; j++)
+	//for (int j = 0; j < nElements; j++)
 	//{
 	//	for (int i = 0; i < 9; i++)
 	//	{
@@ -98,12 +98,12 @@ StressStrainFortranSolver::StressStrainFortranSolver
 	R = new double[_nVariables];
 	RZ = new double[_nVariables];
 	R1Z = new double[_nVariables];
-	_fue = new Fue(nNodes);
-	_copym = new Copym(nNodes);
-	MLINK = new int[nNodes * 6];
-	_nodes = new double[nNodes*3];
-	memcpy(_nodes, nodes, sizeof(double) * nNodes * 3);
-	memset(MLINK, 0, nNodes * 6 * sizeof(int));
+	_fue = new Fue(nElements);
+	_copym = new Copym(nElements);
+	MLINK = new int[nElements * 6];
+	_nodes = new double[nElements*3];
+	memcpy(_nodes, gridElements, sizeof(double) * nElements * 3);
+	memset(MLINK, 0, nElements * 6 * sizeof(int));
 	for (int i = 0; i < nLinks * 2; i += 2)
 	{
 		double* node1 = &_nodes[3 * links[i]];
@@ -124,11 +124,20 @@ StressStrainFortranSolver::StressStrainFortranSolver
 		}
 	}
 	memset(_dataInternal, 0, _nVariables * 3 * sizeof(double));
-	for (int i = 0; i < nNodes; i++)
+
+	//// единичные матрицы поворота
+	//for (size_t i = 0; i < _nElements; i++)
+	//{
+	//	_dataRotationMtx[i * 9] = 1.;
+	//	_dataRotationMtx[i * 9 + 3 + 1] = 1.;
+	//	_dataRotationMtx[i * 9 + 6 + 2] = 1.;
+	//}
+
+	for (int i = 0; i < nElements; i++)
 	{
 		for (int j = 0; j < 3; j++)
 		{
-			_dataInternal[i * 6 + j] = nodes[i * 3 + j];
+			_dataInternal[i * vecStride2 + j] = gridElements[i * 3 + j];
 		}
 	}
 	intomsub();
@@ -165,7 +174,7 @@ void StressStrainFortranSolver::AddLinks
 		const int* links
 	)
 {
-	for (int i = 0; i < _nNodes * 6; i++)
+	for (int i = 0; i < _nElements * 6; i++)
 	{
 		MLINK[i] = links[i];
 	}
@@ -261,7 +270,7 @@ void StressStrainFortranSolver::UpdateBuffer
 {
 	GetScalarParameter(_data);
 
-	float* coordinatesData = _data + _nNodes;
+	float* coordinatesData = _data + _nElements;
 
 	GetVectorParameter(coordinatesData);
 }
@@ -278,13 +287,13 @@ void StressStrainFortranSolver::intomsub()
 
 //#pragma omp parallel for private(i) num_threads(NumThreads)
 	//std::cout << "                _nElements = " << _nElements << std::endl;
-	for (i = 0; i < _nNodes; i++)
+	for (i = 0; i < _nElements; i++)
 	{
 		urejl4s
 			(
 				&_dataRotationMtx[i * 9],
 				&_dataInternal[i * 6 + 3],
-				&_dataInternal[i * 6 + 3 + _nNodes * 6],
+				&_dataInternal[i * 6 + 3 + _nElements * 6],
 				METS,
 				i
 			);
@@ -1015,7 +1024,7 @@ void StressStrainFortranSolver::GetVectorParameter
 		double scaleFactor
 	)	const
 {
-	for (int nodeIndex = 0; nodeIndex < _nNodes; ++nodeIndex)
+	for (int nodeIndex = 0; nodeIndex < _nElements; ++nodeIndex)
 	{
 		const double* initialNodeCoordinates = _nodes + 3 * nodeIndex;
 		const double* currentNodeCoordinates = _dataInternal + 6 * nodeIndex;

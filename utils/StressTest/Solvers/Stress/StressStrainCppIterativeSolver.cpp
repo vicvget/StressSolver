@@ -24,11 +24,12 @@ StressStrainCppIterativeSolver::StressStrainCppIterativeSolver
 		double* params, 
 		int* links, 
 		int nLinks, 
-		double *nodes, 
-		int nNodes, 
+		double *gridElements, 
+		int nElements, 
 		double gridStep, 
 		double timeStep,
-		int numThreads
+		int numThreads,
+		int stride
 	)
 	:
 		StressStrainCppSolver
@@ -36,11 +37,12 @@ StressStrainCppIterativeSolver::StressStrainCppIterativeSolver
 				params,
 				links, 
 				nLinks, 
-				nodes, 
-				nNodes, 
+				gridElements, 
+				nElements, 
 				gridStep,
 				timeStep,
-				numThreads
+				numThreads,
+				stride
 			),
 		_iterationNumber(0)
 {
@@ -592,9 +594,9 @@ void StressStrainCppIterativeSolver::pravsubfl()
 //	) \
 //	num_threads(_numThreads)
 
-	for (j = 0; j < _nNodes; j++)
+	for (j = 0; j < _nElements; j++)
 	{
-		int accOffset = _nNodes * vecStride2 * 2 + j * vecStride2;
+		int accOffset = _nElements * vecStride2 * 2 + j * vecStride2;
 
 		for (i = 0; i < vecStride2; i++) // можно вынести
 			_dataInternal[accOffset + i] = 0.0;
@@ -635,9 +637,9 @@ void StressStrainCppIterativeSolver::pravsubfl()
 				}
 #else
 				_testTimer.Start(5);
-				linksh3(X1, X2, SL, VL, A, C, j, N2, _nNodes);
-				//linksh(X1, X2, SL, VL, A, C, j, N2, _nNodes);
-				//links_timeStep2(X1, X2, SL, VL, A, C, j, N2, _nNodes);
+				linksh3(X1, X2, SL, VL, A, C, j, N2, _nElements);
+				//linksh(X1, X2, SL, VL, A, C, j, N2, _nElements);
+				//links_timeStep2(X1, X2, SL, VL, A, C, j, N2, _nElements);
 				
 				//std::cout << "iter xx = " << _nIteration << " j=" << j << " N2=" << N2 << std::endl;
 				//for(int ii = 0; ii < 6; ii++)
@@ -653,7 +655,7 @@ void StressStrainCppIterativeSolver::pravsubfl()
 
 //#ifdef _DEBUG
 //				double SL1[6], VL1[6], A1[36], C1[36];
-//				linksh(X1, X2, SL1, VL1, A1, C1, j, N2, _nNodes);
+//				linksh(X1, X2, SL1, VL1, A1, C1, j, N2, _nElements);
 //				double eps = 1e-7;
 //				int debug, id;
 //				for(int iI = 0; iI < 6; iI++)
@@ -685,7 +687,7 @@ void StressStrainCppIterativeSolver::pravsubfl()
 						SL[k]=(fabs(GR1[j*6+k]-GR1[(N2-1)*6+k])-_gridStep);
 						if(j < (N2-1))
 							SL[k] = -SL[k];
-						VL[k]=(GR1[j*6+_nNodes*6+k]-GR1[(N2-1)*6+_nNodes*6+k]);
+						VL[k]=(GR1[j*6+_nElements*6+k]-GR1[(N2-1)*6+_nElements*6+k]);
 					}
 					else
 					{
@@ -756,7 +758,7 @@ void Stress::StressStrainCppIterativeSolver::ApplyBoundary()
 	//BCT_stresstrainBoundaryForce = 3,
 	//BCT_stresstrainBoundarySealing = 4,
 
-	double* dataPointer = _dataInternal + _nNodes * vecStride2 * 2;
+	double* dataPointer = _dataInternal + _nElements * vecStride2 * 2;
 	vector<BoundaryParams>::iterator it = _boundaryParamsSet.begin();
 
 	while (it != _boundaryParamsSet.end())
@@ -784,9 +786,9 @@ void StressStrainCppIterativeSolver::ApplyMass()
 	//_controlfp(0, EM_ZERODIVIDE);
 	//_control87(~_EM_ZERODIVIDE, _MCW_EM);
 #endif
-	double* accelerations = _dataInternal + _nNodes * vecStride2 * 2;
+	double* accelerations = _dataInternal + _nElements * vecStride2 * 2;
 
-	for (int i = 0; i < _nNodes; i++)
+	for (int i = 0; i < _nElements; i++)
 	{
 		for (int j = 0; j < 3; j++)
 		{
