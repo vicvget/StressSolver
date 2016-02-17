@@ -2,12 +2,13 @@
 #include "StressStrainFortranIterativeSolver.h"
 #include "StressStrainCppIterativeSolver.h"
 #include <cmath>
+#include "../../AdditionalModules/fmath/Vector3.h"
 
 #define M_PI 3.1415926535897932384626433832795
 using std::setw;
 
 // X1,Y2,Z3 rotation (airplane angles)
-void MakeRotationMatrix(double UE[3], double* a)
+void MakeRotationMatrix(double UE[3], double* a, int stride)
 {
 	const int id = 0;
 	double xc = cos(UE[id]);
@@ -19,8 +20,8 @@ void MakeRotationMatrix(double UE[3], double* a)
 
 
 	double* firstRow = a;
-	double* secondRow = a + vecStride;
-	double* thirdRow = a + vecStride * 2;
+	double* secondRow = a + stride;
+	double* thirdRow = a + stride * 2;
 
 	firstRow[0] = yc*zc;
 	firstRow[1] = -yc*zs;
@@ -41,9 +42,14 @@ int main()
 	int links[1];
 	double nLinks = 0;
 	double nodes[300];
-	int nNodes = 100;
+	int nElements = 100;
+	double gridStep = 1;
+	double timeStep = 1;
+	double nThreads = 1;
+	double for_stride = 3;
+	double cpp_stride = 4;
 
-	for (int i = 0; i < nNodes*3; i++)
+	for (int i = 0; i < nElements*3; i++)
 	{
 		nodes[i] = rand();
 
@@ -55,46 +61,65 @@ int main()
 		links,
 		nLinks,
 		nodes,
-		nNodes,
-		1,
-		1,
-		1
+		nElements,
+		gridStep,
+		timeStep,
+		nThreads,
+		cpp_stride
 		);
 
-	StressStrainFortranIterativeSolver* hsolver = new StressStrainFortranIterativeSolver
+	StressStrainFortranIterativeSolver* forSolver = new StressStrainFortranIterativeSolver
 		(
 		params,
 		links,
 		nLinks,
 		nodes,
-		nNodes,
-		1,
-		1,
-		1
+		nElements,
+		gridStep,
+		timeStep,
+		nThreads,
+		for_stride
 		);
 
 	double UE[3];
-	for (int i = 0; i < nNodes; i++)
+	for (int i = 0; i < nElements; i++)
 	{
 		for (int j = 0; j < 3; j++)
 		{
 			UE[j] = ((double)rand())/RAND_MAX * 2*M_PI;
 		}
-		MakeRotationMatrix(UE, cppSolver->_dataRotationMtx + matStride * i);
+		MakeRotationMatrix(UE, cppSolver->GetRotationMatrix(i), cpp_stride);
+		MakeRotationMatrix(UE, forSolver->GetRotationMatrix(i), for_stride);
 	}
 
-	for (int i = 0; i < nNodes; i++)
+	for (int i = 0; i < nElements; i++)
 	{
 		for (int j = 0; j < 3; j++)
 		{
-			*(cppSolver->GetElementVelocity(i)+j) = rand();
-			*(cppSolver->GetElementVelocityAngular(i)+ j) = rand();
+			double v = (double)rand() / RAND_MAX * 100;
+			double w = (double)rand() / RAND_MAX * 100;
+			*(cppSolver->GetElementVelocity(i) + j) = v;
+			*(cppSolver->GetElementVelocityAngular(i)+ j) = w;
+			*(forSolver->GetElementVelocity(i) + j) = v;
+			*(forSolver->GetElementVelocityAngular(i) + j) = w;
 		}
 
 	}
 
+	__declspec(align(32)) double SL[8] = { 0 }, VL[8] = { 0 };
+	__declspec(align(32)) double SL2[8] = { 0 }, VL2[8] = { 0 };
+	__declspec(align(32)) double SL3[8] = { 0 }, VL3[8] = { 0 };
+	__declspec(align(32)) double SL4[8] = { 0 }, VL4[8] = { 0 };
+	__declspec(align(32)) double SL5[8] = { 0 }, VL5[8] = { 0 };
+	double rx, ry, rz;
 
-	__declspec(align(32)) double SL[8] = { 0 }, SL2[8] = { 0 }, VL[8] = { 0 }, VL2[8] = { 0 }, rx, ry, rz;
+	double cVec1[] = { -gridStep * 0.5, 0, 0 };
+	double cVec2[] = { gridStep * 0.5, 0, 0 };
+	double A[36], C[36];
+
+	forSolver->linksh(cVec1, cVec2, SL3, VL3, A, C, 0, 1, nElements);
+	forSolver->linksh2(cVec1, cVec2, SL4, VL4, A, C, 0, 1, nElements);
+	forSolver->linksh3(cVec1, cVec2, SL5, VL5, A, C, 0, 1, nElements);
 
 	cppSolver->linksh4
 		(
@@ -106,7 +131,7 @@ int main()
 		rz,		// выход 
 		0,	// номер узла 1
 		1,	// номер узла 2
-		nNodes		// количество узлов
+		nElements		// количество
 		);
 
 
@@ -120,17 +145,32 @@ int main()
 		rz,		// выход 
 		0,	// номер узла 1
 		1,	// номер узла 2
-		nNodes		// количество узлов
+		nElements		// количество узлов
 		);
 
 	const int width = 9;
-	for (int i = 0; i < vecStride; i++)
+	std::cout << "SL\n";
+	for (int i = 0; i < 3; i++)
 	{
-		std::cout << setw(9) << SL[i] << " " << setw(9) << SL2[i] << std::endl;
-		std::cout << setw(9) << VL[i] << " " << setw(9) << VL2[i] << std::endl;
+		std::cout << setw(width) << SL[i] << " "
+			<< setw(width) << SL2[i] << " "
+			<< setw(width) << SL3[i] << " "
+			<< setw(width) << SL4[i] << " "
+			<< setw(width) << SL5[i] << " "
+			<< std::endl;
+	}
+	std::cout << "VL\n";
+	for (int i = 0; i < 3; i++)
+	{
+			std::cout << setw(width) << VL[i] << " "
+					<< setw(width) << VL2[i] << " "
+					<< setw(width) << VL3[i] << " "
+					<< setw(width) << VL4[i] << " "
+					<< setw(width) << VL5[i] << " "
+					<< std::endl;
 	}
 
-	delete hsolver;
+	delete forSolver;
 	delete cppSolver;
 
 	return 0;

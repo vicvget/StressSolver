@@ -23,28 +23,28 @@ namespace stress
 #define MAX(x, y) ((x) > (y) ? x : y)
 	double DMOD(const double d1, const double d2);
 
-#ifdef ALIGNED_MEM
-	const size_t vecStride = 4;				// смещение векторов
-#else
-	const size_t vecStride = 3;				// смещение векторов
-#endif
-
-	const size_t matStride = vecStride * 3; // смещения матриц поворота (3x3, 3x4)
-	const size_t vecStride2 = vecStride * 2; // смещение векторов неизвестных для узла((3+0)X, (3+0)R)
-	const size_t alignment = 32;
+//#ifdef ALIGNED_MEM
+//	const size_t vecStride = 4;				// смещение векторов
+//#else
+//	const size_t vecStride = 3;				// смещение векторов
+//#endif
+//
+//	const size_t matStride = vecStride * 3; // смещения матриц поворота (3x3, 3x4)
+//	const size_t vecStride2 = vecStride * 2; // смещение векторов неизвестных для узла((3+0)X, (3+0)R)
+//	const size_t alignment = 32;
 }
 
 #define MAX(x, y) ((x) > (y) ? x : y)
 double DMOD(const double d1, const double d2);
 
-#ifdef ALIGNED_MEM
-const size_t vecStride = 4;				// смещение векторов
-#else
-const size_t vecStride = 3;				// смещение векторов
-#endif
+//#ifdef ALIGNED_MEM
+//const size_t vecStride = 4;				// смещение векторов
+//#else
+//const size_t vecStride = 3;				// смещение векторов
+//#endif
 
-const size_t matStride = vecStride * 3; // смещения матриц поворота (3x3, 3x4)
-const size_t vecStride2 = vecStride * 2; // смещение векторов неизвестных для узла((3+0)X, (3+0)R)
+//const size_t matStride = vecStride * 3; // смещения матриц поворота (3x3, 3x4)
+//const size_t vecStride2 = vecStride * 2; // смещение векторов неизвестных для узла((3+0)X, (3+0)R)
 const size_t alignment = 32;
 
 
@@ -60,9 +60,14 @@ protected:
 	int _nWriteIteration;
 public:
 
+	size_t vecStride;
+	size_t vecStride2;
+	size_t matStride;
+
 	StressStrainSolver
 		(
-			int const nNodes
+			int const nNodes,
+			int stride
 		);
 
 
@@ -276,8 +281,17 @@ public:
 	double* _dataRotationMtx;	// матрицы поворота для расчета
 	int _dataSize;
 	double* _stress;			// напряжения
-	int _nNodes;				// число узлов
+	int _nElements;				// число элементов
 
+
+	virtual double* GetElementStress(int elementId) const;
+	virtual double* GetElementShift(int elementId) const;
+	virtual double* GetElementVelocity(int elementId) const;
+	virtual double* GetElementAcceleration(int elementId) const;
+	virtual double* GetElementShiftAngular(int elementId) const;
+	virtual double* GetElementVelocityAngular(int elementId) const;
+	virtual double* GetElementAccelerationAngular(int elementId) const;
+	virtual double* GetRotationMatrix(int elementId) const;
 };
 
 #endif

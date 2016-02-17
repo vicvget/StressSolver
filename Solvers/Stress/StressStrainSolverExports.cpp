@@ -18,8 +18,8 @@ namespace Stress
 	/** Инициализация
 	* @param params - параметры
 	* @param links - связи
-	* @params nNodes - количество узлов
-	* @params nodes - координаты узлов (тройки чисел)
+	* @params nElements - количество элементов
+	* @params elements - координаты элементов (тройки чисел)
 	*
 	* @return указатель на решатель
 	*/
@@ -29,8 +29,8 @@ namespace Stress
 		double* params,
 		int* links,
 		int nLinks,
-		double *nodes,
-		int nNodes,
+		double *gridElements,
+		int nElements,
 		double gridStep,
 		double timeStep,
 		int procType,
@@ -48,11 +48,12 @@ namespace Stress
 				params,
 				links,
 				nLinks,
-				nodes,
-				nNodes,
+				gridElements,
+				nElements,
 				gridStep,
 				timeStep,
-				numThreads
+				numThreads,
+				3
 				);
 		}
 		else if (solverType == 1)
@@ -62,8 +63,8 @@ namespace Stress
 				params,
 				links,
 				nLinks,
-				nodes,
-				nNodes,
+				gridElements,
+				nElements,
 				gridStep,
 				timeStep,
 				numThreads
@@ -76,8 +77,8 @@ namespace Stress
 				params,
 				links,
 				nLinks,
-				nodes,
-				nNodes,
+				gridElements,
+				nElements,
 				gridStep,
 				timeStep,
 				numThreads
@@ -90,11 +91,12 @@ namespace Stress
 				params,
 				links,
 				nLinks,
-				nodes,
-				nNodes,
+				gridElements,
+				nElements,
 				gridStep,
 				timeStep,
-				numThreads
+				numThreads,
+				4
 				);			
 		}
 		return (void*)hsolver;

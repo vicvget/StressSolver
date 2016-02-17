@@ -32,7 +32,11 @@ struct Fue
 	double* FLAGRY;
 	int IFLAGRY;
 
-	Fue	(const int nNodes)
+	int vecStride, vecStride2, matStride;
+	Fue	(const int nNodes, int stride):
+		vecStride(stride),
+		vecStride2(stride * 2),
+		matStride(stride * 3)
 	{
 		const size_t matSize = nNodes*matStride*sizeof(double);
 		R =  (double*)_aligned_malloc(matSize,alignment);
@@ -201,7 +205,11 @@ struct Copym
 	double* AZ;
 	double T0;
       
-	Copym(const int nNodes)
+	int vecStride, vecStride2, matStride;
+	Copym(const int nNodes, int stride) :
+		vecStride(stride),
+		vecStride2(stride * 2),
+		matStride(stride * 3)
 	{
 		isFirstCopy = new bool [nNodes];
 		for(int i = 0 ; i < nNodes; i++)
@@ -262,7 +270,8 @@ public:
 			int nNodes,
 			double gridStep, 
 			double timeStep,
-			int numThreads
+			int numThreads,
+			int stride
 		);
 
 	virtual
@@ -347,7 +356,6 @@ public:
 	Fue* _fue;			// структура для уравнений Эйлера
 	Copym* _copym;		// структура для копирования ???
 
-	int _nElements;		// количество узлов
 	int _nVariables;	// количество неизвестных
 	int _nIteration;	// номер итерации
 	int _stageRK;		// шаг Рунге Кутты 4
@@ -461,42 +469,6 @@ public:
 
 	void FindStressStrainMatrix();
 //protected:
-	inline double* GetElementStress(int elementId)
-	{
-		return _stress + (elementId * vecStride2);
-	}
-
-
-	inline double* GetElementShift(int elementId)
-	{
-		return _dataInternal + (elementId * vecStride2);
-	}
-
-	inline double* GetElementVelocity(int elementId)
-	{
-		return _dataInternal + (_nElements * vecStride2 + elementId * vecStride2);
-	}
-
-	inline double* GetElementAcceleration(int elementId)
-	{
-		return _dataInternal +(_nElements * vecStride2 * 2 + elementId * vecStride2);
-	}
-
-	inline double* GetElementShiftAngular(int elementId)
-	{
-		return _dataInternal + (elementId * vecStride2 + vecStride);
-	}
-
-	inline double* GetElementVelocityAngular(int elementId)
-	{
-		return _dataInternal + (_nElements * vecStride2 + elementId * vecStride2 + vecStride);
-	}
-
-	inline double* GetElementAccelerationAngular(int elementId)
-	{
-		return _dataInternal + (_nElements * vecStride2 * 2 + elementId * vecStride2 + vecStride);
-	}
-
 
 };
 };

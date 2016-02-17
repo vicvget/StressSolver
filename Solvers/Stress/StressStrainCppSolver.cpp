@@ -78,17 +78,17 @@ StressStrainCppSolver::StressStrainCppSolver
 		int* links,			// индексы элементов связей (пары)
 		int nLinks,			// число связей
 		double *nodes,		// координаты узлов
-		int nNodes,			// число узлов
+		int nElements,		// число узлов
 		double gridStep,	// шаг сетки
 		double timeStep,	// шаг по времени
-		int numThreads		// число потоков
+		int numThreads,		// число потоков
+		int stride
 	)
 	:
-		StressStrainSolver(nNodes),
+		StressStrainSolver(nElements, stride),
 		_isFirstSolution(true),
 		_isFirstIteration(true),
 		_nIteration(0),
-		_nElements(nNodes),
 		_poissonRatio(0.),
 		_stageRK(0),                // этап вычисления итерации РК4 (0-3)
 		_time(0),					// время
@@ -105,7 +105,7 @@ StressStrainCppSolver::StressStrainCppSolver
 	std::cout << "------------- CPP SOLVER IS CREATED ---------------------------" << std::endl
 		<< "VECSTRIDE =" << vecStride << std::endl << std::endl;
 	
-	_nVariables = nNodes * vecStride2;
+	_nVariables = nElements * vecStride2;
 
 	// масштабный коэффициент
 	_gridStep2 = _gridStep * _gridStep;
@@ -142,8 +142,8 @@ StressStrainCppSolver::StressStrainCppSolver
 	//R = new double[_nVariables];
 	//RZ = new double[_nVariables];
 	//R1Z = new double[_nVariables];
-	_fue = new Fue(nNodes);
-	_copym = new Copym(nNodes);
+	_fue = new Fue(nElements, stride);
+	_copym = new Copym(nElements, stride);
 
 	// Связанные элементы: порядок x-,y-,z-,x+,y+,z+ 
 	// Нумерация с 1, если 0, то связь отсутствует
@@ -153,12 +153,12 @@ StressStrainCppSolver::StressStrainCppSolver
 	//    |
 	//    4
 	// [2] = z-, [5] = z+
-	_linkedElements = new int[nNodes * 6];
+	_linkedElements = new int[nElements * 6];
 
 	// копируем координаты узлов сетки
-	_elements = new double[nNodes*3];
-	memcpy(_elements, nodes, sizeof(double) * nNodes * 3);
-	memset(_linkedElements, 0, nNodes * 6 * sizeof(int));
+	_elements = new double[nElements*3];
+	memcpy(_elements, nodes, sizeof(double) * nElements * 3);
+	memset(_linkedElements, 0, nElements * 6 * sizeof(int));
 	for (int i = 0; i < nLinks * 2; i += 2)
 	{
 		// номера элементов в связях
@@ -188,7 +188,7 @@ StressStrainCppSolver::StressStrainCppSolver
 		}
 	}
 	memset(_dataInternal, 0, _nVariables * 3 * sizeof(double));
-	for (int i = 0; i < nNodes; i++)
+	for (int i = 0; i < nElements; i++)
 	{
 		for (int j = 0; j < 3; j++)
 		{
@@ -417,7 +417,7 @@ void StressStrainCppSolver::MatrixMul
 		double *a2
 	)
 {
-	double tmp[matStride];
+	double tmp[16];
 	memcpy(&tmp[0], a2, sizeof(double)*matStride);
 	for (int row = 0; row < 3; row++)
 	{

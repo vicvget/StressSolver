@@ -45,7 +45,8 @@ StressStrainFortranStaticsSolver::StressStrainFortranStaticsSolver
 				nNodes, 
 				gridStep,
 				timeStep,
-				numThreads
+				numThreads,
+				3
 			)
 {
 	InitSolveLES();
@@ -66,7 +67,7 @@ void StressStrainFortranStaticsSolver::Solve
 	double* GR1 = _dataInternal;
 	double H2 = H * 0.5;
 	double H4 = H * 0.25;
-	int N = _nNodes * 6;
+	int N = _nElements * 6;
 
 	int iteration = 0;
 	int nIterationModifier = 1;
@@ -84,7 +85,7 @@ void StressStrainFortranStaticsSolver::Solve
 	this->SolveLes();
 	//_mtx.Print();
 	//_mtx.PrintPortrait();
-	for (int i = 0; i < _nNodes*6; i++)
+	for (int i = 0; i < _nElements*6; i++)
 	{
 		//_dataInternal[i] += (_mtx.x[i] / (_elasticModulus / (_gridStep * _gridStep)));
 		_dataInternal[i] += (_mtx.x[i] / (_elasticModulus * _gridStep));
@@ -171,7 +172,7 @@ void StressStrainFortranStaticsSolver::GetStressesByFirstTheoryOfStrength
 	double fullRelativeShift;
 	double maxRelativeShift = 0;
 
-	for (int i = 0; i < _nNodes; i++)
+	for (int i = 0; i < _nElements; i++)
 	{
 		for (int j = 0; j < 3; j++)
 		{
@@ -280,7 +281,7 @@ void StressStrainFortranStaticsSolver::InitSolveLES()
 {
 	if(_isFirstSolution)
 	{
-		_mtx.Allocate3d(_nNodes);
+		_mtx.Allocate3d(_nElements);
 
 		_isFirstSolution = false;
 	}
@@ -420,11 +421,11 @@ void StressStrainFortranStaticsSolver::pravsubfl()
 	memset(_mtx.ia,0,sizeof(int)*(_mtx._size+1));
 
 	#pragma omp parallel for private(NADU,j,i,DX,DY,DZ,X1,X2,SL,VL,A,C,N2,SILA) num_threads(NumThreads)
-	for (j=0;j<_nNodes;j++)
+	for (j=0;j<_nElements;j++)
 	{    
 		_stress[j] = 0;
 		// NAD=j*6;
-		NADU=_nNodes*2*6+j*6;         
+		NADU=_nElements*2*6+j*6;         
 
 		for (i=0;i<6;i++) // можно вынести
 		{
@@ -462,7 +463,7 @@ void StressStrainFortranStaticsSolver::pravsubfl()
 					VL[i]=0;
 				}
 #else
-				linksh(X1,X2,SL,VL,A,C,j,N2,_nNodes);
+				linksh(X1,X2,SL,VL,A,C,j,N2,_nElements);
 				
 				Genmatl(j,N2,A,C);
 				//std::cout << "Node: " << j << " EOF Genmatl\n";

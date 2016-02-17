@@ -248,7 +248,8 @@ public:
 			int nNodes,
 			double gridStep, 
 			double timeStep,
-			int numThreads
+			int numThreads,
+			int stride
 		);
 
 	virtual
@@ -305,7 +306,7 @@ public:
 #pragma endregion
 
 
-protected:
+public:
 
 	bool _isFirstSolution;
 	vector<BoundaryParams> _boundaryParamsSet;
@@ -332,7 +333,6 @@ protected:
 	Fue* _fue;
 	Copym* _copym;
 
-	int _nNodes;
 	int _nVariables;
 	int _nIteration;
 	int METS;
@@ -427,6 +427,17 @@ protected:
 			float* coordinatesData,
 			double scaleFactor = 1.0
 		)	const;
+
+//public:
+//	virtual double* GetElementVelocity(int elementId) const
+//	{
+//		return _dataInternal + (_nElements * vecStride2 + elementId * vecStride2);
+//	}
+//	virtual double* GetElementVelocityAngular(int elementId) const
+//	{
+//		return _dataInternal + (_nElements * vecStride2 + elementId * vecStride2 + vecStride);
+//	}
+
 
 };
 #endif

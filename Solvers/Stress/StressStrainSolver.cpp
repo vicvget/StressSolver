@@ -8,14 +8,23 @@ using std::ofstream;
 
 StressStrainSolver::StressStrainSolver
 	(
-		int const nNodes
+		int const nNodes,
+		int stride = 4
 	)
 	:
 		_dataSize(nNodes * 4),
-		_nNodes(nNodes),
+		_nElements(nNodes),
 		_readIco(false),
-		_writeIco(false)
+		_writeIco(false),
+		vecStride(stride),
+		vecStride2(stride*2),
+		matStride(stride*3)
 {
+
+const size_t vecStride = 4;				// смещение векторов
+const size_t vecStride2 = vecStride * 2;
+const size_t matStride = vecStride * 3; // смещения матриц поворота (3x3, 3x4)
+
 	_data = new float[_dataSize];
 
 	size_t dataInternalSize		= sizeof(double)*nNodes * vecStride2 * 3;
@@ -33,7 +42,7 @@ StressStrainSolver::StressStrainSolver
 	memset(_dataInternal, 0, dataInternalSize);
 
 	// единичные матрицы поворота
-	for(size_t i = 0; i < _nNodes; i++)
+	for(size_t i = 0; i < _nElements; i++)
 	{
 		_dataRotationMtx[i * matStride] = 1.;
 		_dataRotationMtx[i * matStride + vecStride + 1] = 1.;
@@ -43,7 +52,7 @@ StressStrainSolver::StressStrainSolver
 
 void StressStrainSolver::SetZeroVelocities()
 {
-	memset(_dataInternal + _nNodes * vecStride2, 0, sizeof(double)*_nNodes * vecStride2);
+	memset(_dataInternal + _nElements * vecStride2, 0, sizeof(double)*_nElements * vecStride2);
 }
 
 
@@ -97,9 +106,9 @@ void StressStrainSolver::WriteIco(const char* fileName) const
 
 	if(ofs.is_open())
 	{
-		ofs.write((char*)&_nNodes, sizeof(int));
-		ofs.write((char*)dataPointer, _nNodes*sizeof(double)*6);
-		ofs.write((char*)mtxPointer, _nNodes*sizeof(double)*9);
+		ofs.write((char*)&_nElements, sizeof(int));
+		ofs.write((char*)dataPointer, _nElements*sizeof(double)*6);
+		ofs.write((char*)mtxPointer, _nElements*sizeof(double)*9);
 		ofs.close();
 	}
 }
@@ -117,7 +126,7 @@ int StressStrainSolver::GetMemorySize() const
 
 double* StressStrainSolver::GetDataInternal(DataType dataType) const
 {
-	return _dataInternal + _nNodes * vecStride2 * (int)dataType;
+	return _dataInternal + _nElements * vecStride2 * (int)dataType;
 }
 
 double* StressStrainSolver::GetDataRotaionMtx() const
@@ -135,7 +144,7 @@ double StressStrainSolver::GetData
 {
 	//std::cout << _dataInternal[_nElements * 6 * type + nNode + dir] << std::endl;
 
-	return _dataInternal[_nNodes * vecStride2 * type + nNode * vecStride2 + dir];
+	return _dataInternal[_nElements * vecStride2 * type + nNode * vecStride2 + dir];
 }
 
 /** Получить скалярный параметр
@@ -149,4 +158,53 @@ void StressStrainSolver::GetScalarParameter
 {
 	//GetStressesByVonMises(data);
 	GetStressesByFirstTheoryOfStrength(data);
+}
+
+
+//virtual 
+double* StressStrainSolver::GetElementStress(int elementId) const
+{
+	return _stress + (elementId * vecStride2);
+}
+
+//virtual 
+double* StressStrainSolver::GetElementShift(int elementId) const
+{
+	return _dataInternal + (elementId * vecStride2);
+}
+
+//virtual 
+double* StressStrainSolver::GetElementVelocity(int elementId) const
+{
+	return _dataInternal + (_nElements * vecStride2 + elementId * vecStride2);
+}
+
+//virtual 
+double* StressStrainSolver::GetElementAcceleration(int elementId) const
+{
+	return _dataInternal + (_nElements * vecStride2 * 2 + elementId * vecStride2);
+}
+
+//virtual 
+double* StressStrainSolver::GetElementShiftAngular(int elementId) const
+{
+	return _dataInternal + (elementId * vecStride2 + vecStride);
+}
+
+//virtual 
+double* StressStrainSolver::GetElementVelocityAngular(int elementId) const
+{
+	return _dataInternal + (_nElements * vecStride2 + elementId * vecStride2 + vecStride);
+}
+
+//virtual 
+double* StressStrainSolver::GetElementAccelerationAngular(int elementId) const
+{
+	return _dataInternal + (_nElements * vecStride2 * 2 + elementId * vecStride2 + vecStride);
+}
+
+//virtual 
+double* StressStrainSolver::GetRotationMatrix(int elementId) const
+{
+	return _dataRotationMtx + (elementId * matStride);
 }
