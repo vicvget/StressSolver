@@ -2,6 +2,7 @@
 #include "Strides.h"
 
 #include <cmath>
+#include <algorithm>
 
 
 namespace MathHelpers
@@ -182,6 +183,12 @@ namespace MathHelpers
 
 		return res;
 	}
+
+	void Mat3x4::Export(double* data) const
+	{
+		std::copy(_mat, _mat + STRIDE3X4, data);
+	}
+
 
 	void Mat3x4::FImport(float* array)
 	{

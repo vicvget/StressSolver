@@ -119,7 +119,7 @@ int main()
 
 	forSolver->linksh(cVec1, cVec2, SL3, VL3, A, C, 0, 1, nElements);
 	forSolver->linksh2(cVec1, cVec2, SL4, VL4, A, C, 0, 1, nElements);
-	forSolver->linksh3(cVec1, cVec2, SL5, VL5, A, C, 0, 1, nElements);
+	cppSolver->linksh3(cVec1, cVec2, SL5, VL5, A, C, 0, 1, nElements);
 
 	cppSolver->linksh4
 		(
@@ -149,7 +149,7 @@ int main()
 		);
 
 	const int width = 9;
-	std::cout << "SL\n";
+	std::cout << "SL l4 " << setw(width) << "lavx " << setw(width) << "l1" << setw(width) << "l2" << setw(width) << "l3\n";
 	for (int i = 0; i < 3; i++)
 	{
 		std::cout << setw(width) << SL[i] << " "
@@ -169,6 +169,8 @@ int main()
 					<< setw(width) << VL5[i] << " "
 					<< std::endl;
 	}
+
+	//cppSolver->Solve(10000);
 
 	delete forSolver;
 	delete cppSolver;
