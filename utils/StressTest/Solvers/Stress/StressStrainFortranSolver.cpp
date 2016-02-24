@@ -677,8 +677,9 @@ void StressStrainFortranSolver::linksh3
 	Vec3Ref vecC1 = MakeVec3(cVec1);					 // координаты точки св€зи узла 1
 	Vec3Ref vecC2 = MakeVec3(cVec2);					 // координаты точки св€зи узла 2
 	
+	//matA02.Tr();
+	//matA01.Tr();
 	Mat3 matA12 = matA01.Tmul(matA02);					 // A_{12} = A^T_{01}xA_{02}
-
 	double *pVec1 = _dataInternal + nodeOffset1;	     // адрес смещение до вектора неизвестных тела nodeId1
 	double *pVec2 = _dataInternal + nodeOffset2;		 // адрес смещение до вектора неизвестных тела nodeId2
 	Vec3Ref vecP1 = MakeVec3(pVec1);					 // поступательные координаты тела nodeId1
@@ -691,11 +692,18 @@ void StressStrainFortranSolver::linksh3
 	Vec3Ref vecW2 = MakeVec3(pVec2 + strideDeriv + strideVec);	 // угловые скорости тела nodeId2
 
 	// переводим вектор линии точек св€зи —2-—1 в — 1
-	Vec3 vecT0 = vecC1 - matA12*vecC2 - matA01.Tmul(vecP2 - vecP1);
+	Vec3 vecT0 = 
+		vecC1 
+		- matA12*vecC2 
+		- matA01.Tmul(vecP2 - vecP1);
+	
 	vecT0.Export(SL);
 
 	// переводим вектор разницы линейных скоростей точек св€зи —2-—1 в — 1
-	Vec3 VecT1 = matA01.Tmul(vecV1 - vecV2) + vecC1.Cross(vecW1) - matA12*(vecC2.Cross(vecW1));
+	Vec3 VecT1 = matA01.Tmul(vecV1 - vecV2) 
+		+ vecC1.Cross(vecW1) 
+		- matA12*(vecC2.Cross(vecW2));
+
 	VecT1.Export(VL);
 
 	// дл€ угловых степеней свободы - просто берутс€ разница углов и угловых скоростей

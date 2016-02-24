@@ -417,24 +417,34 @@ void StressStrainCppSolver::MatrixMul
 		double *a2
 	)
 {
-	double tmp[16];
-	memcpy(&tmp[0], a2, sizeof(double)*matStride);
-	for (int row = 0; row < 3; row++)
-	{
-		for (int col = 0; col < 3; col++)  
-		{
-			a2[row * vecStride + col] = 0.;
-			for(int k = 0; k < 3; k ++)
-			{
-				a2[row * vecStride + col] += a1[row * vecStride + k] * tmp[vecStride * k + col];
-			}
-		}
-	}
+	//double tmp[16];
+	//memcpy(&tmp[0], a2, sizeof(double)*matStride);
+	//for (int row = 0; row < 3; row++)
+	//{
+	//	for (int col = 0; col < 3; col++)  
+	//	{
+	//		a2[row * vecStride + col] = 0.;
+	//		for(int k = 0; k < 3; k ++)
+	//		{
+	//			a2[row * vecStride + col] += a1[row * vecStride + k] * tmp[vecStride * k + col];
+	//		}
+	//	}
+	//}
 
-	//Mat3 mtx1(a1);
-	//Mat3 mtx2(a2);
-	//Mat3 mtx3 = mtx1 * mtx2;
-	//mtx3.Export(a2);
+	if (vecStride == 3)
+	{
+		Mat3 mtx1(a1);
+		Mat3 mtx2(a2);
+		Mat3 mtx3 = mtx1 * mtx2;
+		mtx3.Export(a2);
+	}
+	else
+	{
+		Mat3x4 mtx1(a1);
+		Mat3x4 mtx2(a2);
+		Mat3x4 mtx3 = mtx1 * mtx2;
+		mtx3.Export(a2);
+	}
 }
 
 void CrossProduct
@@ -584,16 +594,19 @@ int nNodes		// количество узлов
 	// vecC2.Cross(vecW1) = -vecC1.Cross(vecW1)
 
 	__declspec(align(32)) double cp1[4] = {0};	// векторное произведение
+	__declspec(align(32)) double cp2[4] = { 0 };	// векторное произведение
 
-	CrossProduct(pNodeVectors, _dataInternal + nodeOffset1 + strideDeriv + 3, &cp1[0]);	// [cVec x w]
+	CrossProduct(pNodeVectors, _dataInternal + nodeOffset1 + strideDeriv + vecStride, &cp1[0]);	// [cVec x w]
+	CrossProduct(pNodeVectors, _dataInternal + nodeOffset2 + strideDeriv + vecStride, &cp2[0]);	// [cVec x w]
 	__m256d cp1r = _mm256_load_pd(&cp1[0]);
+	//__m256d cp2r = _mm256_load_pd(&cp2[0]);
 	__m256d vecDV = _mm256_sub_pd(
 		_mm256_load_pd(_dataInternal + nodeOffset1 + strideDeriv),
 		_mm256_load_pd(_dataInternal + nodeOffset2 + strideDeriv)); // V1-V2
 
-	matA02el1 = _mm256_set1_pd(cp1[0]);
-	matA02el2 = _mm256_set1_pd(cp1[1]);
-	matA02el3 = _mm256_set1_pd(cp1[2]);
+	matA02el1 = _mm256_set1_pd(cp2[0]);
+	matA02el2 = _mm256_set1_pd(cp2[1]);
+	matA02el3 = _mm256_set1_pd(cp2[2]);
 
 	matA02el1 = _mm256_mul_pd(matA21row1, matA02el1);
 	matA02el2 = _mm256_mul_pd(matA21row2, matA02el2);
@@ -677,22 +690,28 @@ int nNodes		// количество узлов
 	Vec3Ref vecR2 = MakeVec3(pVec2 + vecStride);
 	Vec3Ref vecV1 = MakeVec3(pVec1 + strideDeriv);
 	Vec3Ref vecV2 = MakeVec3(pVec2 + strideDeriv);
-	Vec3Ref vecW1 = MakeVec3(pVec1 + strideDeriv + 3);
-	Vec3Ref vecW2 = MakeVec3(pVec2 + strideDeriv + 3);
+	Vec3Ref vecW1 = MakeVec3(pVec1 + strideDeriv + vecStride);
+	Vec3Ref vecW2 = MakeVec3(pVec2 + strideDeriv + vecStride);
 #ifdef DEBUG_OUT
 	PrintMatrix(matA01, "A01=");
 	PrintMatrix(matA02, "A02=");
 	PrintMatrix(matA21, "A21=");
 #endif
 	// переводим вектор линии точек связи С2-С1 в СК1
-	Vec3 vecT0 = vecC1 - matA21.Tmul(vecC2) - matA01.Tmul(vecP2 - vecP1);
+	Vec3 vecT0 = 
+		vecC1 
+		- matA21.Tmul(vecC2) 
+		- matA01.Tmul(vecP2 - vecP1);
 
 	Vec3 v1 = matA21.Tmul(vecC2);
 	Vec3 v2 = matA01.Tmul(vecP2 - vecP1);
 
 	vecT0.Export(SL);
 	// переводим вектор разницы линейных скоростей точек связи С2-С1 в СК1
-	Vec3 VecT1 = matA01.Tmul(vecV1 - vecV2) + vecC1.Cross(vecW1) - matA21.Tmul(vecC2.Cross(vecW1));
+	Vec3 VecT1 = matA01.Tmul(vecV1 - vecV2) 
+		+ vecC1.Cross(vecW1) 
+		- matA21.Tmul(vecC2.Cross(vecW2));
+	
 	VecT1.Export(VL);
 
 	Vec3 v3 = vecC2.Cross(vecW1);
@@ -784,14 +803,14 @@ void StressStrainCppSolver::linksh3
 		int nNodes		// количество узлов
 	)
 {	
-	unsigned int strideVec = 3;
-	unsigned int strideMat = strideVec * strideVec;
-	unsigned int strideDeriv = nNodes * 2 * strideVec;
-	unsigned int nodeOffset1 = nodeId1 * 2 * strideVec;
-	unsigned int nodeOffset2 = nodeId2 * 2 * strideVec;
+	//unsigned int strideVec = 3;
+	//unsigned int strideMat = strideVec * strideVec;
+	unsigned int strideDeriv = nNodes * 2 * vecStride;
+	unsigned int nodeOffset1 = nodeId1 * 2 * vecStride;
+	unsigned int nodeOffset2 = nodeId2 * 2 * vecStride;
 	
-	Mat3 matA01(_dataRotationMtx + nodeId1 * strideMat);
-	Mat3 matA02(_dataRotationMtx + nodeId2 * strideMat);
+	Mat3 matA01(_dataRotationMtx + nodeId1 * matStride);
+	Mat3 matA02(_dataRotationMtx + nodeId2 * matStride);
 	Vec3Ref vecC1 = MakeVec3(cVec1);
 	Vec3Ref vecC2 = MakeVec3(cVec2);
 	Mat3 matA12 = matA01.Tmul(matA02);
@@ -800,19 +819,26 @@ void StressStrainCppSolver::linksh3
 	double *pVec2 = _dataInternal + nodeOffset2;
 	Vec3Ref vecP1 = MakeVec3(pVec1);
 	Vec3Ref vecP2 = MakeVec3(pVec2);
-	Vec3Ref vecR1 = MakeVec3(pVec1 + strideVec);
-	Vec3Ref vecR2 = MakeVec3(pVec2 + strideVec);
+	Vec3Ref vecR1 = MakeVec3(pVec1 + vecStride);
+	Vec3Ref vecR2 = MakeVec3(pVec2 + vecStride);
 	Vec3Ref vecV1 = MakeVec3(pVec1 + strideDeriv);
 	Vec3Ref vecV2 = MakeVec3(pVec2 + strideDeriv);
-	Vec3Ref vecW1 = MakeVec3(pVec1 + strideDeriv + 3);
-	Vec3Ref vecW2 = MakeVec3(pVec2 + strideDeriv + 3);
+	Vec3Ref vecW1 = MakeVec3(pVec1 + strideDeriv + vecStride);
+	Vec3Ref vecW2 = MakeVec3(pVec2 + strideDeriv + vecStride);
 
 	// переводим вектор линии точек связи С2-С1 в СК1
-	Vec3 vecT0 = vecC1 - matA12*vecC2 - matA01.Tmul(vecP2-vecP1);
+	Vec3 vecT0 = 
+		vecC1 
+		- matA12*vecC2 
+		- matA01.Tmul(vecP2-vecP1);
+	
 	vecT0.Export(SL);
 
 	// переводим вектор разницы линейных скоростей точек связи С2-С1 в СК1
-	Vec3 VecT1 = matA01.Tmul(vecV1-vecV2) + vecC1.Cross(vecW1) - matA12*(vecC2.Cross(vecW1));
+	Vec3 VecT1 = 
+		matA01.Tmul(vecV1-vecV2) 
+		+ vecC1.Cross(vecW1) 
+		- matA12*(vecC2.Cross(vecW2));
 	VecT1.Export(VL);
 
 	// для угловых степеней свободы - просто берутся разница углов и угловых скоростей

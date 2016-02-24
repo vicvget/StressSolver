@@ -29,6 +29,8 @@ namespace MathHelpers
 
 		void FExport(float* array) const;
 
+		void Export(double* data) const;
+
 		void ExportRow(unsigned int rowId, double* data) const;
 
 
