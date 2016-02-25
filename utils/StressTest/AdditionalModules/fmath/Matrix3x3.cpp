@@ -39,9 +39,9 @@ namespace MathHelpers
 			double* data
 		)
 		:
-			_mat(data),
-			_data()
+		_mat(_data)
 	{
+		std::copy(&data[0], &data[9], _data);
 	}
 
 	Mat3::Mat3

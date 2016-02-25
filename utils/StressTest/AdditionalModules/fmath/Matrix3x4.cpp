@@ -234,6 +234,13 @@ namespace MathHelpers
 	}
 
 		
-
+	Mat3x4 Mat3x4::Tr() const
+	{
+		Mat3x4 mtx(*this);
+		for (int i = 0; i < 3; i++)
+			for (int j = i + 1; j < 3; j++)
+				std::swap(mtx.E(i, j), mtx.E(j, i));
+		return mtx;
+	}
 
 }

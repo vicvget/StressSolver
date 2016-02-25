@@ -489,13 +489,9 @@ int nNodes		// количество узлов
 	ry = pNodeVectors[1];
 	rz = pNodeVectors[2];
 
-	size_t strideDeriv = nNodes * vecStride2;
-	size_t nodeOffset1 = nodeId1 * vecStride2;
-	size_t nodeOffset2 = nodeId2 * vecStride2;
-
 	// Start AVX code
-	double* pmatA01 = _dataRotationMtx + nodeId1 * matStride;
-	double* pmatA02 = _dataRotationMtx + nodeId2 * matStride;
+	double* pmatA01 = GetRotationMatrix(nodeId1);
+	double* pmatA02 = GetRotationMatrix(nodeId2);
 
 	// vecStride must be 4
 	__m256d matA01row1 = _mm256_load_pd(pmatA01);
@@ -547,21 +543,10 @@ int nNodes		// количество узлов
 	matA21row3 = _mm256_add_pd(matA02el1, _mm256_add_pd(matA02el2, matA02el3));
 	// Матрица A_{21} сформирована
 
-#ifdef DEBUG_OUT
-	// выгрузка для отладки
-	__declspec(align(32)) double matrix[12];
-	_mm256_store_pd(&matrix[0], matA21row1);
-	_mm256_store_pd(&matrix[4], matA21row2);
-	_mm256_store_pd(&matrix[8], matA21row3);
-
-	Mat3x4 mtx(matrix);
-	PrintMatrix(mtx, "AVX A21");
-#endif
-
 	__m256d ivecC1 = _mm256_load_pd(pNodeVectors);
 	__m256d vecDP = _mm256_sub_pd(
-		_mm256_load_pd(_dataInternal + nodeOffset1),
-		_mm256_load_pd(_dataInternal + nodeOffset2)); // P1-P2
+		_mm256_load_pd(GetElementShift(nodeId1)),
+		_mm256_load_pd(GetElementShift(nodeId2))); // P1-P2
 
 	matA02el1 = _mm256_set1_pd(pNodeVectors[0]);
 	matA02el2 = _mm256_set1_pd(pNodeVectors[1]);
@@ -585,24 +570,24 @@ int nNodes		// количество узлов
 	__m256d mul2 = _mm256_add_pd(_mm256_add_pd(matA02el1, matA02el2), matA02el3);
 	__m256d res = _mm256_add_pd(_mm256_add_pd(ivecC1, mul1), mul2);
 
-	_mm256_storeu_pd(SL, res); // получено SL, линейные компоненты
+	_mm256_store_pd(SL, res); // получено SL, линейные компоненты
 	
 	// Расчет VL
 	// переводим вектор разницы линейных скоростей точек связи С2-С1 в СК1
-	// Vec3 VecT1 = matA01.Tmul(vecV1 - vecV2) + vecC1.Cross(vecW1) - matA12*(vecC2.Cross(vecW1));
+	// Vec3 VecT1 = matA01.Tmul(vecV1 - vecV2) + vecW1.Cross(vecC1) - matA12*(vecW2.Cross(vecC2));
 	// vecC2 = -vecC1
 	// vecC2.Cross(vecW1) = -vecC1.Cross(vecW1)
 
-	__declspec(align(32)) double cp1[4] = {0};	// векторное произведение
+	__declspec(align(32)) double cp1[4] = { 0 };	// векторное произведение 
 	__declspec(align(32)) double cp2[4] = { 0 };	// векторное произведение
 
-	CrossProduct(pNodeVectors, _dataInternal + nodeOffset1 + strideDeriv + vecStride, &cp1[0]);	// [cVec x w]
-	CrossProduct(pNodeVectors, _dataInternal + nodeOffset2 + strideDeriv + vecStride, &cp2[0]);	// [cVec x w]
+	CrossProduct(GetElementVelocityAngular(nodeId1), pNodeVectors, cp1);	// [w1 x c1]
+	CrossProduct(GetElementVelocityAngular(nodeId2), pNodeVectors, cp2);	// -[w2 x c2] = [w2 x c1]
+	
 	__m256d cp1r = _mm256_load_pd(&cp1[0]);
-	//__m256d cp2r = _mm256_load_pd(&cp2[0]);
 	__m256d vecDV = _mm256_sub_pd(
-		_mm256_load_pd(_dataInternal + nodeOffset1 + strideDeriv),
-		_mm256_load_pd(_dataInternal + nodeOffset2 + strideDeriv)); // V1-V2
+		_mm256_load_pd(GetElementVelocity(nodeId1)),
+		_mm256_load_pd(GetElementVelocity(nodeId2))); // V1-V2
 
 	matA02el1 = _mm256_set1_pd(cp2[0]);
 	matA02el2 = _mm256_set1_pd(cp2[1]);
@@ -626,17 +611,15 @@ int nNodes		// количество узлов
 
 	res = _mm256_add_pd(_mm256_add_pd(cp1r, mul1), mul2);
 
-	_mm256_storeu_pd(VL, res); // получено VL, линейные компоненты
+	_mm256_store_pd(VL, res); // получено VL, линейные компоненты
 
-	double *pVec1 = _dataInternal + nodeOffset1;
-	double *pVec2 = _dataInternal + nodeOffset2;
-	Vec3Ref vecR1 = MakeVec3(pVec1 + vecStride);
-	Vec3Ref vecR2 = MakeVec3(pVec2 + vecStride);
-	Vec3Ref vecW1 = MakeVec3(pVec1 + strideDeriv + 3);
-	Vec3Ref vecW2 = MakeVec3(pVec2 + strideDeriv + 3);
-	//TODO: для угловых степеней свободы - просто берутся разница углов и угловых скоростей
-	(vecR1 - vecR2).Export(SL + vecStride);
-	(vecW1 - vecW2).Export(VL + vecStride);
+	__m256d x1 = _mm256_load_pd(GetElementShiftAngular(nodeId1));
+	__m256d x2 = _mm256_load_pd(GetElementShiftAngular(nodeId2));
+	_mm256_store_pd(SL + vecStride, _mm256_sub_pd(x1, x2));
+
+	x1 = _mm256_load_pd(GetElementVelocityAngular(nodeId1));
+	x2 = _mm256_load_pd(GetElementVelocityAngular(nodeId2));
+	_mm256_store_pd(VL + vecStride, _mm256_sub_pd(x1, x2));
 }
 
 void StressStrainCppSolver::linksh4
@@ -664,129 +647,48 @@ int nNodes		// количество узлов
 
 	double* pNodeVectors = &nodeVectors[0] + side;
 
-	//unsigned int strideVec = 3;
-	//unsigned int strideMat = strideVec * strideVec;
-	size_t strideDeriv = nNodes * vecStride2;
-	size_t nodeOffset1 = nodeId1 * vecStride2;
-	size_t nodeOffset2 = nodeId2 * vecStride2;
+	MathHelpers::Mat3x4 matA01(GetRotationMatrix(nodeId1));
+	MathHelpers::Mat3x4 matA02(GetRotationMatrix(nodeId2));
 
-	MathHelpers::Mat3x4 matA01(_dataRotationMtx + nodeId1 * matStride);
-	MathHelpers::Mat3x4 matA02(_dataRotationMtx + nodeId2 * matStride);
+	//matA01 = matA01.Tr();
+	//matA02 = matA02.Tr();
 	//Mat3 matA12 = matA01.Tmul(matA02);
 	MathHelpers::Mat3x4 matA21 = matA02.Tmul(matA01);
 
 	Vec3 vecC1 = MakeVec3(pNodeVectors)*_gridStep * 0.5;
-	Vec3 vecC2 = -vecC1;// MakeVec3(cVec2);
+	Vec3 vecC2 = -vecC1;
 
 	rx = vecC1[0];
 	ry = vecC1[1];
 	rz = vecC1[2];
 
-	double *pVec1 = _dataInternal + nodeOffset1;
-	double *pVec2 = _dataInternal + nodeOffset2;
-	Vec3Ref vecP1 = MakeVec3(pVec1);
-	Vec3Ref vecP2 = MakeVec3(pVec2);
-	Vec3Ref vecR1 = MakeVec3(pVec1 + vecStride);
-	Vec3Ref vecR2 = MakeVec3(pVec2 + vecStride);
-	Vec3Ref vecV1 = MakeVec3(pVec1 + strideDeriv);
-	Vec3Ref vecV2 = MakeVec3(pVec2 + strideDeriv);
-	Vec3Ref vecW1 = MakeVec3(pVec1 + strideDeriv + vecStride);
-	Vec3Ref vecW2 = MakeVec3(pVec2 + strideDeriv + vecStride);
-#ifdef DEBUG_OUT
-	PrintMatrix(matA01, "A01=");
-	PrintMatrix(matA02, "A02=");
-	PrintMatrix(matA21, "A21=");
-#endif
+	Vec3Ref vecP1 = MakeVec3(GetElementShift(nodeId1));
+	Vec3Ref vecP2 = MakeVec3(GetElementShift(nodeId2));
+	Vec3Ref vecR1 = MakeVec3(GetElementShiftAngular(nodeId1));
+	Vec3Ref vecR2 = MakeVec3(GetElementShiftAngular(nodeId2));
+	Vec3Ref vecV1 = MakeVec3(GetElementVelocity(nodeId1));
+	Vec3Ref vecV2 = MakeVec3(GetElementVelocity(nodeId2));
+	Vec3Ref vecW1 = MakeVec3(GetElementVelocityAngular(nodeId1));
+	Vec3Ref vecW2 = MakeVec3(GetElementVelocityAngular(nodeId2));
+
 	// переводим вектор линии точек связи С2-С1 в СК1
 	Vec3 vecT0 = 
 		vecC1 
 		- matA21.Tmul(vecC2) 
 		- matA01.Tmul(vecP2 - vecP1);
 
-	Vec3 v1 = matA21.Tmul(vecC2);
-	Vec3 v2 = matA01.Tmul(vecP2 - vecP1);
-
 	vecT0.Export(SL);
+
 	// переводим вектор разницы линейных скоростей точек связи С2-С1 в СК1
 	Vec3 VecT1 = matA01.Tmul(vecV1 - vecV2) 
-		+ vecC1.Cross(vecW1) 
-		- matA21.Tmul(vecC2.Cross(vecW2));
+		+ vecW1.Cross(vecC1)
+		- matA21.Tmul(vecW2.Cross(vecC2));
 	
 	VecT1.Export(VL);
-
-	Vec3 v3 = vecC2.Cross(vecW1);
-	Vec3 v4 = matA21.Tmul(v3);
-
-#ifdef DEBUG_OUT
-	PrintVector(v1, "v1=");
-	PrintVector(v2, "v2=");
-	PrintVector(v3, "v3=");
-	PrintVector(v4, "v4=");
-#endif
-
-
 
 	// для угловых степеней свободы - просто берутся разница углов и угловых скоростей
 	(vecR1 - vecR2).Export(SL + vecStride);
 	(vecW1 - vecW2).Export(VL + vecStride);
-
-
-	//Vec3 vecT2 = matA12.Rcross(0, vecC2);
-	//Vec3 vecT3 = matA12.Rcross(1, vecC2);
-	//Vec3 vecT4 = matA12.Rcross(2, vecC2);
-
-	//vecT2.Export(C + 3);
-	//vecT3.Export(C + 9);
-	//vecT4.Export(C + 15);
-
-	// Заполнение матриц A и C
-	//      a00 a01 a02 a03 a04 a05 
-	//      a06 a07 a08 a09 a10 a11
-	//      a12 a13 a14 a15 a16 a17
-	//      a18 a19 a20 a21 a22 a23
-	//      a24 a25 a26 a27 a28 a29
-	//      a30 a31 a32 a33 a34 a35 
-	//A
-	//       A0  A1  A2   0  X2 -X1 
-	//       A3  A4  A5 -X2   0  X0
-	//       A6  A7  A8  X1 -X0   0
-	//        0   0   0   1   0   0
-	//        0   0   0   0   1   0
-	//        0   0   0   0   0   1 
-	//C
-	// x=A12.Row[0] x VecC2
-	// y=A12.Row[1] x VecC2
-	// z=A12.Row[2] x VecC2
-	//      -A0 -A1 -A2 -x1 -x2 -x3
-	//      -A3 -A4 -A5 -y1 -y2 -y3
-	//      -A6 -A7 -A8 -z1 -z2 -z3
-	//        0   0   0  -1   0   0
-	//        0   0   0   0  -1   0
-	//        0   0   0   0   0  -1 
-
-	//for (int i = 3; i<6; i++)
-	//	for (int nodeId1 = 0; nodeId1<6; nodeId1++)
-	//	{
-	//		A[i * 6 + nodeId1] = 0.0;
-	//		C[i * 6 + nodeId1] = 0.0;
-	//	}
-
-	//for (int i = 0; i < 3; i++)
-	//{
-	//	for (int j = 0; j < 3; j++)
-	//	{
-	//		A[i * 6 + j] = matA01[i * 3 + j];
-	//		C[i * 6 + j] = -matA01[i * 3 + j];
-	//	}
-	//}
-
-	//A[3] = 0.0;        A[4] = vecC1[2];   A[5] = -vecC1[1];
-	//A[9] = -vecC1[2];  A[10] = 0.0;       A[11] = vecC1[0];
-	//A[15] = vecC1[1];  A[16] = -vecC1[0]; A[17] = 0.0;
-
-	//A[21] = 1.0;
-	//A[28] = 1.0;
-	//A[35] = 1.0;
 }
 
 
