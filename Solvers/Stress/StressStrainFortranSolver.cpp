@@ -677,8 +677,8 @@ void StressStrainFortranSolver::linksh3
 	Vec3Ref vecC1 = MakeVec3(cVec1);					 // координаты точки связи узла 1
 	Vec3Ref vecC2 = MakeVec3(cVec2);					 // координаты точки связи узла 2
 	
-	//matA02.Tr();
-	//matA01.Tr();
+	//matA02 = matA02.Tr();
+	//matA01 = matA01.Tr();
 	Mat3 matA12 = matA01.Tmul(matA02);					 // A_{12} = A^T_{01}xA_{02}
 	double *pVec1 = _dataInternal + nodeOffset1;	     // адрес смещение до вектора неизвестных тела nodeId1
 	double *pVec2 = _dataInternal + nodeOffset2;		 // адрес смещение до вектора неизвестных тела nodeId2
@@ -701,8 +701,8 @@ void StressStrainFortranSolver::linksh3
 
 	// переводим вектор разницы линейных скоростей точек связи С2-С1 в СК1
 	Vec3 VecT1 = matA01.Tmul(vecV1 - vecV2) 
-		+ vecC1.Cross(vecW1) 
-		- matA12*(vecC2.Cross(vecW2));
+		+ vecW1.Cross(vecC1) 
+		- matA12*(vecW2.Cross(vecC2));
 
 	VecT1.Export(VL);
 
@@ -746,6 +746,18 @@ void StressStrainFortranSolver::linksh3
 	A[21]=1.0;
 	A[28]=1.0;
 	A[35]=1.0;
+}
+
+void CrossProduct
+(
+double* v1,
+double* v2,
+double* res
+)
+{
+	res[0] = v1[1] * v2[2] - v1[2] * v2[1];
+	res[1] = -v1[0] * v2[2] + v1[2] * v2[0];
+	res[2] = v1[0] * v2[1] - v1[1] * v2[0];
 }
 
 void StressStrainFortranSolver::linksh2
@@ -842,11 +854,23 @@ void StressStrainFortranSolver::linksh2
 	tVec6[1] = tMtx[0]*cVec2[2] - tMtx[6]*cVec2[0];
 	tVec6[2] = tMtx[3]*cVec2[0] - tMtx[0]*cVec2[1];
 
-	VL[0]=vVec1[0]*aMtx1[0]+vVec1[1]*aMtx1[1]+vVec1[2]*aMtx1[2];
-	VL[0]+=wVec1[1]*cVec1[2]-wVec1[2]*cVec1[1];
-	VL[0]-=vVec2[0]*aMtx1[0];
-	VL[0]-=vVec2[1]*aMtx1[1];
-	VL[0]-=vVec2[2]*aMtx1[2];
+	double tVec7[3];
+	tVec7[0] = vVec1[0] - vVec2[0];
+	tVec7[1] = vVec1[1] - vVec2[1];
+	tVec7[2] = vVec1[2] - vVec2[2];
+
+	double tVec8[3];
+	tVec8[0] = aMtx1[0] * tVec7[0] + aMtx1[1] * tVec7[1] + aMtx1[2] * tVec7[2];
+	tVec8[1] = aMtx1[3] * tVec7[0] + aMtx1[4] * tVec7[1] + aMtx1[5] * tVec7[2];
+	tVec8[2] = aMtx1[6] * tVec7[0] + aMtx1[7] * tVec7[1] + aMtx1[8] * tVec7[2];
+
+	double tVec9[3];
+	CrossProduct(wVec1, cVec1, tVec9);
+
+	VL[0] = tVec8[0] + tVec9[0];
+	VL[1] = tVec8[1] +tVec9[1];
+	VL[2] = tVec8[2] + tVec9[2];
+
 	VL[0]-=wVec2[0]*tVec6[0];
 	VL[0]-=wVec2[1]*tVec6[1];
 	VL[0]-=wVec2[2]*tVec6[2];
@@ -856,11 +880,6 @@ void StressStrainFortranSolver::linksh2
 	tVec13[1] = tMtx[1]*cVec2[2]-tMtx[7]*cVec2[0];
 	tVec13[2] = tMtx[4]*cVec2[0]-tMtx[1]*cVec2[1];
 
-	VL[1]=vVec1[0]*aMtx1[3]+vVec1[1]*aMtx1[4]+vVec1[2]*aMtx1[5];
-	VL[1]+=wVec1[2]*cVec1[0]-wVec1[0]*cVec1[2];
-	VL[1]-=vVec2[0]*aMtx1[3];
-	VL[1]-=vVec2[1]*aMtx1[4];
-	VL[1]-=vVec2[2]*aMtx1[5];
 	VL[1]-=wVec2[0]*tVec13[0];
 	VL[1]-=wVec2[1]*tVec13[1];
 	VL[1]-=wVec2[2]*tVec13[2];
@@ -870,11 +889,6 @@ void StressStrainFortranSolver::linksh2
 	tVec14[1] = tMtx[2]*cVec2[2]-tMtx[8]*cVec2[0];
 	tVec14[2] = tMtx[5]*cVec2[0]-tMtx[2]*cVec2[1];
 
-	VL[2]=vVec1[0]*aMtx1[6]+vVec1[1]*aMtx1[7]+vVec1[2]*aMtx1[8];
-	VL[2]+=wVec1[0]*cVec1[1]-wVec1[1]*cVec1[0];
-	VL[2]-=vVec2[0]*aMtx1[6];
-	VL[2]-=vVec2[1]*aMtx1[7];
-	VL[2]-=vVec2[2]*aMtx1[8];
 	VL[2]-=wVec2[0]*tVec14[0];
 	VL[2]-=wVec2[1]*tVec14[1];
 	VL[2]-=wVec2[2]*tVec14[2];
