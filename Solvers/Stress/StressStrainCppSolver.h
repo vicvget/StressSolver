@@ -346,6 +346,9 @@ public:
 	double* _varDX;		// смещения до производных
 	double* _varDDX;	// смещения до 2 производных
 
+	double* _radiusVectors;
+
+
 	double *R;
 	double *RZ;
 	double *R1Z;
@@ -441,33 +444,32 @@ public:
 		int nNodes		// количество узлов
 	);
 
-	void linksh4
-	(
-		size_t side,
-		double *SL,		// выход деформаций
-		double *VL,		// выход изм. скоростей
-		double& rx,		// выход
-		double& ry,		// выход 
-		double& rz,		// выход 
-		int nodeId1,	// номер узла 1
-		int nodeId2,	// номер узла 2
-		int nNodes		// количество узлов
-	);
+	void CalculateStrains
+		(
+			size_t side,			// 0 = -x, 1 = x, 2 = -y, 3 = y, 4 = -z, 5 = z
+			double *shiftStrains,		// выход деформаций
+			double *velocityStrains,	// выход изм. скоростей
+			int nodeId1,				// номер узла 1
+			int nodeId2					// номер узла 2
+		);
 
-	void linksh4AVX
-	(
-		size_t side,
-		double *SL,		// выход деформаций
-		double *VL,		// выход изм. скоростей
-		double& rx,		// выход
-		double& ry,		// выход 
-		double& rz,		// выход 
-		int nodeId1,	// номер узла 1
-		int nodeId2,	// номер узла 2
-		int nNodes		// количество узлов
-	);
+	void CalculateStrainsAVX
+		(
+			size_t side,			// 0 = -x, 1 = x, 2 = -y, 3 = y, 4 = -z, 5 = z
+			double *shiftStrains,		// выход деформаций
+			double *velocityStrains,	// выход изм. скоростей
+			int nodeId1,				// номер узла 1
+			int nodeId2					// номер узла 2
+		);
 
 	void FindStressStrainMatrix();
+	
+	// Возвращает радиус-вектор крепления упругой связи 
+	// для регулярной сетки в зависимости от грани элемента
+	// 0 = -x, 1 = x, 2 = -y, 3 = y, 4 = -z, 5 = z
+	// @param side - номер грани
+	// @returns радиус-вектор
+	double* GetRadiusVector(size_t side);
 //protected:
 
 };
