@@ -121,31 +121,23 @@ int main()
 	forSolver->linksh2(cVec1, cVec2, SL4, VL4, A, C, 0, 1, nElements);
 	forSolver->linksh3(cVec1, cVec2, SL5, VL5, A, C, 0, 1, nElements);
 
-	cppSolver->linksh4
+	cppSolver->CalculateStrains
 		(
 		0,	// 0 = -x, 1 = x, 2 = -y, 3 = y, 4 = -z, 5 = z
 		&SL[0],		// выход деформаций
 		&VL[0],		// выход изм. скоростей
-		rx,		// выход
-		ry,		// выход 
-		rz,		// выход 
 		0,	// номер узла 1
-		1,	// номер узла 2
-		nElements		// количество
+		1	// номер узла 2
 		);
 
 
-	cppSolver->linksh4AVX
+	cppSolver->CalculateStrainsAVX
 		(
 		0,	// 0 = -x, 1 = x, 2 = -y, 3 = y, 4 = -z, 5 = z
 		&SL2[0],		// выход деформаций
-		&VL2[0],		// выход изм. скоростей
-		rx,		// выход
-		ry,		// выход 
-		rz,		// выход 
+		&VL2[0],		// выход деформаций
 		0,	// номер узла 1
-		1,	// номер узла 2
-		nElements		// количество узлов
+		1	// номер узла 2
 		);
 
 	const int width = 9;

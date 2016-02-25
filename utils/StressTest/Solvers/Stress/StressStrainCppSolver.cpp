@@ -135,6 +135,8 @@ StressStrainCppSolver::StressStrainCppSolver
 	_hDDX2 = (double*)_aligned_malloc(varSize,alignment);
 	_hDDX3 = (double*)_aligned_malloc(varSize,alignment);
 
+
+
 	_varX = _dataInternal;
 	_varDX = _dataInternal+_nVariables;
 	_varDDX = _dataInternal+_nVariables*2;
@@ -154,6 +156,14 @@ StressStrainCppSolver::StressStrainCppSolver
 	//    4
 	// [2] = z-, [5] = z+
 	_linkedElements = new int[nElements * 6];
+	_radiusVectors = (double*)_aligned_malloc(vecStride * 6 * sizeof(double), alignment);
+	memset(_radiusVectors, 0, vecStride * 6 * sizeof(double));
+
+	for (int i = 0; i < 3; i++)
+	{
+		_radiusVectors[i*vecStride*2 + i] = 0.5 * _gridStep;
+		_radiusVectors[i*vecStride + i] = -0.5 * _gridStep;
+	}
 
 	// копируем координаты узлов сетки
 	_elements = new double[nElements*3];
@@ -209,6 +219,7 @@ StressStrainCppSolver::~StressStrainCppSolver()
 	_aligned_free(_hDDX1);
 	_aligned_free(_hDDX2);
 	_aligned_free(_hDDX3);
+	_aligned_free(_radiusVectors);
 
 	//delete [] R;
 	//delete [] RZ;
@@ -447,6 +458,12 @@ void StressStrainCppSolver::MatrixMul
 	}
 }
 
+double* StressStrainCppSolver::GetRadiusVector(size_t side)
+{
+	return _radiusVectors + side * vecStride;
+}
+
+
 void CrossProduct
 (
 	double* v1,
@@ -459,35 +476,15 @@ void CrossProduct
 	res[2] = v1[0] * v2[1] - v1[1] * v2[0];
 }
 
-void StressStrainCppSolver::linksh4AVX
+void StressStrainCppSolver::CalculateStrainsAVX
 (
-size_t side,	// 0 = -x, 1 = x, 2 = -y, 3 = y, 4 = -z, 5 = z
-double *SL,		// выход деформаций
-double *VL,		// выход изм. скоростей
-double& rx,		// выход
-double& ry,		// выход 
-double& rz,		// выход 
-int nodeId1,	// номер узла 1
-int nodeId2,	// номер узла 2
-int nNodes		// количество узлов
+size_t side,			// 0 = -x, 1 = x, 2 = -y, 3 = y, 4 = -z, 5 = z
+double *shiftStrains,		// выход деформаций
+double *velocityStrains,	// выход изм. скоростей
+int nodeId1,				// номер узла 1
+int nodeId2					// номер узла 2
 )
 {
-	__declspec(align(32)) double nodeVectors[] =
-	{
-		-1, 0, 0, 0,
-		 0,-1, 0, 0,
-		 0, 0,-1, 0,
-		 1, 0, 0, 0,
-		 0, 1, 0, 0,
-		 0, 0, 1, 0
-	};
-
-	double* pNodeVectors = &nodeVectors[0] + side;
-	for (size_t component = 0; component < 3; component++)
-		pNodeVectors[component] *= (_gridStep * 0.5);
-	rx = pNodeVectors[0];
-	ry = pNodeVectors[1];
-	rz = pNodeVectors[2];
 
 	// Start AVX code
 	double* pmatA01 = GetRotationMatrix(nodeId1);
@@ -543,14 +540,14 @@ int nNodes		// количество узлов
 	matA21row3 = _mm256_add_pd(matA02el1, _mm256_add_pd(matA02el2, matA02el3));
 	// ћатрица A_{21} сформирована
 
-	__m256d ivecC1 = _mm256_load_pd(pNodeVectors);
+	__m256d ivecC1 = _mm256_load_pd(GetRadiusVector(side));
 	__m256d vecDP = _mm256_sub_pd(
 		_mm256_load_pd(GetElementShift(nodeId1)),
 		_mm256_load_pd(GetElementShift(nodeId2))); // P1-P2
 
-	matA02el1 = _mm256_set1_pd(pNodeVectors[0]);
-	matA02el2 = _mm256_set1_pd(pNodeVectors[1]);
-	matA02el3 = _mm256_set1_pd(pNodeVectors[2]);
+	matA02el1 = _mm256_set1_pd(ivecC1.m256d_f64[0]);
+	matA02el2 = _mm256_set1_pd(ivecC1.m256d_f64[1]);
+	matA02el3 = _mm256_set1_pd(ivecC1.m256d_f64[2]);
 
 	matA02el1 = _mm256_mul_pd(matA21row1, matA02el1);
 	matA02el2 = _mm256_mul_pd(matA21row2, matA02el2);
@@ -570,7 +567,7 @@ int nNodes		// количество узлов
 	__m256d mul2 = _mm256_add_pd(_mm256_add_pd(matA02el1, matA02el2), matA02el3);
 	__m256d res = _mm256_add_pd(_mm256_add_pd(ivecC1, mul1), mul2);
 
-	_mm256_store_pd(SL, res); // получено SL, линейные компоненты
+	_mm256_store_pd(shiftStrains, res); // получено SL, линейные компоненты
 	
 	// –асчет VL
 	// переводим вектор разницы линейных скоростей точек св€зи —2-—1 в — 1
@@ -581,8 +578,8 @@ int nNodes		// количество узлов
 	__declspec(align(32)) double cp1[4] = { 0 };	// векторное произведение 
 	__declspec(align(32)) double cp2[4] = { 0 };	// векторное произведение
 
-	CrossProduct(GetElementVelocityAngular(nodeId1), pNodeVectors, cp1);	// [w1 x c1]
-	CrossProduct(GetElementVelocityAngular(nodeId2), pNodeVectors, cp2);	// -[w2 x c2] = [w2 x c1]
+	CrossProduct(GetElementVelocityAngular(nodeId1), GetRadiusVector(side), cp1);	// [w1 x c1]
+	CrossProduct(GetElementVelocityAngular(nodeId2), GetRadiusVector(side), cp2);	// -[w2 x c2] = [w2 x c1]
 	
 	__m256d cp1r = _mm256_load_pd(&cp1[0]);
 	__m256d vecDV = _mm256_sub_pd(
@@ -611,42 +608,26 @@ int nNodes		// количество узлов
 
 	res = _mm256_add_pd(_mm256_add_pd(cp1r, mul1), mul2);
 
-	_mm256_store_pd(VL, res); // получено VL, линейные компоненты
+	_mm256_store_pd(velocityStrains, res); // получено VL, линейные компоненты
 
 	__m256d x1 = _mm256_load_pd(GetElementShiftAngular(nodeId1));
 	__m256d x2 = _mm256_load_pd(GetElementShiftAngular(nodeId2));
-	_mm256_store_pd(SL + vecStride, _mm256_sub_pd(x1, x2));
+	_mm256_store_pd(shiftStrains + vecStride, _mm256_sub_pd(x1, x2));
 
 	x1 = _mm256_load_pd(GetElementVelocityAngular(nodeId1));
 	x2 = _mm256_load_pd(GetElementVelocityAngular(nodeId2));
-	_mm256_store_pd(VL + vecStride, _mm256_sub_pd(x1, x2));
+	_mm256_store_pd(velocityStrains + vecStride, _mm256_sub_pd(x1, x2));
 }
 
-void StressStrainCppSolver::linksh4
+void StressStrainCppSolver::CalculateStrains
 (
-size_t side,	// 0 = -x, 1 = x, 2 = -y, 3 = y, 4 = -z, 5 = z
-double *SL,		// выход деформаций
-double *VL,		// выход изм. скоростей
-double& rx,		// выход
-double& ry,		// выход 
-double& rz,		// выход 
-int nodeId1,	// номер узла 1
-int nodeId2,	// номер узла 2
-int nNodes		// количество узлов
+size_t side,			// 0 = -x, 1 = x, 2 = -y, 3 = y, 4 = -z, 5 = z
+double *shiftStrains,		// выход деформаций
+double *velocityStrains,	// выход изм. скоростей
+int nodeId1,				// номер узла 1
+int nodeId2					// номер узла 2
 )
 {
-	__declspec(align(32)) double nodeVectors[] =
-	{	
-	   -1, 0, 0, 0,
-		0,-1, 0, 0,
-		0, 0,-1, 0,
-		1, 0, 0, 0,
-		0, 1, 0, 0,
-		0, 0, 1, 0
-	};
-
-	double* pNodeVectors = &nodeVectors[0] + side;
-
 	MathHelpers::Mat3x4 matA01(GetRotationMatrix(nodeId1));
 	MathHelpers::Mat3x4 matA02(GetRotationMatrix(nodeId2));
 
@@ -655,12 +636,8 @@ int nNodes		// количество узлов
 	//Mat3 matA12 = matA01.Tmul(matA02);
 	MathHelpers::Mat3x4 matA21 = matA02.Tmul(matA01);
 
-	Vec3 vecC1 = MakeVec3(pNodeVectors)*_gridStep * 0.5;
+	Vec3 vecC1 = MakeVec3(GetRadiusVector(side));
 	Vec3 vecC2 = -vecC1;
-
-	rx = vecC1[0];
-	ry = vecC1[1];
-	rz = vecC1[2];
 
 	Vec3Ref vecP1 = MakeVec3(GetElementShift(nodeId1));
 	Vec3Ref vecP2 = MakeVec3(GetElementShift(nodeId2));
@@ -677,18 +654,18 @@ int nNodes		// количество узлов
 		- matA21.Tmul(vecC2) 
 		- matA01.Tmul(vecP2 - vecP1);
 
-	vecT0.Export(SL);
+	vecT0.Export(shiftStrains);
 
 	// переводим вектор разницы линейных скоростей точек св€зи —2-—1 в — 1
 	Vec3 VecT1 = matA01.Tmul(vecV1 - vecV2) 
 		+ vecW1.Cross(vecC1)
 		- matA21.Tmul(vecW2.Cross(vecC2));
 	
-	VecT1.Export(VL);
+	VecT1.Export(velocityStrains);
 
 	// дл€ угловых степеней свободы - просто берутс€ разница углов и угловых скоростей
-	(vecR1 - vecR2).Export(SL + vecStride);
-	(vecW1 - vecW2).Export(VL + vecStride);
+	(vecR1 - vecR2).Export(shiftStrains + vecStride);
+	(vecW1 - vecW2).Export(velocityStrains + vecStride);
 }
 
 

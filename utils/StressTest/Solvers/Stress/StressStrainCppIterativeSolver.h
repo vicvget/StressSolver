@@ -115,7 +115,7 @@ private:
 	int _iterationNumber;
 
 
-	void pravsubfl();
+	void CalculateForces();
 
 	void ApplyBoundary();
 

@@ -80,7 +80,7 @@ void StressStrainCppIterativeSolver::Solve
 		intomsub();
 		_testTimer.Stop(1);
 		_testTimer.Start(2);
-		pravsubfl();
+		CalculateForces();
 		_testTimer.Start(2);
 
 		_testTimer.Start(3);
@@ -103,7 +103,7 @@ void StressStrainCppIterativeSolver::Solve
 		intomsub();
 		_testTimer.Stop(1);
 		_testTimer.Start(2);
-		pravsubfl();
+		CalculateForces();
 		_testTimer.Stop(2);
 
 		_testTimer.Start(3);
@@ -122,7 +122,7 @@ void StressStrainCppIterativeSolver::Solve
 		intomsub();
 		_testTimer.Stop(1);
 		_testTimer.Start(2);
-		pravsubfl();
+		CalculateForces();
 		_testTimer.Stop(2);
 		_time = _timeTmp + _timeStep;
 
@@ -142,7 +142,7 @@ void StressStrainCppIterativeSolver::Solve
 		intomsub();
 		_testTimer.Stop(1);
 		_testTimer.Start(2);
-		pravsubfl();
+		CalculateForces();
 		_testTimer.Stop(2);
 
 		_testTimer.Start(3);
@@ -181,7 +181,7 @@ void StressStrainCppIterativeSolver::Solve1()
 
 	_stageRK = 1;
 	intomsub();
-	pravsubfl();
+	CalculateForces();
 }
 
 /**
@@ -204,7 +204,7 @@ void StressStrainCppIterativeSolver::Solve2()
 	}
 	_stageRK = 2;
 	intomsub();
-	pravsubfl();
+	CalculateForces();
 }
 
 /**
@@ -225,7 +225,7 @@ void StressStrainCppIterativeSolver::Solve3()
 	}
 	_stageRK = 3;
 	intomsub();
-	pravsubfl();
+	CalculateForces();
 }
 
 /**
@@ -247,7 +247,7 @@ void StressStrainCppIterativeSolver::Solve4()
 	}
 	_stageRK = 4;
 	intomsub();
-	pravsubfl();
+	CalculateForces();
 }
 
 /**
@@ -460,8 +460,9 @@ void StressStrainCppIterativeSolver::GetStressesByVonMises
 			));
 	}
 }
+#define NEW_FL
 #ifdef NEW_FL
-void StressStrainCppIterativeSolver::pravsubflx() 
+void StressStrainCppIterativeSolver::CalculateForces()
 {
 	_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
 	static int it = 0;
@@ -490,7 +491,6 @@ void StressStrainCppIterativeSolver::pravsubflx()
 		memset(GetElementStress(elementId1), 0, sizeof(double)*vecStride2);
 
 		_testTimer.Start(5);
-		double rx, ry, rz;
 
 		// обход 6 связанных элементов x-,y-,z-,x+,y+,z+
 		for (size_t side = 0; side < 6; side++)
@@ -500,9 +500,37 @@ void StressStrainCppIterativeSolver::pravsubflx()
 			{
 				elementId2--;
 #ifdef ALIGNED_MEM
-				linksh4AVX(side, strains, velocityStrains, rx, ry, rz, elementId1, elementId2, _nElements);
+				CalculateStrainsAVX(side, strains, velocityStrains, elementId1, elementId2);
 #endif
-				linksh4(side, strains, velocityStrains, rx, ry, rz, elementId1, elementId2, _nElements);
+				CalculateStrains(side, strains, velocityStrains, elementId1, elementId2);
+
+				Vec3Ref linear_strains = MakeVec3(&strains[0]);
+				Vec3Ref angular_strains = MakeVec3(&strains[0] + vecStride);
+				Vec3Ref linear_vstrains = MakeVec3(&velocityStrains[0]);
+				Vec3Ref angular_vstrains = MakeVec3(&velocityStrains[0] + vecStride);
+
+				for (size_t component = 0; component < 3; component++)
+				{
+					GetElementStress(elementId1)[component] += strains[component];
+					GetElementStress(elementId1)[component + vecStride] += strains[component + vecStride];
+				}
+
+				// сила и момент из полученных деформаций
+				Vec3 force = -linear_vstrains * _dampingFactorLinear - linear_strains * elasticModulus * _gridStep;
+				Vec3 torque = -angular_vstrains * _dampingFactorAngular - angular_strains * elasticModulus * _gridStep3;
+
+				// расчет суммарных сил
+				Mat3 matA01(_dataRotationMtx + elementId1 * matStride);
+				Vec3Ref vR = MakeVec3(_radiusVectors + side*vecStride);
+				Vec3 vAcc = matA01*force;
+				Vec3 vM = vR.Cross(force) + torque;
+
+				for (int i = 0; i < 3; i++)
+				{
+					accelerationVector[i] += vAcc[i];
+					accelerationVector[i + vecStride] += vM[i];
+				}
+
 			}
 		}
 		_testTimer.Stop(5);
@@ -510,31 +538,6 @@ void StressStrainCppIterativeSolver::pravsubflx()
 		//Vec3Ref force = MakeVec3(&forces[0]);
 		//Vec3Ref torque = MakeVec3(&forces[0] + vecStride);
 		
-		Vec3Ref linear_strains = MakeVec3(&strains[0]);
-		Vec3Ref angular_strains = MakeVec3(&strains[0] + vecStride);
-		Vec3Ref linear_vstrains = MakeVec3(&velocityStrains[0]);
-		Vec3Ref angular_vstrains = MakeVec3(&velocityStrains[0] + vecStride);
-
-		for (size_t component = 0; component < 3; component++)
-		{
-			GetElementStress(elementId1)[component] += strains[component];
-			GetElementStress(elementId1)[component + vecStride] += strains[component + vecStride];
-		}
-
-		Vec3 force = -linear_vstrains * _dampingFactorLinear - linear_strains * elasticModulus * _gridStep;
-		Vec3 torque = -angular_vstrains * _dampingFactorAngular - angular_strains * elasticModulus * _gridStep3;
-
-		// расчет суммарных сил
-		Mat3 matA01(_dataRotationMtx + elementId1 * matStride);
-		Vec3 vR = MakeVec3(rx, ry, rz);
-		Vec3 vAcc = matA01*force;
-		Vec3 vM = vR.Cross(force) + torque;
-
-		for (int i = 0; i < 3; i++)
-		{
-			accelerationVector[i] += vAcc[i];
-			accelerationVector[i + vecStride] += vM[i];
-		}
 	}
 	ApplyBoundary(); // модифицирует силы и моменты
 	ApplyMass();	 // вычисляет ускорения делением сил на массы и моментов на моменты инерции
