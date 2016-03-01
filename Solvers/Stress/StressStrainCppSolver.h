@@ -93,12 +93,12 @@ struct Fue
 		ENDIF*/
 
 
+		/* Проверки сходимости
 		double CU1=(-SIN3*OM1-COS3*OM2)/COS2;
 		double CU2=0.0;
 		double CU3=(OM2*COS3+OM1*SIN3)*TG2;
 		double CU0=400.0/(H*H);
 
-		/*
 		if (DABS(CU1)>CU0)
 		#print *,' Мал шаг для интегрирования 1-го уравнения Эйлера ',jj
 		#,'4 COS2 OM1 OM2',COS2,OM1,OM2
@@ -121,7 +121,7 @@ struct Fue
 		for(int j = id; j < id+3; j++)
 		{
 			switch(mets)
-			{
+			{ 
 			case 1:
 				R1Z[j]=R1[j];
 				R1[j]=R[j];
@@ -130,6 +130,7 @@ struct Fue
 				R2[j]=R[j];
 				break;
 			case 3:
+
 				R3[j]=R[j];
 				break;
 			}
@@ -195,6 +196,188 @@ struct Fue
 	}
 
 };
+
+
+struct RotationSolver
+{
+	double* _varDDX;
+	double* _hDDX1;
+	double* _hDDX2;
+	double* _hDDX3;
+	double* _varX;
+	double* _initX;
+
+	
+
+	double* R1Z;
+	double* RZ;
+	double* A1;
+	double* FLAGRY;
+	int IFLAGRY;
+
+	int vecStride, vecStride2, matStride;
+	RotationSolver(const int nNodes, int stride) :
+		vecStride(stride),
+		vecStride2(stride * 2),
+		matStride(stride * 3)
+	{
+		const size_t matSize = nNodes*matStride*sizeof(double);
+		_varDDX = (double*)_aligned_malloc(matSize, alignment);
+		_hDDX1 = (double*)_aligned_malloc(matSize, alignment);
+		_hDDX2 = (double*)_aligned_malloc(matSize, alignment);
+		_hDDX3 = (double*)_aligned_malloc(matSize, alignment);
+		_varX = (double*)_aligned_malloc(matSize, alignment);
+		_initX = (double*)_aligned_malloc(matSize, alignment);
+		//R1Z = (double*)_aligned_malloc(matSize, alignment);
+		//RZ = (double*)_aligned_malloc(matSize, alignment);
+		A1 = (double*)_aligned_malloc(matSize, alignment);
+		FLAGRY = (double*)_aligned_malloc(nNodes*vecStride*sizeof(double), alignment);
+		memset(_varDDX, 0, matSize);
+		memset(_hDDX1, 0, matSize);
+		memset(_hDDX2, 0, matSize);
+		memset(_hDDX3, 0, matSize);
+		memset(_varX, 0, matSize);
+		memset(_initX, 0, matSize);
+		//memset(R1Z, 0, matSize);
+		//memset(RZ, 0, matSize);
+		memset(A1, 0, matSize);
+		memset(FLAGRY, 0, nNodes*vecStride*sizeof(double));
+	}
+
+	~RotationSolver()
+	{
+		_aligned_free(_varDDX);
+		_aligned_free(_hDDX1);
+		_aligned_free(_hDDX2);
+		_aligned_free(_hDDX3);
+		_aligned_free(_varX);
+		_aligned_free(_initX);
+		//_aligned_free(R1Z);
+		//_aligned_free(RZ);
+		_aligned_free(A1);
+		_aligned_free(FLAGRY);
+	}
+
+	void UpdateR(const int id, const double* om, const double H)
+	{
+		double COS2 = cos(_varX[id + 1]);
+		double TAN2 = tan(_varX[id + 1]);
+		double SIN3 = sin(_varX[id + 2]);
+		double COS3 = cos(_varX[id + 2]);
+		double OM1 = om[0];
+		double OM2 = om[1];
+		double OM3 = om[2];
+
+		/*
+		C     Контроль точности
+		IF(COS2.EQ.0.0)THEN
+		PRINT *,'COS2 РАВЕН 0 , УРАВНЕНИЕ 2',JJ
+		STOP
+		ENDIF*/
+
+
+		/* Проверки сходимости
+		double CU1=(-SIN3*OM1-COS3*OM2)/COS2;
+		double CU2=0.0;
+		double CU3=(OM2*COS3+OM1*SIN3)*TG2;
+		double CU0=400.0/(H*H);
+
+		if (DABS(CU1)>CU0)
+		#print *,' Мал шаг для интегрирования 1-го уравнения Эйлера ',jj
+		#,'4 COS2 OM1 OM2',COS2,OM1,OM2
+
+		IF(DABS(CU3)>CU0)
+		#print *,' Мал шаг для интегрирования 3-го уравнения Эйлера ',jj
+		#,'TG2 OM1 OM2',TG2,OM1,OM2
+		*/
+
+		for (int j = id; j<id + 3; j++)
+			RZ[j] = _varDDX[j];
+		_varDDX[id] = (OM1*COS3 - OM2*SIN3) / COS2*H;
+		_varDDX[id + 1] = (OM1*SIN3 + OM2*COS3)*H;
+		_varDDX[id + 2] = ((OM2*SIN3 - OM1*COS3)*TAN2 + OM3)*H;
+	}
+
+	void UpdateR2(const int id, const int mets)
+	{
+
+		for (int j = id; j < id + 3; j++)
+		{
+			switch (mets)
+			{
+			case 1:
+				R1Z[j] = _hDDX1[j];
+				_hDDX1[j] = _varDDX[j];
+				break;
+			case 2:
+				_hDDX2[j] = _varDDX[j];
+				break;
+			case 3:
+
+				_hDDX3[j] = _varDDX[j];
+				break;
+			}
+		}
+	}
+
+	void UpdateMtx(const int id, double* a)
+	{
+		double xc = cos(_varX[id]);
+		double yc = cos(_varX[id + 1]);
+		double zc = cos(_varX[id + 2]);
+		double xs = sin(_varX[id]);
+		double ys = sin(_varX[id + 1]);
+		double zs = sin(_varX[id + 2]);
+
+
+		double* firstRow = a;
+		double* secondRow = a + vecStride;
+		double* thirdRow = a + vecStride * 2;
+
+		firstRow[0] = yc*zc;
+		firstRow[1] = -yc*zs;
+		firstRow[2] = ys;
+
+		secondRow[0] = xs*ys*zc + xc*zs;
+		secondRow[1] = -xs*ys*zs + xc*zc;
+		secondRow[2] = -xs*yc;
+
+		thirdRow[0] = -xc*ys*zc + xs*zs;
+		thirdRow[1] = xc*ys*zs + xs*zc;
+		thirdRow[2] = xc*yc;
+	}
+
+	void Update(const int id, const int mets = 0)
+	{
+		for (int j = id; j<id + 3; j++)
+		{
+			switch (mets)
+			{
+			case 0:
+				_varDDX[j] = 0.0;
+				_hDDX1[j] = 0.0;
+				_hDDX2[j] = 0.0;
+				_hDDX3[j] = 0.0;
+				_varX[j] = 0.0;
+				_initX[j] = 0.0;
+				break;
+			case 1:
+				_varX[j] = _initX[j] + (_hDDX1[j] + (_hDDX2[j] + _hDDX3[j]) * 2 + _varDDX[j]) / 6.0;
+				_initX[j] = _varX[j];
+				break;
+			case 2:
+			case 3:
+				_varX[j] = _initX[j] + _hDDX1[j] * 0.5;
+				break;
+			case 4:
+				_varX[j] = _initX[j] + _hDDX3[j];
+				break;
+			}
+		}
+	}
+
+};
+
 
 struct Copym
 {
@@ -362,17 +545,20 @@ public:
 	int _nVariables;	// количество неизвестных
 	int _nIteration;	// номер итерации
 	int _stageRK;		// шаг Рунге Кутты 4
+	
 	double _time;		// время
 	double _timeTmp;	// вспомогательная функция для сохранения промежуточного значения времени
 	double _timeStep;	// шаг по времени
 	double _timeStep2;	// шаг по времени /2
 	double _timeStep4;	// шаг по времени /4
+	
 	bool _isFirstIteration;
 	
 	//double* GR1; // массив результатов
 	double _gridStep; // шаг сетки
 	double _gridStep2; // шаг сетки в квадрате
 	double _gridStep3; // шаг сетки в кубе
+
 	double _elasticModulus; // модуль упругости
 	double _shearModulusScaled; // модуль сдвига
 	double _elasticModulusScaled; // отмасштабированный модуль упругости

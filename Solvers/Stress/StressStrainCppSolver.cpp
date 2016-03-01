@@ -141,7 +141,7 @@ StressStrainCppSolver::StressStrainCppSolver
 	_varDX = _dataInternal+_nVariables;
 	_varDDX = _dataInternal+_nVariables*2;
 
-	//R = new double[_nVariables];
+	//_varDDX = new double[_nVariables];
 	//RZ = new double[_nVariables];
 	//R1Z = new double[_nVariables];
 	_fue = new Fue(nElements, stride);
@@ -221,7 +221,7 @@ StressStrainCppSolver::~StressStrainCppSolver()
 	_aligned_free(_hDDX3);
 	_aligned_free(_radiusVectors);
 
-	//delete [] R;
+	//delete [] _varDDX;
 	//delete [] RZ;
 	//delete [] R1Z;
 	delete [] _linkedElements;

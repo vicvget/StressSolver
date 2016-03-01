@@ -319,7 +319,7 @@ void StressStrainFortranIterativeSolver::Solve5()
 //		return;
 //	}
 //	
-//	double UY=_fue->UE[K];
+//	double UY=_fue->_varX[K];
 //	UY=fabs(DMOD_c(UY,2*M_PI));           // DMOD - ???????
 //
 //	if ((mets==1) && (UY>1.28))
