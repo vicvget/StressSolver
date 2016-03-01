@@ -280,7 +280,7 @@ void StressStrainCppIterativeSolver::Solve5()
 //		return;
 //	}
 //	
-//	double UY=_fue->UE[K];
+//	double UY=_fue->_varX[K];
 //	UY=fabs(DMOD_c(UY,2*M_PI));           // DMOD - ???????
 //
 //	if ((_stageRK==1) && (UY>1.28))
@@ -520,8 +520,8 @@ void StressStrainCppIterativeSolver::CalculateForces()
 				Vec3 torque = -angular_vstrains * _dampingFactorAngular - angular_strains * elasticModulus * _gridStep3;
 
 				// расчет суммарных сил
-				Mat3 matA01(_dataRotationMtx + elementId1 * matStride);
-				Vec3Ref vR = MakeVec3(_radiusVectors + side*vecStride);
+				Mat3 matA01(GetRotationMatrix(elementId1));
+				Vec3Ref vR = MakeVec3(GetRadiusVector(side));
 				Vec3 vAcc = matA01*force;
 				Vec3 vM = vR.Cross(force) + torque;
 
