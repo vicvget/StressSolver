@@ -266,38 +266,38 @@ void StressStrainCppIterativeSolver::Solve5()
 	}
 }
 
-//void StressStrainCppIterativeSolver::urejl4s(double* a, double *ug, double *om, int _stageRK, const int id)
+//void StressStrainCppIterativeSolver::SolveElementRotation(double* a, double *ug, double *om, int _stageRK, const int id)
 //{
 //	int K=id*3;
 //	int KA=id*9;
 //	
 //	if (_stageRK==0) 
 //	{
-//		_fue->Update(K);
-//		_fue->FLAGRY[id]=0;
-//		_copym->Copy(a,_fue->A1+KA,id,_time);
+//		_rotationSolver->Update(K);
+//		_rotationSolver->FLAGRY[id]=0;
+//		_copym->Copy(a,_rotationSolver->A1+KA,id,_time);
 //		
 //		return;
 //	}
 //	
-//	double UY=_fue->_varX[K];
+//	double UY=_rotationSolver->_varX[K];
 //	UY=fabs(DMOD_c(UY,2*M_PI));           // DMOD - ???????
 //
 //	if ((_stageRK==1) && (UY>1.28))
 //	{
 //
-//		_fue->Update(K);
-//		_fue->FLAGRY[id]=1.0;
-//		_fue->IFLAGRY=1;
+//		_rotationSolver->Update(K);
+//		_rotationSolver->FLAGRY[id]=1.0;
+//		_rotationSolver->IFLAGRY=1;
 //		
-//		_copym->Copy(a,_fue->A1+KA,id,_time);
+//		_copym->Copy(a,_rotationSolver->A1+KA,id,_time);
 //	} 
-//	_fue->Update(K,_stageRK);
-//	_fue->UpdateR(K,om,_timeStep);
-//	_fue->UpdateR2(K,_stageRK);
+//	_rotationSolver->Update(K,_stageRK);
+//	_rotationSolver->UpdateR(K,om,_timeStep);
+//	_rotationSolver->UpdateR2(K,_stageRK);
 //
-//	_fue->UpdateMtx(K, a);
-//	MatrixMul(_fue->A1+KA,a);
+//	_rotationSolver->UpdateMtx(K, a);
+//	MatrixMul(_rotationSolver->A1+KA,a);
 //}
 //
 //void StressStrainCppIterativeSolver::MatrixMul(double *a1,double *a2)
@@ -599,7 +599,7 @@ void StressStrainCppIterativeSolver::pravsubfl()
 
 	for (j = 0; j < _nElements; j++)
 	{
-		int accOffset = _nElements * vecStride2 * 2 + j * vecStride2;
+		int accOffset = _nElements * vecStride2 * 2 + j * _vecStride2;
 
 		for (i = 0; i < vecStride2; i++) // можно вынести
 			_dataInternal[accOffset + i] = 0.0;

@@ -312,31 +312,31 @@ void StressStrainFortranIterativeSolver::Solve5()
 //	
 //	if (mets==0) 
 //	{
-//		_fue->Update(K);
-//		_fue->FLAGRY[id]=0;
-//		_copym->Copy(a,_fue->A1+KA,id,T);
+//		_rotationSolver->Update(K);
+//		_rotationSolver->FLAGRY[id]=0;
+//		_copym->Copy(a,_rotationSolver->A1+KA,id,T);
 //		
 //		return;
 //	}
 //	
-//	double UY=_fue->_varX[K];
+//	double UY=_rotationSolver->_varX[K];
 //	UY=fabs(DMOD_c(UY,2*M_PI));           // DMOD - ???????
 //
 //	if ((mets==1) && (UY>1.28))
 //	{
 //
-//		_fue->Update(K);
-//		_fue->FLAGRY[id]=1.0;
-//		_fue->IFLAGRY=1;
+//		_rotationSolver->Update(K);
+//		_rotationSolver->FLAGRY[id]=1.0;
+//		_rotationSolver->IFLAGRY=1;
 //		
-//		_copym->Copy(a,_fue->A1+KA,id,T);
+//		_copym->Copy(a,_rotationSolver->A1+KA,id,T);
 //	} 
-//	_fue->Update(K,mets);
-//	_fue->UpdateR(K,om,H);
-//	_fue->UpdateR2(K,mets);
+//	_rotationSolver->Update(K,mets);
+//	_rotationSolver->UpdateR(K,om,H);
+//	_rotationSolver->UpdateR2(K,mets);
 //
-//	_fue->UpdateMtx(K, a);
-//	MatrixMul(_fue->A1+KA,a);
+//	_rotationSolver->UpdateMtx(K, a);
+//	MatrixMul(_rotationSolver->A1+KA,a);
 //}
 //
 //void StressStrainFortranIterativeSolver::MatrixMul(double *a1,double *a2)

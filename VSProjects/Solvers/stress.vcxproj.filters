@@ -81,6 +81,9 @@
     <ClCompile Include="..\..\Fcore\Exceptions\fcExceptions.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Solvers\Stress\RotationSolver.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Solvers\Stress\BoundaryParams.h">
@@ -165,6 +168,9 @@
       <Filter>Header Files\StiffnessMatrix</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Solvers\Stress\StressStrainFortranStaticSolver2.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Solvers\Stress\RotationSolver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

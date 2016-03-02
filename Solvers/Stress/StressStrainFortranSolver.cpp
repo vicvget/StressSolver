@@ -321,7 +321,7 @@ void StressStrainFortranSolver::urejl4s
 		_copym->Copy(a, _fue->A1 + KA, id, T);
 		
 		//std::cout << "#############################################" << std::endl;
-		//std::cout << "intomsub urejl4s METS == 0" << std::endl;
+		//std::cout << "intomsub SolveElementRotation METS == 0" << std::endl;
 
 		return;
 	}
