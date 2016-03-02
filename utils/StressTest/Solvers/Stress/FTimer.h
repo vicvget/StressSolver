@@ -11,6 +11,7 @@ private:
 	LARGE_INTEGER _freq;
 	LARGE_INTEGER _current;
 	LARGE_INTEGER _total;
+	int _width;
 public: 
 	PerformanceCounter()
 	{
@@ -35,11 +36,15 @@ public:
 		double current_time = (double)(_total.QuadPart)/_freq.QuadPart;
 		return current_time;
 	}
+	void SetWidth(int width)
+	{
+		_width = width;
+	}
 
 	double Print(const char* tag, bool isStop = false)
 	{
 		double current_time = Get(isStop);
-		std::cout << std::setw(10) << tag << std::setprecision(20) << current_time << std::endl;
+		std::cout << std::setw(_width) << tag << std::setprecision(20) << current_time << std::endl;
 		return current_time;
 	}
 };
@@ -75,7 +80,15 @@ public:
 		if(id < _counters.size())
 			_counters[id].Stop();
 	}
-
+	
+	void SetWidth(int width)
+	{
+		for (int i = 0; i < _counters.size(); i++)
+		{
+			_counters[i].SetWidth(width);
+		}
+	}
+	
 	double Print(unsigned int id, const char* tag)
 	{
 		return id < _counters.size() ? _counters[id].Print(tag) : 0.;
