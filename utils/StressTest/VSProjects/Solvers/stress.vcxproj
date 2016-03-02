@@ -168,6 +168,7 @@
     <ClCompile Include="..\..\Solvers\Stress\BoundaryParams.cpp" />
     <ClCompile Include="..\..\Solvers\Stress\CsrSymmetricMatrix.cpp" />
     <ClCompile Include="..\..\Solvers\Stress\PardisoSolver.cpp" />
+    <ClCompile Include="..\..\Solvers\Stress\RotationSolver.cpp" />
     <ClCompile Include="..\..\Solvers\Stress\StiffnessMatrices.cpp" />
     <ClCompile Include="..\..\Solvers\Stress\StiffnessMatrix.cpp" />
     <ClCompile Include="..\..\Solvers\Stress\StiffnessMatrixPackedInCoordinateFormat.cpp" />
@@ -194,6 +195,7 @@
     <ClInclude Include="..\..\Solvers\Stress\FTimer.h" />
     <ClInclude Include="..\..\Solvers\Stress\IStressStrainSolver.h" />
     <ClInclude Include="..\..\Solvers\Stress\PardisoSolver.h" />
+    <ClInclude Include="..\..\Solvers\Stress\RotationSolver.h" />
     <ClInclude Include="..\..\Solvers\Stress\StiffnessMatrices.h" />
     <ClInclude Include="..\..\Solvers\Stress\StiffnessMatricesFunctions.h" />
     <ClInclude Include="..\..\Solvers\Stress\StiffnessMatrix.h" />

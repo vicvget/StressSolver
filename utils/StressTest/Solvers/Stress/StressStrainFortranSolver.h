@@ -431,11 +431,11 @@ public:
 //public:
 //	virtual double* GetElementVelocity(int elementId) const
 //	{
-//		return _dataInternal + (_nElements * vecStride2 + elementId * vecStride2);
+//		return _dataInternal + (_nElements * vecStride2 + elementId * _vecStride2);
 //	}
 //	virtual double* GetElementVelocityAngular(int elementId) const
 //	{
-//		return _dataInternal + (_nElements * vecStride2 + elementId * vecStride2 + vecStride);
+//		return _dataInternal + (_nElements * vecStride2 + elementId * _vecStride2 + vecStride);
 //	}
 
 

@@ -144,7 +144,7 @@ StressStrainCppSolver::StressStrainCppSolver
 	//_varDDX = new double[_nVariables];
 	//RZ = new double[_nVariables];
 	//R1Z = new double[_nVariables];
-	_fue = new Fue(nElements, stride);
+	_rotationSolver = new RotationSolver(nElements, stride);
 	_copym = new Copym(nElements, stride);
 
 	// Связанные элементы: порядок x-,y-,z-,x+,y+,z+ 
@@ -226,7 +226,7 @@ StressStrainCppSolver::~StressStrainCppSolver()
 	//delete [] R1Z;
 	delete [] _linkedElements;
 	delete [] _elements;
-	delete _fue;
+	delete _rotationSolver;
 	delete _copym;
 }
 
@@ -363,63 +363,50 @@ void StressStrainCppSolver::intomsub()
 
 //#pragma omp parallel for private(i) num_threads(NumThreads)
 	//std::cout << "                _nElements = " << _nElements << std::endl;
-	for (int i = 0; i < _nElements; i++)
+	for (size_t elementId = 0; elementId < _nElements; elementId++)
 	{
-		urejl4s
-			(
-				&_dataRotationMtx[i * matStride],
-				&_dataInternal[i * vecStride2 + vecStride],
-				&_dataInternal[i * vecStride2 + vecStride + _nElements * vecStride2],
-				_stageRK,
-				i
-			);
+		SolveElementRotation
+		(
+			GetRotationMatrix(elementId),
+			GetElementVelocityAngular(elementId),
+			elementId
+		);
 	}
 }
 
-void StressStrainCppSolver::urejl4s
+void StressStrainCppSolver::SolveElementRotation
 	(
-		double* a,
-		double *ug,
-		double *om,
-		int mets,
-		const int id
+		double* elementMtx,
+		double *elementW,
+		int elementId
 	)
 {
 	_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
 
-	int K = id * vecStride;
-	int KA = id * matStride;
-	
-	if (mets == 0) 
-	{
-		_fue->Update(K);
-		_fue->FLAGRY[id] = 0;
-		_copym->Copy(a, _fue->A1 + KA, id, _time);
-		
-		//std::cout << "#############################################" << std::endl;
-		//std::cout << "intomsub urejl4s METS == 0" << std::endl;
+	// смещение до референсной матрицы
+	double* rframeMtx = _rotationSolver->GetRframeMtx(elementId);
 
+	// инициализация на нулевом шаге
+	if (_stageRK == 0) 
+	{
+		_rotationSolver->MakeZeroVectors(elementId);
+		_copym->Copy(elementMtx, rframeMtx, elementId, _time);		
 		return;
 	}
 	
-	double UY = _fue->UE[K];
-	UY = fabs(DMOD(UY, 2 * M_PI));           // DMOD - ???????
-
-	if ((mets == 1) && (UY > 1.28))
+	// проверка сингулярности на первом шаге
+	if ((_stageRK == 1) && _rotationSolver->IsSingularityAngle(elementId))
 	{
-
-		_fue->Update(K);
-		_fue->FLAGRY[id] = 1.0;
-		_fue->IFLAGRY = 1;
-		
-		_copym->Copy(a, _fue->A1 + KA, id, _time);
+		_rotationSolver->MakeZeroVectors(elementId);
+		_copym->Copy(elementMtx, rframeMtx, elementId, _time);
+		// TODO: memcpy(rframeMtx, elementMtx, sizeof(double) * matStride);
 	} 
-	_fue->Update(K, mets);
-	_fue->UpdateR(K, om, _timeStep);
-	_fue->UpdateR2(K, mets);
-
-	_fue->UpdateMtx(K, a);
-	MatrixMul(_fue->A1 + KA, a);
+	
+	// выполнение шагов
+	_rotationSolver->Update(elementId, elementW, elementMtx, _timeStep, _stageRK);
+	
+	// переводим в новую СК без сингулярности
+	MatrixMul(rframeMtx, elementMtx);
 }
 
 void StressStrainCppSolver::MatrixMul
@@ -428,20 +415,6 @@ void StressStrainCppSolver::MatrixMul
 		double *a2
 	)
 {
-	//double tmp[16];
-	//memcpy(&tmp[0], a2, sizeof(double)*matStride);
-	//for (int row = 0; row < 3; row++)
-	//{
-	//	for (int col = 0; col < 3; col++)  
-	//	{
-	//		a2[row * vecStride + col] = 0.;
-	//		for(int k = 0; k < 3; k ++)
-	//		{
-	//			a2[row * vecStride + col] += a1[row * vecStride + k] * tmp[vecStride * k + col];
-	//		}
-	//	}
-	//}
-
 	if (vecStride == 3)
 	{
 		Mat3 mtx1(a1);
@@ -465,11 +438,11 @@ double* StressStrainCppSolver::GetRadiusVector(size_t side)
 
 
 void CrossProduct
-(
-	double* v1,
-	double* v2,
-	double* res
-)	
+	(
+		double* v1,
+		double* v2,
+		double* res
+	)	
 {
 	res[0] = v1[1] * v2[2] - v1[2] * v2[1];
 	res[1] = -v1[0] * v2[2] + v1[2] * v2[0];
@@ -477,13 +450,13 @@ void CrossProduct
 }
 
 void StressStrainCppSolver::CalculateStrainsAVX
-(
-size_t side,			// 0 = -x, 1 = x, 2 = -y, 3 = y, 4 = -z, 5 = z
-double *shiftStrains,		// выход деформаций
-double *velocityStrains,	// выход изм. скоростей
-int nodeId1,				// номер узла 1
-int nodeId2					// номер узла 2
-)
+	(
+		size_t side,			// 0 = -x, 1 = x, 2 = -y, 3 = y, 4 = -z, 5 = z
+		double *shiftStrains,		// выход деформаций
+		double *velocityStrains,	// выход изм. скоростей
+		int nodeId1,				// номер узла 1
+		int nodeId2					// номер узла 2
+	)
 {
 
 	// Start AVX code
@@ -620,13 +593,13 @@ int nodeId2					// номер узла 2
 }
 
 void StressStrainCppSolver::CalculateStrains
-(
-size_t side,			// 0 = -x, 1 = x, 2 = -y, 3 = y, 4 = -z, 5 = z
-double *shiftStrains,		// выход деформаций
-double *velocityStrains,	// выход изм. скоростей
-int nodeId1,				// номер узла 1
-int nodeId2					// номер узла 2
-)
+	(
+		size_t side,			// 0 = -x, 1 = x, 2 = -y, 3 = y, 4 = -z, 5 = z
+		double *shiftStrains,		// выход деформаций
+		double *velocityStrains,	// выход изм. скоростей
+		int nodeId1,				// номер узла 1
+		int nodeId2					// номер узла 2
+	)
 {
 	MathHelpers::Mat3x4 matA01(GetRotationMatrix(nodeId1));
 	MathHelpers::Mat3x4 matA02(GetRotationMatrix(nodeId2));
@@ -682,8 +655,6 @@ void StressStrainCppSolver::linksh3
 		int nNodes		// количество узлов
 	)
 {	
-	//unsigned int strideVec = 3;
-	//unsigned int strideMat = strideVec * strideVec;
 	unsigned int strideDeriv = nNodes * 2 * vecStride;
 	unsigned int nodeOffset1 = nodeId1 * 2 * vecStride;
 	unsigned int nodeOffset2 = nodeId2 * 2 * vecStride;
