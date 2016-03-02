@@ -3,48 +3,58 @@
 #include "StressStrainCppIterativeSolver.h"
 #include <cmath>
 #include "../../AdditionalModules/fmath/Vector3.h"
+#include "../../AdditionalModules/fmath/Matrix3x4.h"
 
 #define M_PI 3.1415926535897932384626433832795
 using std::setw;
 
 // X1,Y2,Z3 rotation (airplane angles)
-void MakeRotationMatrix(double UE[3], double* a, int stride)
+void MakeRotationMatrix(double* ue, double* a, int stride)
 {
-	const int id = 0;
-	double xc = cos(UE[id]);
-	double yc = cos(UE[id + 1]);
-	double zc = cos(UE[id + 2]);
-	double xs = sin(UE[id]);
-	double ys = sin(UE[id + 1]);
-	double zs = sin(UE[id + 2]);
+	//if (stride == 4)
+	//{
+	//	MathHelpers::Mat3x4 mtx;
+	//	mtx.MakeXYZRotationMtx01(ue);
+	//	mtx.Export(a);
+	//}
+	//else
+	{
+		const int id = 0;
+		double xc = cos(ue[id]);
+		double yc = cos(ue[id + 1]);
+		double zc = cos(ue[id + 2]);
+		double xs = sin(ue[id]);
+		double ys = sin(ue[id + 1]);
+		double zs = sin(ue[id + 2]);
 
 
-	double* firstRow = a;
-	double* secondRow = a + stride;
-	double* thirdRow = a + stride * 2;
+		double* firstRow = a;
+		double* secondRow = a + stride;
+		double* thirdRow = a + stride * 2;
 
-	firstRow[0] = yc*zc;
-	firstRow[1] = -yc*zs;
-	firstRow[2] = ys;
+		firstRow[0] = yc*zc;
+		firstRow[1] = -yc*zs;
+		firstRow[2] = ys;
 
-	secondRow[0] = xs*ys*zc + xc*zs;
-	secondRow[1] = -xs*ys*zs + xc*zc;
-	secondRow[2] = -xs*yc;
+		secondRow[0] = xs*ys*zc + xc*zs;
+		secondRow[1] = -xs*ys*zs + xc*zc;
+		secondRow[2] = -xs*yc;
 
-	thirdRow[0] = -xc*ys*zc + xs*zs;
-	thirdRow[1] = xc*ys*zs + xs*zc;
-	thirdRow[2] = xc*yc;
+		thirdRow[0] = -xc*ys*zc + xs*zs;
+		thirdRow[1] = xc*ys*zs + xs*zc;
+		thirdRow[2] = xc*yc;
+	}
 }
 
 int main()
 {
-	double params[4];
+	double params[4] = {1e10, 0.01, 1, 1e8};
 	int links[1];
 	double nLinks = 0;
 	double nodes[300];
 	int nElements = 100;
 	double gridStep = 1;
-	double timeStep = 1;
+	double timeStep = 1e-4;
 	double nThreads = 1;
 	double for_stride = 3;
 	double cpp_stride = 4;
@@ -141,7 +151,7 @@ int main()
 		);
 
 	const int width = 9;
-	std::cout << "SL l4 " << setw(width) << "lavx " << setw(width) << "l1" << setw(width) << "l2" << setw(width) << "l3\n";
+	std::cout << "SL cpp " << setw(width) << "avx " << setw(width) << "l1" << setw(width) << "l2" << setw(width) << "l3\n";
 	for (int i = 0; i < 8; i++)
 	{
 		std::cout << setw(width) << SL[i] << " "
@@ -162,7 +172,7 @@ int main()
 					<< std::endl;
 	}
 
-	//cppSolver->Solve(10000);
+	cppSolver->Solve(10);
 
 	delete forSolver;
 	delete cppSolver;

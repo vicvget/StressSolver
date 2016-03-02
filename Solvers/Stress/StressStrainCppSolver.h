@@ -395,7 +395,7 @@ public:
 	int _numThreads;
 	FTimer _testTimer;
 
-	void intomsub();
+	void CalculateRotations();
 
 	void SolveElementRotation
 		(

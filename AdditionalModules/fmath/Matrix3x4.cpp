@@ -234,6 +234,55 @@ namespace MathHelpers
 	}
 
 		
+	void Mat3x4::MakeXYZRotationMtx10(double* angles)
+	{
+		double xc = cos(angles[0]);
+		double xs = sin(angles[0]);
+		double yc = cos(angles[1]);
+		double ys = sin(angles[1]);
+		double zc = cos(angles[2]);
+		double zs = sin(angles[2]);
+
+		// A01
+
+		E(0, 0) = yc*zc;
+		E(0, 1) = -yc*zs;
+		E(0, 2) = ys;
+
+		E(1, 0) = xs*ys*zc + xc*zs;
+		E(1, 1) = -xs*ys*zs + xc*zc;
+		E(1, 2) = -xs*yc;
+
+		E(2, 0) = -xc*ys*zc + xs*zs;
+		E(2, 1) = xc*ys*zs + xs*zc;
+		E(2, 2) = xc*yc;
+	}
+
+	void Mat3x4::MakeXYZRotationMtx01(double* angles)
+	{
+		double xc = cos(angles[0]);
+		double xs = sin(angles[0]);
+		double yc = cos(angles[1]);
+		double ys = sin(angles[1]);
+		double zc = cos(angles[2]);
+		double zs = sin(angles[2]);
+
+		// A01
+
+		E(0, 0) = yc*zc;
+		E(1, 0) = -yc*zs;
+		E(2, 0) = ys;
+
+		E(0, 0) = xs*ys*zc + xc*zs;
+		E(1, 0) = -xs*ys*zs + xc*zc;
+		E(2, 0) = -xs*yc;
+
+		E(0, 0) = -xc*ys*zc + xs*zs;
+		E(1, 0) = xc*ys*zs + xs*zc;
+		E(2, 0) = xc*yc;
+	}
+
+
 	Mat3x4 Mat3x4::Tr() const
 	{
 		Mat3x4 mtx(*this);

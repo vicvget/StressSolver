@@ -46,7 +46,7 @@ StressStrainCppIterativeSolver::StressStrainCppIterativeSolver
 			),
 		_iterationNumber(0)
 {
-	intomsub();
+	CalculateRotations();
 }
 
 // virtual
@@ -77,7 +77,7 @@ void StressStrainCppIterativeSolver::Solve
 
 		_stageRK = 1;
 		_testTimer.Start(1);
-		intomsub();
+		CalculateRotations();
 		_testTimer.Stop(1);
 		_testTimer.Start(2);
 		CalculateForces();
@@ -100,7 +100,7 @@ void StressStrainCppIterativeSolver::Solve
 
 
 		_testTimer.Start(1);
-		intomsub();
+		CalculateRotations();
 		_testTimer.Stop(1);
 		_testTimer.Start(2);
 		CalculateForces();
@@ -119,7 +119,7 @@ void StressStrainCppIterativeSolver::Solve
 		_testTimer.Stop(3);
 
 		_testTimer.Start(1);
-		intomsub();
+		CalculateRotations();
 		_testTimer.Stop(1);
 		_testTimer.Start(2);
 		CalculateForces();
@@ -139,7 +139,7 @@ void StressStrainCppIterativeSolver::Solve
 		_testTimer.Stop(3);
 
 		_testTimer.Start(1);
-		intomsub();
+		CalculateRotations();
 		_testTimer.Stop(1);
 		_testTimer.Start(2);
 		CalculateForces();
@@ -158,12 +158,15 @@ void StressStrainCppIterativeSolver::Solve
 
 	}
 	_testTimer.Stop(0);
-	_testTimer.Print(0, "Total:");
-	double t1 = _testTimer.Print(1, "Intomsub:");
-	double t2 = _testTimer.Print(2, "Pravsubfl:");
-	double t3 = _testTimer.Print(3, "Integration:");
-	_testTimer.Print(5, "Linksh:");
-	std::cout << "Sum: " << t1+t2+t3 << std::endl;
+	const int width = 16;
+	_testTimer.SetWidth(width);
+	std::cout << "-----------------------------------\n";
+	double t1 = _testTimer.Print(1, "Rotations: ");
+	double t2 = _testTimer.Print(2, "Forces: ");
+	double t3 = _testTimer.Print(3, "Integration: ");
+	//_testTimer.Print(5, "Linksh:");
+	std::cout << std::setw(width) << "Summ: " << t1 + t2 + t3 << std::endl;
+	_testTimer.Print(0, "Total: ");
 
 }
 
@@ -180,7 +183,7 @@ void StressStrainCppIterativeSolver::Solve1()
 	_time = _timeTmp - _timeStep * 0.5;
 
 	_stageRK = 1;
-	intomsub();
+	CalculateRotations();
 	CalculateForces();
 }
 
@@ -203,7 +206,7 @@ void StressStrainCppIterativeSolver::Solve2()
 		_varDX[j] += _hDDX1[j] * 0.5;       
 	}
 	_stageRK = 2;
-	intomsub();
+	CalculateRotations();
 	CalculateForces();
 }
 
@@ -224,7 +227,7 @@ void StressStrainCppIterativeSolver::Solve3()
 		_varDX[j] = _initDX[j] + _hDDX2[j] * 0.5;
 	}
 	_stageRK = 3;
-	intomsub();
+	CalculateRotations();
 	CalculateForces();
 }
 
@@ -246,7 +249,7 @@ void StressStrainCppIterativeSolver::Solve4()
 		_varDX[j] = _initDX[j] + _hDDX3[j];
 	}
 	_stageRK = 4;
-	intomsub();
+	CalculateRotations();
 	CalculateForces();
 }
 
@@ -265,53 +268,6 @@ void StressStrainCppIterativeSolver::Solve5()
 		_varDX[j] = _initDX[j] + (_hDDX1[j] + sDDX + sDDX + _varDDX[j] * _timeStep) / 6.0;
 	}
 }
-
-//void StressStrainCppIterativeSolver::SolveElementRotation(double* a, double *ug, double *om, int _stageRK, const int id)
-//{
-//	int K=id*3;
-//	int KA=id*9;
-//	
-//	if (_stageRK==0) 
-//	{
-//		_rotationSolver->Update(K);
-//		_rotationSolver->FLAGRY[id]=0;
-//		_copym->Copy(a,_rotationSolver->A1+KA,id,_time);
-//		
-//		return;
-//	}
-//	
-//	double UY=_rotationSolver->_varX[K];
-//	UY=fabs(DMOD_c(UY,2*M_PI));           // DMOD - ???????
-//
-//	if ((_stageRK==1) && (UY>1.28))
-//	{
-//
-//		_rotationSolver->Update(K);
-//		_rotationSolver->FLAGRY[id]=1.0;
-//		_rotationSolver->IFLAGRY=1;
-//		
-//		_copym->Copy(a,_rotationSolver->A1+KA,id,_time);
-//	} 
-//	_rotationSolver->Update(K,_stageRK);
-//	_rotationSolver->UpdateR(K,om,_timeStep);
-//	_rotationSolver->UpdateR2(K,_stageRK);
-//
-//	_rotationSolver->UpdateMtx(K, a);
-//	MatrixMul(_rotationSolver->A1+KA,a);
-//}
-//
-//void StressStrainCppIterativeSolver::MatrixMul(double *a1,double *a2)
-//{
-//	double az[9];
-//
-//	for (int i=0;i<9;i++)
-//		az[i]=a2[i];
-//
-//	for (int j=0;j<3;j++)
-//		for (int i=0;i<3;i++)  
-//			a2[j*3+i]=a1[j*3]*az[i]+a1[j*3+1]*az[3+i]+a1[j*3+2]*az[6+i];
-//}
-
 
 /** Получить смещения
 * @param data - массив для записи смещений как скалярного параметра
@@ -471,9 +427,7 @@ void StressStrainCppIterativeSolver::CalculateForces()
 	{
 		_isFirstIteration = false;
 		_stageRK = 0;
-		std::cout << "#############################################" << std::endl;
-		std::cout << "pravsubfl _stageRK == 0 isFirstIteration" << std::endl;
-		intomsub();
+		CalculateRotations();
 		_stageRK = 1;
 	}
 
@@ -554,7 +508,7 @@ void StressStrainCppIterativeSolver::pravsubfl()
 		_stageRK = 0;
 		std::cout << "#############################################" << std::endl;
 		std::cout << "pravsubfl _stageRK == 0 isFirstIteration" << std::endl;
-		intomsub();
+		CalculateRotations();
 		_stageRK = 1;
 	}
 
@@ -755,7 +709,7 @@ void StressStrainCppIterativeSolver::pravsubfl()
 }
 #endif
 
-void Stress::StressStrainCppIterativeSolver::ApplyBoundary()
+void StressStrainCppIterativeSolver::ApplyBoundary()
 {
 	//работает с типами из frm_provider
 	//BCT_stresstrainBoundaryForce = 3,

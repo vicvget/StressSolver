@@ -193,17 +193,34 @@ namespace Stress
 		double* secondRow = a + _vecStride;
 		double* thirdRow = a + _vecStride * 2;
 
+		// A10
+
+		//firstRow[0] = yc*zc;
+		//firstRow[1] = -yc*zs;
+		//firstRow[2] = ys;
+
+		//secondRow[0] = xs*ys*zc + xc*zs;
+		//secondRow[1] = -xs*ys*zs + xc*zc;
+		//secondRow[2] = -xs*yc;
+
+		//thirdRow[0] = -xc*ys*zc + xs*zs;
+		//thirdRow[1] = xc*ys*zs + xs*zc;
+		//thirdRow[2] = xc*yc;
+
+		// A01
+
 		firstRow[0] = yc*zc;
-		firstRow[1] = -yc*zs;
-		firstRow[2] = ys;
+		secondRow[0] = -yc*zs;
+		thirdRow[0] = ys;
 
-		secondRow[0] = xs*ys*zc + xc*zs;
+		firstRow[1] = xs*ys*zc + xc*zs;
 		secondRow[1] = -xs*ys*zs + xc*zc;
-		secondRow[2] = -xs*yc;
+		thirdRow[1] = -xs*yc;
 
-		thirdRow[0] = -xc*ys*zc + xs*zs;
-		thirdRow[1] = xc*ys*zs + xs*zc;
+		firstRow[2] = -xc*ys*zc + xs*zs;
+		secondRow[2] = xc*ys*zs + xs*zc;
 		thirdRow[2] = xc*yc;
+
 	}
 
 }

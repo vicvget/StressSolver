@@ -68,10 +68,17 @@ StressStrainFortranSolver::StressStrainFortranSolver
 	_elasticModulusScaled = _elasticModulus / _stiffScale;	  // отмасштабированный модуль упругости
 	NumThreads = (numThreads > 0) ? numThreads : omp_get_max_threads();
 	
-	std::cout
-		<< "################### STIFF SCALE: " << _stiffScale
-		<< " ################### NUMBER OF THREADS: " << NumThreads
-		<< " ################### NUM_THREADS: " << numThreads << std::endl;
+	const int outWidth = 15;
+	std::cout << "------------------------------" << std::endl
+		<< "    FOR SOLVER IS CREATED" << std::endl
+		<< "------------------------------" << std::endl
+		<< std::setw(outWidth) << "VECSTRIDE: " << std::setw(outWidth) << vecStride << std::endl
+		<< std::setw(outWidth) << "STIFF SCALE: " << std::setw(outWidth) << _stiffScale << std::endl
+		<< std::setw(outWidth) << "ELASTIC: " << std::setw(outWidth) << _elasticModulus << std::endl
+		<< std::setw(outWidth) << "DAMPING: " << std::setw(outWidth) << _dampingFactor << std::endl
+		<< std::setw(outWidth) << "DENSITY: " << std::setw(outWidth) << _density << std::endl
+		<< std::setw(outWidth) << "ELEMENTS: " << std::setw(outWidth) << nElements << std::endl
+		<< std::setw(outWidth) << "GRID STEP: " << std::setw(outWidth) << _gridStep << std::endl;
 
 	//GRA = _dataRotationMtx;//new double [nElements * 9];
 

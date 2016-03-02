@@ -69,7 +69,8 @@ namespace MathHelpers
 
 		void SetRotation(const Vec3& axis, double angle);
 		void SetTranslation(const Vec3& translation);
-
+		void MakeXYZRotationMtx01(double* angles);
+		void MakeXYZRotationMtx10(double* angles);
 		Mat3x4 Tr() const;
 	private:
 
