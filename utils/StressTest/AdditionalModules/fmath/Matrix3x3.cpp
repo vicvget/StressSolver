@@ -268,6 +268,39 @@ namespace MathHelpers
 		return mtx;
 	}
 
+	Mat3 Mat3::MakeXYZRotationMtx10(double* angles)
+	{
+		return MakeXYZRotationMtx01(angles).Tr();
+	}
+
+	Mat3 Mat3::MakeXYZRotationMtx01(double* angles)
+	{
+		double cosX = cos(angles[0]);
+		double sinX = sin(angles[0]);
+		double cosY = cos(angles[1]);
+		double sinY = sin(angles[1]);
+		double cosZ = cos(angles[2]);
+		double sinZ = sin(angles[2]);
+
+		Mat3 res;
+
+		// A01
+
+		res.E(0, 0) = cosY*cosZ;
+		res.E(1, 0) = -cosY*sinZ;
+		res.E(2, 0) = sinY;
+		res.E(0, 1) = sinX*sinY*cosZ + cosX*sinZ;
+		res.E(1, 1) = -sinX*sinY*sinZ + cosX*cosZ;
+		res.E(2, 1) = -sinX*cosY;
+		res.E(0, 2) = -cosX*sinY*cosZ + sinX*sinZ;
+		res.E(1, 2) = cosX*sinY*sinZ + sinX*cosZ;
+		res.E(2, 2) = cosX*cosY;
+
+		return res;
+	}
+
+
+
 	Mat3 Mat3::Tr() const
 	{
 		Mat3 mtx(*this);

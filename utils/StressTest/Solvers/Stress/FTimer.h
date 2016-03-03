@@ -83,9 +83,13 @@ public:
 	
 	void SetWidth(int width)
 	{
-		for (int i = 0; i < _counters.size(); i++)
+		//for (int i = 0; i < _counters.size(); i++)
+		//{
+		//	_counters[i].SetWidth(width);
+		//}
+		for (PerformanceCounter& counter : _counters)
 		{
-			_counters[i].SetWidth(width);
+				counter.SetWidth(width);
 		}
 	}
 	

@@ -77,6 +77,12 @@ namespace MathHelpers
 		Mat3 SetRotation(const Vec3& axis, double angle);
 		double& E(int i, int j);
 		double E(int i, int j) const;
+
+		
+		static Mat3 MakeXYZRotationMtx01(double* angles);
+		static Mat3 MakeXYZRotationMtx10(double* angles);
+
+
 	private:
 
 		double* _mat;

@@ -684,8 +684,9 @@ void StressStrainFortranSolver::linksh3
 	Vec3Ref vecC1 = MakeVec3(cVec1);					 // координаты точки связи узла 1
 	Vec3Ref vecC2 = MakeVec3(cVec2);					 // координаты точки связи узла 2
 	
-	//matA02 = matA02.Tr();
-	//matA01 = matA01.Tr();
+	// т.к. мы храним матрицу по строкам, а для fortran - хранится по столбцам
+	matA02 = matA02.Tr();
+	matA01 = matA01.Tr();
 	Mat3 matA12 = matA01.Tmul(matA02);					 // A_{12} = A^T_{01}xA_{02}
 	double *pVec1 = _dataInternal + nodeOffset1;	     // адрес смещение до вектора неизвестных тела nodeId1
 	double *pVec2 = _dataInternal + nodeOffset2;		 // адрес смещение до вектора неизвестных тела nodeId2
