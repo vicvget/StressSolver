@@ -142,8 +142,13 @@ StressStrainCppSolver::StressStrainCppSolver
 	//_varDDX = new double[_nVariables];
 	//RZ = new double[_nVariables];
 	//R1Z = new double[_nVariables];
-	_rotationSolver = new RotationSolver(nElements, stride);
-	_copym = new Copym(nElements, stride);
+	_rotationSolver = new RotationSolver(
+		nElements, 
+		stride, 
+		_timeStep, 
+		GetElementVelocityAngular(0),
+		_dataRotationMtx
+		);
 
 	// Связанные элементы: порядок x-,y-,z-,x+,y+,z+ 
 	// Нумерация с 1, если 0, то связь отсутствует
@@ -203,7 +208,6 @@ StressStrainCppSolver::StressStrainCppSolver
 			_dataInternal[i * 2 * vecStride + j] = nodes[i * 3 + j];
 		}
 	}
-	CalculateRotations();
 	_testTimer.Allocate(10);
 }
 
@@ -220,7 +224,6 @@ StressStrainCppSolver::~StressStrainCppSolver()
 	delete [] _linkedElements;
 	delete [] _elements;
 	delete _rotationSolver;
-	delete _copym;
 }
 
 /** Добавление связей
@@ -348,81 +351,6 @@ void StressStrainCppSolver::UpdateBuffer
 	}
 }
 
-void StressStrainCppSolver::CalculateRotations()
-{
-#ifdef NOINTOMSUB
-	return;
-#endif
-
-//#pragma omp parallel for private(i) num_threads(NumThreads)
-	//std::cout << "                _nElements = " << _nElements << std::endl;
-	for (size_t elementId = 0; elementId < _nElements; elementId++)
-	{
-		SolveElementRotation
-		(
-			GetRotationMatrix(elementId),
-			GetElementVelocityAngular(elementId),
-			elementId
-		);
-	}
-}
-
-void StressStrainCppSolver::SolveElementRotation
-	(
-		double* elementMtx,
-		double *elementW,
-		int elementId
-	)
-{
-	_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
-
-	// смещение до референсной матрицы
-	double* rframeMtx = _rotationSolver->GetRframeMtx(elementId);
-
-	// инициализация на нулевом шаге
-	if (_stageRK == 0) 
-	{
-		_rotationSolver->MakeZeroVectors(elementId);
-		_copym->Copy(elementMtx, rframeMtx, elementId, _time);		
-		return;
-	}
-	
-	// проверка сингулярности на первом шаге
-	if ((_stageRK == 1) && _rotationSolver->IsSingularityAngle(elementId))
-	{
-		_rotationSolver->MakeZeroVectors(elementId);
-		_copym->Copy(elementMtx, rframeMtx, elementId, _time);
-		// TODO: memcpy(rframeMtx, elementMtx, sizeof(double) * matStride);
-	} 
-	
-	// выполнение шагов
-	_rotationSolver->Update(elementId, elementW, elementMtx, _timeStep, _stageRK);
-	
-	// переводим в новую СК без сингулярности
-	MatrixMul(rframeMtx, elementMtx);
-}
-
-void StressStrainCppSolver::MatrixMul
-	(
-		double *a1,
-		double *a2
-	)
-{
-	if (vecStride == 3)
-	{
-		Mat3 mtx1(a1);
-		Mat3 mtx2(a2);
-		Mat3 mtx3 = mtx1 * mtx2;
-		mtx3.Export(a2);
-	}
-	else
-	{
-		Mat3x4 mtx1(a1);
-		Mat3x4 mtx2(a2);
-		Mat3x4 mtx3 = mtx1 * mtx2;
-		mtx3.Export(a2);
-	}
-}
 
 double* StressStrainCppSolver::GetRadiusVector(size_t side)
 {

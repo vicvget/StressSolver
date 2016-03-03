@@ -46,7 +46,6 @@ StressStrainCppIterativeSolver::StressStrainCppIterativeSolver
 			),
 		_iterationNumber(0)
 {
-	CalculateRotations();
 }
 
 // virtual
@@ -74,10 +73,11 @@ void StressStrainCppIterativeSolver::Solve
 		// _timeTmp - это член класса, а тут объ€вл€лась временна€ переменна€ с таким же названием
 		_timeTmp = _iterationNumber * _timeStep;
 		_time = _timeTmp - _timeStep2;
+		_rotationSolver->InitIteration();
 
 		_stageRK = 1;
 		_testTimer.Start(1);
-		CalculateRotations();
+		_rotationSolver->Solve1();
 		_testTimer.Stop(1);
 		_testTimer.Start(2);
 		CalculateForces();
@@ -86,6 +86,7 @@ void StressStrainCppIterativeSolver::Solve
 		_testTimer.Start(3);
 		memcpy(_initX, _varX, sizeof(double)*_nVariables);
 		memcpy(_initDX, _varDX, sizeof(double)*_nVariables);
+		_rotationSolver->InitIteration();
 
 		// RK4 step 1
 		#pragma omp parallel for num_threads(_numThreads)
@@ -100,7 +101,7 @@ void StressStrainCppIterativeSolver::Solve
 
 
 		_testTimer.Start(1);
-		CalculateRotations();
+		_rotationSolver->Solve2();
 		_testTimer.Stop(1);
 		_testTimer.Start(2);
 		CalculateForces();
@@ -119,7 +120,7 @@ void StressStrainCppIterativeSolver::Solve
 		_testTimer.Stop(3);
 
 		_testTimer.Start(1);
-		CalculateRotations();
+		_rotationSolver->Solve3();
 		_testTimer.Stop(1);
 		_testTimer.Start(2);
 		CalculateForces();
@@ -139,7 +140,7 @@ void StressStrainCppIterativeSolver::Solve
 		_testTimer.Stop(3);
 
 		_testTimer.Start(1);
-		CalculateRotations();
+		_rotationSolver->Solve4();
 		_testTimer.Stop(1);
 		_testTimer.Start(2);
 		CalculateForces();
@@ -183,7 +184,7 @@ void StressStrainCppIterativeSolver::Solve1()
 	_time = _timeTmp - _timeStep * 0.5;
 
 	_stageRK = 1;
-	CalculateRotations();
+	_rotationSolver->Solve1();
 	CalculateForces();
 }
 
@@ -206,7 +207,7 @@ void StressStrainCppIterativeSolver::Solve2()
 		_varDX[j] += _hDDX1[j] * 0.5;       
 	}
 	_stageRK = 2;
-	CalculateRotations();
+	_rotationSolver->Solve2();
 	CalculateForces();
 }
 
@@ -227,7 +228,7 @@ void StressStrainCppIterativeSolver::Solve3()
 		_varDX[j] = _initDX[j] + _hDDX2[j] * 0.5;
 	}
 	_stageRK = 3;
-	CalculateRotations();
+	_rotationSolver->Solve3();
 	CalculateForces();
 }
 
@@ -249,7 +250,7 @@ void StressStrainCppIterativeSolver::Solve4()
 		_varDX[j] = _initDX[j] + _hDDX3[j];
 	}
 	_stageRK = 4;
-	CalculateRotations();
+	_rotationSolver->Solve4();
 	CalculateForces();
 }
 
@@ -427,7 +428,7 @@ void StressStrainCppIterativeSolver::CalculateForces()
 	{
 		_isFirstIteration = false;
 		_stageRK = 0;
-		CalculateRotations();
+		//CalculateRotations();
 		_stageRK = 1;
 	}
 

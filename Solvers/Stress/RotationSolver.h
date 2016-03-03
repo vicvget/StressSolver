@@ -15,14 +15,21 @@ namespace Stress
 
 	class RotationSolver
 	{
-		double* _varDX;
-		double* _hDDX1;
-		double* _hDDX2;
-		double* _hDDX3;
-		double* _varX;
-		double* _initX;
+		double* _varX;	// текущие переменные
+		double* _varDX;	// текущие производные по времени
+		double* _initX;	// значения переменных предыдущего шага
+		double* _hDDX1;	// вспомогательные переменные (RK4)
+		double* _hDDX2; // вспомогательные переменные (RK4)
+		double* _hDDX3; // вспомогательные переменные (RK4)
 
-		double* _rframeMtx;
+		// матрица для изменения системы кординат отсчета углов при приближении к сингулярности
+		// для выбранной системы углов (x,y,z) при abs(y % pi) близком к pi/2 матрица 
+		// присваивается текущей матрице поворота, а углы обнуляются
+		double* _rframeMtx;	
+
+		double* _wPointer;
+		double* _mtxPointer;
+		double _timeStep;
 
 		size_t _vecStride; 
 		size_t _vecStride2;
@@ -31,21 +38,40 @@ namespace Stress
 	public:
 
 		double* GetRframeMtx(size_t elementId) const;
+		double* GetRotationMtx(size_t elementId) const;
 		double* GetAngles(size_t elementId) const;
+		double* GetAngularVelocity(size_t elementId) const;
 
 		bool IsSingularityAngle(size_t elementId) const;
 
-		void Update(size_t elementId, double* elementW, double* elementMtx, double timeStep, const int stageRK = 0);
+		void Update(size_t elementId, int stageRK = 0);
 		void MakeZeroVectors(size_t elementId) const;
 
-		RotationSolver(const int nElements, int stride);
+		void InitIteration() const;
+		void Solve1();
+		void Solve2();
+		void Solve3();
+		void Solve4();
+
+		RotationSolver
+			(
+				int nElements, 
+				int stride,
+				double timeStep,
+				double* wPointer,
+				double* mtxPointer
+			);
 		~RotationSolver();
 
 	protected:
-		void UpdateR(const int offset, const double* elementW, const double timeStep) const;
-		void UpdateR2(const int offet, const int stageRK) const;
-		void UpdateMtx(const int ofset, double* elementMtx) const;
+		size_t _nElements;
+		size_t _nVariables;
+		void CalculateRHS();
+		void UpdateRHS(int elementId) const;
+		void UpdateMtx(int elementId) const;
+		void UpdateMtxs() const;
 
+		void UpdateR2(const int offet, const int stageRK) const;
 
 	};
 

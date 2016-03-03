@@ -4,45 +4,27 @@
 #include <cmath>
 #include "../../AdditionalModules/fmath/Vector3.h"
 #include "../../AdditionalModules/fmath/Matrix3x4.h"
+#include "../../AdditionalModules/fmath/Matrix3x3.h"
 
 #define M_PI 3.1415926535897932384626433832795
 using std::setw;
+using MathHelpers::Mat3x4;
+using MathHelpers::Mat3;
 
 // X1,Y2,Z3 rotation (airplane angles)
-void MakeRotationMatrix(double* ue, double* a, int stride)
+void MakeRotationMatrix(double* ue, double* a, int stride, bool transposed = false)
 {
-	//if (stride == 4)
-	//{
-	//	MathHelpers::Mat3x4 mtx;
-	//	mtx.MakeXYZRotationMtx01(ue);
-	//	mtx.Export(a);
-	//}
-	//else
+	if (stride == 4)
 	{
-		const int id = 0;
-		double xc = cos(ue[id]);
-		double yc = cos(ue[id + 1]);
-		double zc = cos(ue[id + 2]);
-		double xs = sin(ue[id]);
-		double ys = sin(ue[id + 1]);
-		double zs = sin(ue[id + 2]);
-
-
-		double* firstRow = a;
-		double* secondRow = a + stride;
-		double* thirdRow = a + stride * 2;
-
-		firstRow[0] = yc*zc;
-		firstRow[1] = -yc*zs;
-		firstRow[2] = ys;
-
-		secondRow[0] = xs*ys*zc + xc*zs;
-		secondRow[1] = -xs*ys*zs + xc*zc;
-		secondRow[2] = -xs*yc;
-
-		thirdRow[0] = -xc*ys*zc + xs*zs;
-		thirdRow[1] = xc*ys*zs + xs*zc;
-		thirdRow[2] = xc*yc;
+		Mat3x4::MakeXYZRotationMtx01(ue).Export(a);
+	}
+	else if (transposed)
+	{
+		Mat3::MakeXYZRotationMtx10(ue).Export(a);
+	}
+	else
+	{
+		Mat3::MakeXYZRotationMtx01(ue).Export(a);
 	}
 }
 
@@ -99,7 +81,7 @@ int main()
 			UE[j] = ((double)rand())/RAND_MAX * 2*M_PI;
 		}
 		MakeRotationMatrix(UE, cppSolver->GetRotationMatrix(i), cpp_stride);
-		MakeRotationMatrix(UE, forSolver->GetRotationMatrix(i), for_stride);
+		MakeRotationMatrix(UE, forSolver->GetRotationMatrix(i), for_stride, true);
 	}
 
 	for (int i = 0; i < nElements; i++)
