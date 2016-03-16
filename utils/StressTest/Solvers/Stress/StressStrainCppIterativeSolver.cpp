@@ -66,7 +66,7 @@ void StressStrainCppIterativeSolver::Solve
 
 	_iterationNumber = 0;
 	_testTimer.Start(0);
-	while (_iterationNumber != nIterations)
+	while (_iterationNumber != nIterations && _rotationSolver->IsValid())
 	{
 		_iterationNumber++;
 		_nIteration++;

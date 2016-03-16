@@ -1,11 +1,5 @@
-#ifndef StressStrainSolverH
-
-#define StressStrainSolverH
-
-
-#include <cstdio>
+#pragma once
 #include <iostream>
-#include <string>
 
 using std::cout;
 using std::string;
@@ -294,4 +288,3 @@ public:
 	virtual double* GetRotationMatrix(int elementId) const;
 };
 
-#endif

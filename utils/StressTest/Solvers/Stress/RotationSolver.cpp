@@ -51,6 +51,11 @@ namespace Stress
 
 	}
 
+	bool RotationSolver::IsValid() const
+	{
+		return _isValid;
+	}
+
 	RotationSolver::RotationSolver
 		(
 			int nElements,
@@ -65,7 +70,8 @@ namespace Stress
 		_nElements(nElements),
 		_vecStride(stride),
 		_vecStride2(stride * 2),
-		_matStride(stride * 3)
+		_matStride(stride * 3),
+		_isValid(true)
 	{
 		_nVariables = nElements*_vecStride;
 		const size_t matSize = nElements*_matStride*sizeof(double);
@@ -168,11 +174,16 @@ namespace Stress
 	void RotationSolver::CalculateRHS()
 	{
 		for (size_t elementId = 0; elementId < _nElements; elementId++)
-			UpdateRHS(elementId);
-
+		{
+			if (!UpdateRHS(elementId))
+			{
+				_isValid = false;
+				break;
+			}
+		}
 	}
 
-	void RotationSolver::UpdateRHS(int elementId) const
+	bool RotationSolver::UpdateRHS(int elementId) const
 	{
 		double* angles = GetAngles(elementId);
 		double* elementW = GetAngularVelocity(elementId);
@@ -190,20 +201,23 @@ namespace Stress
 		double controlAngleX = (-sinZ*wx - cosZ*wy) / cosZ;
 		double controlAngleY = (wy*cosZ + wx*sinZ)*tanY;
 		double maxValue = 400.0 / (_timeStep*_timeStep);
-
+		bool result = true;
 		if (std::abs(controlAngleX) > maxValue)
 		{
 			std::cout << "small step for 1 euler eq\n";
+			result = false;
 		}
 		if (std::abs(controlAngleY) > maxValue)
 		{
 			std::cout << "small step for 3 euler eq\n";
+			result = false;
 		}
 
 
 		_varDX[elementId] =	  (wx*cosZ - wy*sinZ) / cosY*_timeStep;
 		_varDX[elementId + 1] =  (wx*sinZ + wy*cosZ)*_timeStep;
 		_varDX[elementId + 2] = ((wy*sinZ - wx*cosZ)*tanY + wz)*_timeStep;
+		return result;
 	}
 
 	void RotationSolver::UpdateMtx(int elementId) const

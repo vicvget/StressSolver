@@ -1,7 +1,7 @@
 #ifndef StressStrainSolverExportsH
 #define StressStrainSolverExportsH
 
-//#define STANDALONE
+#define STANDALONE
 
 #ifdef STANDALONE
 #define EXTERN
@@ -10,12 +10,15 @@
 #endif
 
 
+#ifndef STANDALONE
 #ifdef _USRDLL
 #define DLL_FUNCTION EXTERN __declspec(dllexport)
 #else
 #define DLL_FUNCTION EXTERN __declspec(dllimport)
 #endif
-
+#else
+#define DLL_FUNCTION
+#endif
 
 
 namespace Stress

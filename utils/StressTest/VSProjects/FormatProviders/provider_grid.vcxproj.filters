@@ -1,0 +1,138 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Source Files\MeshDataCleaner">
+      <UniqueIdentifier>{b7292b2c-3b68-4a76-b3da-406236e5f6d0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Header Files\MeshDataClearer">
+      <UniqueIdentifier>{21e587d0-be29-482f-8a5d-f19655e9d62e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\FormatProviders\GridProvider\ArrayVertexToGridFormatter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\FormatProviders\GridProvider\BoundaryCondition.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\FormatProviders\GridProvider\ControlReader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\FormatProviders\GridProvider\MeshDataGraphFormatter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\FormatProviders\GridProvider\MeshDataProvider.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\FormatProviders\GridProvider\MeshDataSolverFormatter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\FormatProviders\GridProvider\MeshLayer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\FormatProviders\GridProvider\MeshRow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\FormatProviders\GridProvider\occRectilinearGrid.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\FormatProviders\GridProvider\Point3D.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\FormatProviders\GridProvider\RLCControlReader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\FormatProviders\GridProvider\RLCControlWriter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\FormatProviders\GridProvider\SurfaceParam.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\FormatProviders\GridProvider\MeshDataCleaner.cpp">
+      <Filter>Source Files\MeshDataCleaner</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\FormatProviders\GridProvider\NodeLinks.cpp">
+      <Filter>Source Files\MeshDataCleaner</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\FormatProviders\GridProvider\UsingPolicy.cpp">
+      <Filter>Source Files\MeshDataCleaner</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\FormatProviders\GridProvider\BoundaryNormal.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\FormatProviders\GridProvider\GridSelectedArea.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\FormatProviders\GridProvider\ArrayVertexToGridFormatter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\FormatProviders\GridProvider\BoundaryCondition.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\FormatProviders\GridProvider\ControlReader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\FormatProviders\GridProvider\MeshDataGraphFormatter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\FormatProviders\GridProvider\MeshDataProvider.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\FormatProviders\GridProvider\MeshDataSolverFormatter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\FormatProviders\GridProvider\MeshLayer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\FormatProviders\GridProvider\MeshRow.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\FormatProviders\GridProvider\OccRectilinearGrid.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\FormatProviders\GridProvider\Point3D.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\FormatProviders\GridProvider\RLCControlReader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\FormatProviders\GridProvider\RLCControlWriter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\FormatProviders\GridProvider\SurfaceParam.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\FormatProviders\GridProvider\Vertex.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\FormatProviders\GridProvider\MeshDataCleaner.h">
+      <Filter>Header Files\MeshDataClearer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\FormatProviders\GridProvider\NodeLinks.h">
+      <Filter>Header Files\MeshDataClearer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\FormatProviders\GridProvider\UsingPolicy.h">
+      <Filter>Header Files\MeshDataClearer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\FormatProviders\GridProvider\BoundaryNormal.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\FormatProviders\GridProvider\GridSelectedArea.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
