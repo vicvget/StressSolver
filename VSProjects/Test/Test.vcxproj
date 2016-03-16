@@ -162,12 +162,30 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ProjectReference Include="..\FormatProviders\provider_grid.vcxproj">
+      <Project>{288b2732-ada8-4f46-b842-146dd5841f33}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\FormatProviders\provider_res.vcxproj">
+      <Project>{56160023-ee1b-40ac-abba-d47d9a6676ed}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\Solvers\stress.vcxproj">
       <Project>{5ff4dd83-cde2-4792-9502-18f13a87e949}</Project>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="BlenderExporter.cpp" />
+    <ClCompile Include="ComparativeTest\ComparativeTest.cpp" />
+    <ClCompile Include="ImportedCode\CommonSolvers.cpp" />
+    <ClCompile Include="ImportedCode\CommonSolversTest.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="ImportedCode\PerformanceCounter.cpp" />
+    <ClCompile Include="ImportedCode\SpecialSolversTest.cpp" />
+    <ClCompile Include="ImportedCode\StressSolver.cpp" />
+    <ClCompile Include="ImportedCode\StressSolverTest.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="BlenderExporter.h" />
+    <ClInclude Include="ComparativeTest\ComparativeTest.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

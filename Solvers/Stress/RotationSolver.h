@@ -35,6 +35,8 @@ namespace Stress
 		size_t _vecStride2;
 		size_t _matStride;
 
+		bool _isValid;
+
 	public:
 
 		double* GetRframeMtx(size_t elementId) const;
@@ -43,6 +45,8 @@ namespace Stress
 		double* GetAngularVelocity(size_t elementId) const;
 
 		bool IsSingularityAngle(size_t elementId) const;
+
+		bool IsValid() const;
 
 		void Update(size_t elementId, int stageRK = 0);
 		void MakeZeroVectors(size_t elementId) const;
@@ -66,8 +70,8 @@ namespace Stress
 	protected:
 		size_t _nElements;
 		size_t _nVariables;
-		void CalculateRHS();
-		void UpdateRHS(int elementId) const;
+		void CalculateRHS();		
+		bool UpdateRHS(int elementId) const;
 		void UpdateMtx(int elementId) const;
 		void UpdateMtxs() const;
 
