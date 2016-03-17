@@ -1,4 +1,4 @@
-#include "RLCControlWriter.h"
+﻿#include "RLCControlWriter.h"
 
 
 using std::ofstream;
@@ -123,7 +123,7 @@ int RLCControlWriter::SaveMeshToFile(ofstream &ofs)
 		}
 		if (textofs.is_open())
 			textofs.close();
-		//ofs.close();
+		//_ofs.close();
 		return 1;
 	}
 	return 0;
@@ -150,11 +150,11 @@ int RLCControlWriter::DumpMeshToFile(const char *fn)
 	}
 	//if (_freeSolverGridParams != nullptr)
 	//{
-	//	if ((int)ofs.tellp() >= 0)
+	//	if ((int)_ofs.tellp() >= 0)
 	//	{
-	//		header._freeSolverGridParamsPos = static_cast<unsigned int>(ofs.tellp());
+	//		header._freeSolverGridParamsPos = static_cast<unsigned int>(_ofs.tellp());
 	//	}
-	//	DumpFreeSolverGridParamsToFile(ofs);
+	//	DumpFreeSolverGridParamsToFile(_ofs);
 	//}
 	ofs.seekp(ios::beg);
 	RLCHeaderFileProvider::SaveRLCHeader(ofs, &header);
@@ -194,13 +194,13 @@ int RLCControlWriter::DumpBoundaryNormalsToFile(ofstream &ofs)
 int RLCControlWriter::DumpFreeSolverGridParamsToFile(const char *fn)
 {
 	ofstream ofs(fn, ios::binary);
-	//_freeSolverGridParams->SaveBinary(ofs);
+	//_freeSolverGridParams->SaveBinary(_ofs);
 	ofs.close();
 	return 1;
 }
 
 int RLCControlWriter::DumpFreeSolverGridParamsToFile(ofstream &ofs)
 {	
-	//_freeSolverGridParams->SaveBinary(ofs);	
+	//_freeSolverGridParams->SaveBinary(_ofs);	
 	return 1;
 }
