@@ -1,10 +1,17 @@
 #include "StressSolver.h"
 
 #include "../Stress/StressStrainSolverExports.h"
+#include "../Stress/StressStrainCppIterativeSolver.h"
 #include "../../FormatProviders/ResProvider/ProviderMpr.h"
 
-#include <iostream>
 
+#include <iostream>
+#include "../BlenderExporter.h"
+
+
+namespace Stress{
+	class StressStrainCppIterativeSolver;
+}
 
 namespace SpecialSolvers
 {
@@ -71,6 +78,14 @@ namespace SpecialSolvers
 			int iteration = 0;
 			static const double scaleResults = 1.0;
 
+#ifndef NOBLENDER
+			BlenderExporter exporter;			
+			Stress::StressStrainCppIterativeSolver* ssSolver = static_cast<Stress::StressStrainCppIterativeSolver*>(hSolver);
+			exporter.Init("blender.py", gridParams.NodesCount(), ssSolver->vecStride, ssSolver->GetElementShift(0), gridParams._gridStep);
+			exporter.WriteHeader();
+			exporter.WriteBody();
+#endif
+
 			Stress::UpdateBuffer(hSolver, scaleResults);
 			float* data = Stress::GetMemoryPointer(hSolver);
 			int dataSize = Stress::GetMemorySize(hSolver);
@@ -86,6 +101,9 @@ namespace SpecialSolvers
 					//float y = Stress::GetData(hSolver, nx - 1, 0, 0);
 					//float stress = Stress::GetStressData(hSolver, nx - 1);
 					//file << x << " " << y << " " << stress << std::endl;
+#ifndef NOBLENDER
+					exporter.AddFrame(ssSolver->GetElementShift(0), ssSolver->GetDataRotaionMtx());
+#endif
 					writer.WriteFrame(data, dataSize, iteration * integrationParams._timeStep * integrationParams._nSubIterations);
 				}
 #endif
@@ -111,6 +129,9 @@ namespace SpecialSolvers
 				//}
 				iteration++;
 			}
+#ifndef NOBLENDER
+			exporter.WriteFooter();
+#endif
 		}	
 	}
 
