@@ -283,22 +283,15 @@ void StressStrainCppIterativeSolver::GetDisplacement
 	double displacement;
 	double squareSum;
 
-	for
-		(
-			int i = 0;
-			i < _nElements;
-			i++,
-			internalIndex += 3
-		)
+	for(size_t elementId = 0; elementId < _nElements; elementId++)
 	{		
 		squareSum = 0;
-		for (int j = 0; j < 3; j++, internalIndex++)
+		for (int j = 0; j < 3; j++)
 		{
-			displacement = _elements[i * 3 + j] - _dataInternal[internalIndex];
+			displacement = GetElementGridCoordinates(elementId)[j] - GetElementShift(elementId)[j];
 			squareSum += SQR(displacement);
 		}
-		data[i] = (float)sqrt(squareSum);
-		//data[i] = tmp;
+		data[elementId] = (float)sqrt(squareSum);
 	}
 }
 
@@ -716,7 +709,7 @@ void StressStrainCppIterativeSolver::ApplyBoundary()
 	//BCT_stresstrainBoundaryForce = 3,
 	//BCT_stresstrainBoundarySealing = 4,
 
-	double* dataPointer = _dataInternal + _nElements * vecStride2 * 2;
+	double* accelerationsPointer = GetElementAcceleration(0);
 	vector<BoundaryParams>::iterator it = _boundaryParamsSet.begin();
 
 	while (it != _boundaryParamsSet.end())
@@ -724,11 +717,11 @@ void StressStrainCppIterativeSolver::ApplyBoundary()
 		switch (it->GetKind())
 		{
 		case 3:
-			it->ApplyForceBoundary(dataPointer);
+			it->ApplyForceBoundary(accelerationsPointer);
 			break;
 
 		case 4:
-			it->ApplySealedBoundary(dataPointer);
+			it->ApplySealedBoundary(accelerationsPointer);
 			break;
 
 		default:

@@ -164,7 +164,7 @@ StressStrainCppSolver::StressStrainCppSolver
 
 	for (int i = 0; i < 3; i++)
 	{
-		_radiusVectors[i*vecStride*2 + i] = 0.5 * _gridStep;
+		_radiusVectors[vecStride*3 + i*vecStride + i] = 0.5 * _gridStep;
 		_radiusVectors[i*vecStride + i] = -0.5 * _gridStep;
 	}
 

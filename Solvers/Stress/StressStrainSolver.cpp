@@ -161,6 +161,11 @@ void StressStrainSolver::GetScalarParameter
 }
 
 
+double* StressStrainSolver::GetElementGridCoordinates(int elementId) const
+{
+	return _elements + elementId * 3;
+}
+
 //virtual 
 double* StressStrainSolver::GetElementStress(int elementId) const
 {

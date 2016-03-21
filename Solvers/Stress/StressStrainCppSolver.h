@@ -357,7 +357,7 @@ public:
 	double *RZ;
 	double *R1Z;
 	int* _linkedElements;
-	double* _elements;
+	//double* _elements;
 
 	RotationSolver* _rotationSolver;			// структура для уравнений Эйлера
 

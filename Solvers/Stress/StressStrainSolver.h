@@ -273,11 +273,15 @@ public:
 	float*	_data;				// неизвестные для сброса в файл (x,y,z,p)
 	double* _dataInternal;		// неизвестные для расчета (X,DX,DDX)
 	double* _dataRotationMtx;	// матрицы поворота для расчета
+
+	double* _elements;			// исходные координаты элементов
+
 	int _dataSize;
 	double* _stress;			// напряжения
 	int _nElements;				// число элементов
 
 
+	virtual double* GetElementGridCoordinates(int elementId) const;;
 	virtual double* GetElementStress(int elementId) const;
 	virtual double* GetElementShift(int elementId) const;
 	virtual double* GetElementVelocity(int elementId) const;

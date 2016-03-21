@@ -27,6 +27,7 @@ void BlenderExporter::Close()
 
 void BlenderExporter::AddFrame(double* coordinates, double* rotationMatrices)
 {
+	_frame++;
 	_ofs
 		<< std::endl << "# frame " << _frame << std::endl;
 	for (size_t elementId = 0; elementId < _nelements; elementId++)
@@ -38,13 +39,13 @@ void BlenderExporter::AddFrame(double* coordinates, double* rotationMatrices)
 			<< "obj.keyframe_insert(data_path = \"rotation_euler\", frame = " << _frame << ")" << std::endl
 			<< "obj.keyframe_insert(data_path = \"location\", frame = " << _frame << ")" << std::endl;
 	}
-	_frame++;
+	//_frame++;
 }
 
 string BlenderExporter::PrintVertices() const
 {
 	stringstream ss;
-	double h = _size*0.5;
+	double h = _size*0.3;
 	for (size_t vertexId = 0; vertexId < 8; vertexId++)
 	{
 		ss << '(';
@@ -134,7 +135,7 @@ void BlenderExporter::WriteFooter()
 	_ofs << "scene = bpy.context.scene" << std::endl
 		<< "scene.frame_end = 1" << std::endl
 		<< "scene.frame_start = 1" << std::endl
-		<< "scene.frame_end = " << _frame << std::endl;
+		<< "scene.frame_end = " << _frame+1 << std::endl;
 }
 
 string BlenderExporter::GenerateFrameForElement(size_t elementId, double* shift, double* rotationMatrix) const
