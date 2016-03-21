@@ -263,8 +263,8 @@ namespace SpecialSolversTest
 
 			//integrationParams._nIterations = 120;// 600;
 			//integrationParams._nSubIterations = 60;//300;
-			integrationParams._nIterations = 4;
-			integrationParams._nSubIterations = 1;
+			integrationParams._nIterations = 100;
+			integrationParams._nSubIterations = 10;
 			integrationParams._timeStep = 0.00005f;
 
 			if (solverType == 2)
@@ -276,7 +276,7 @@ namespace SpecialSolversTest
 			gridParams._nx = 3;
 			gridParams._ny = 1;
 			gridParams._nz = 1;
-			gridParams._gridStep = 0.005;
+			gridParams._gridStep = 0.05;
 
 			StressStrainSolver _hsolver = MakeSolver
 				(
