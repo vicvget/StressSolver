@@ -99,14 +99,23 @@ StressStrainCppSolver::StressStrainCppSolver
 	_gridStep2 = _gridStep * _gridStep;
 	_gridStep3 = _gridStep * _gridStep2;
 
-	_cellMass = _density * _gridStep3; // масса €чейки
+	// масса и момент инерции дл€ куба
+	_cellMass = _density * _gridStep3; 
+	_cellInertia = _cellMass * _gridStep * _gridStep / 6;
+
 	_elasticModulusScaled = _elasticModulus / _stiffScale; // отмасштабированный модуль упругости
 
 	_numThreads = (numThreads > 0) ? numThreads : omp_get_max_threads();
 	
-	_shearModulusScaled = _elasticModulusScaled / 2;
-	_dampingFactorLinear = 0.01 * 2 * _dampingFactor * sqrt(_elasticModulusScaled * _cellMass * _gridStep);
-	_dampingFactorAngular = 10 * _dampingFactor * sqrt(2 * _elasticModulusScaled * _cellMass * _gridStep / 3) * _gridStep2;
+	// cORRECT EXPRESSION
+	//_shearModulusScaled = _elasticModulusScaled / 2;
+	//_dampingFactorLinear = 0.01 * 2 * _dampingFactor * sqrt(_elasticModulusScaled * _cellMass * _gridStep);
+	//_dampingFactorAngular = 10 * _dampingFactor * sqrt(2 * _elasticModulusScaled * _cellMass * _gridStep / 3) * _gridStep2;
+
+	// DEBUG!!
+	_shearModulusScaled = _elasticModulusScaled / 100;
+	_dampingFactorLinear = 10;
+	_dampingFactorAngular = 10;
 	
 	const int outWidth = 15;
 	std::cout << "------------------------------" << std::endl
@@ -352,7 +361,7 @@ void StressStrainCppSolver::UpdateBuffer
 }
 
 
-double* StressStrainCppSolver::GetRadiusVector(size_t side)
+double* StressStrainCppSolver::GetRadiusVector(size_t side) const
 {
 	return _radiusVectors + side * vecStride;
 }
@@ -376,7 +385,7 @@ void StressStrainCppSolver::CalculateStrainsAVX
 		double *velocityStrains,	// выход изм. скоростей
 		int nodeId1,				// номер узла 1
 		int nodeId2					// номер узла 2
-	)
+		) const
 {
 
 	// Start AVX code
@@ -519,7 +528,7 @@ void StressStrainCppSolver::CalculateStrains
 		double *velocityStrains,	// выход изм. скоростей
 		int nodeId1,				// номер узла 1
 		int nodeId2					// номер узла 2
-	)
+		) const
 {
 	MathHelpers::Mat3x4 matA01(GetRotationMatrix(nodeId1));
 	MathHelpers::Mat3x4 matA02(GetRotationMatrix(nodeId2));

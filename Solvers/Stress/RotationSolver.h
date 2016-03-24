@@ -15,12 +15,12 @@ namespace Stress
 
 	class RotationSolver
 	{
-		double* _varX;	// текущие переменные
-		double* _varDX;	// текущие производные по времени
-		double* _initX;	// значения переменных предыдущего шага
-		double* _hDDX1;	// вспомогательные переменные (RK4)
-		double* _hDDX2; // вспомогательные переменные (RK4)
-		double* _hDDX3; // вспомогательные переменные (RK4)
+		double* _varR;	// текущие переменные
+		double* _varDR;	// текущие производные по времени
+		double* _initR;	// значения переменных предыдущего шага
+		double* _hDDR1;	// вспомогательные переменные (RK4)
+		double* _hDDR2; // вспомогательные переменные (RK4)
+		double* _hDDR3; // вспомогательные переменные (RK4)
 
 		// матрица для изменения системы кординат отсчета углов при приближении к сингулярности
 		// для выбранной системы углов (x,y,z) при abs(y % pi) близком к pi/2 матрица 
@@ -42,6 +42,7 @@ namespace Stress
 		double* GetRframeMtx(size_t elementId) const;
 		double* GetRotationMtx(size_t elementId) const;
 		double* GetAngles(size_t elementId) const;
+		double* GetDerivatives(size_t elementId) const;
 		double* GetAngularVelocity(size_t elementId) const;
 
 		bool IsSingularityAngle(size_t elementId) const;
@@ -69,7 +70,7 @@ namespace Stress
 
 	protected:
 		size_t _nElements;
-		size_t _nVariables;
+		size_t _nRVariables;
 		void CalculateRHS();		
 		bool UpdateRHS(int elementId) const;
 		void UpdateMtx(int elementId) const;
