@@ -66,7 +66,7 @@ namespace SpecialSolversTest
 				delete [] nodes;
 			if (links != nullptr)
 				delete [] links;
-			SetLeftSealRightForceBc(_hsolver, -10.01, gridParams);
+			SetLeftSealRightForceBc(_hsolver, 10, gridParams);
 
 			return _hsolver;
 		}
@@ -257,14 +257,16 @@ namespace SpecialSolversTest
 			SpecialParams specialParams;
 			IntegrationParams integrationParams;
 			GridParams gridParams;
-
-			specialParams._scaleFactor = 1e6;
+			specialParams._E = 1000;
+			specialParams._density = 1000;			
+			specialParams._dampingRatio = 10;
+			specialParams._scaleFactor = 1;// 1e8;
 			//specialParams._dampingRatio = 1e-4;
 
 			//integrationParams._nIterations = 120;// 600;
 			//integrationParams._nSubIterations = 60;//300;
-			integrationParams._nIterations = 100;
-			integrationParams._nSubIterations = 10;
+			integrationParams._nIterations = 1000;
+			integrationParams._nSubIterations = 100;
 			integrationParams._timeStep = 0.00005f;
 
 			if (solverType == 2)
@@ -276,7 +278,7 @@ namespace SpecialSolversTest
 			gridParams._nx = 3;
 			gridParams._ny = 1;
 			gridParams._nz = 1;
-			gridParams._gridStep = 0.05;
+			gridParams._gridStep = 0.1;
 
 			StressStrainSolver _hsolver = MakeSolver
 				(

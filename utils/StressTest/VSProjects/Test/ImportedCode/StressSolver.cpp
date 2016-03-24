@@ -91,6 +91,9 @@ namespace SpecialSolvers
 			int dataSize = Stress::GetMemorySize(hSolver);
 			writer.WriteFrame(data, dataSize, iteration * integrationParams._timeStep * integrationParams._nSubIterations);
 			int cP = 0;
+
+			ofstream dofs("charts.txt");
+			dofs << "t x y z rx ry rz vx vy vz wx wy wz ax ay az ex ey ez\n";
 			for (int i = 0; i < integrationParams._nIterations; i++)
 			{
 				Stress::Solve(hSolver, integrationParams._nSubIterations);
@@ -105,7 +108,30 @@ namespace SpecialSolvers
 					exporter.AddFrame(ssSolver->GetElementShift(0), ssSolver->GetDataRotaionMtx());
 #endif
 					writer.WriteFrame(data, dataSize, iteration * integrationParams._timeStep * integrationParams._nSubIterations);
+
+					int elementId = 2;
+					dofs << i << ' '
+						<< ssSolver->GetElementShift(elementId)[0] << ' '
+						<< ssSolver->GetElementShift(elementId)[1] << ' '
+						<< ssSolver->GetElementShift(elementId)[2] << ' '
+						<< ssSolver->GetElementShiftAngular(elementId)[0] << ' '
+						<< ssSolver->GetElementShiftAngular(elementId)[1] << ' '
+						<< ssSolver->GetElementShiftAngular(elementId)[2] << ' '
+						<< ssSolver->GetElementVelocity(elementId)[0] << ' '
+						<< ssSolver->GetElementVelocity(elementId)[1] << ' '
+						<< ssSolver->GetElementVelocity(elementId)[2] << ' '
+						<< ssSolver->GetElementVelocityAngular(elementId)[0] << ' '
+						<< ssSolver->GetElementVelocityAngular(elementId)[1] << ' '
+						<< ssSolver->GetElementVelocityAngular(elementId)[2] << ' '
+						<< ssSolver->GetElementAcceleration(elementId)[0] << ' '
+						<< ssSolver->GetElementAcceleration(elementId)[1] << ' '
+						<< ssSolver->GetElementAcceleration(elementId)[2] << ' '
+						<< ssSolver->GetElementAccelerationAngular(elementId)[0] << ' '
+						<< ssSolver->GetElementAccelerationAngular(elementId)[1] << ' '
+						<< ssSolver->GetElementAccelerationAngular(elementId)[2] << '\n';
+					
 				}
+
 #endif
 				if (i*100. / integrationParams._nIterations > cP)
 				{

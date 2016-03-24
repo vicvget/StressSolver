@@ -36,7 +36,12 @@ namespace Stress
 
 	double* RotationSolver::GetAngles(size_t elementId) const
 	{
-		return _varX + elementId * _vecStride;
+		return _varR + elementId * _vecStride;
+	}
+
+	double* RotationSolver::GetDerivatives(size_t elementId) const
+	{
+		return _varDR + elementId * _vecStride;
 	}
 
 	double* RotationSolver::GetAngularVelocity(size_t elementId) const
@@ -73,25 +78,25 @@ namespace Stress
 		_matStride(stride * 3),
 		_isValid(true)
 	{
-		_nVariables = nElements*_vecStride;
+		_nRVariables = nElements*_vecStride;
 		const size_t matSize = nElements*_matStride*sizeof(double);
 		const size_t varSize = nElements*_vecStride*sizeof(double);
 
-		_varDX = (double*)_aligned_malloc(varSize, alignment);
-		_hDDX1 = (double*)_aligned_malloc(varSize, alignment);
-		_hDDX2 = (double*)_aligned_malloc(varSize, alignment);
-		_hDDX3 = (double*)_aligned_malloc(varSize, alignment);
-		_varX = (double*)_aligned_malloc(varSize, alignment);
-		_initX = (double*)_aligned_malloc(varSize, alignment);
+		_varDR = (double*)_aligned_malloc(varSize, alignment);
+		_hDDR1 = (double*)_aligned_malloc(varSize, alignment);
+		_hDDR2 = (double*)_aligned_malloc(varSize, alignment);
+		_hDDR3 = (double*)_aligned_malloc(varSize, alignment);
+		_varR = (double*)_aligned_malloc(varSize, alignment);
+		_initR = (double*)_aligned_malloc(varSize, alignment);
 
 		_rframeMtx = (double*)_aligned_malloc(matSize, alignment);
 		
-		memset(_varX, 0, varSize);
-		memset(_initX, 0, varSize);
-		memset(_varDX, 0, varSize);
-		memset(_hDDX1, 0, varSize);
-		memset(_hDDX2, 0, varSize);
-		memset(_hDDX3, 0, varSize);
+		memset(_varR, 0, varSize);
+		memset(_initR, 0, varSize);
+		memset(_varDR, 0, varSize);
+		memset(_hDDR1, 0, varSize);
+		memset(_hDDR2, 0, varSize);
+		memset(_hDDR3, 0, varSize);
 
 		// если изначально были не нулевые повороты, то будут не единичные матрицы
 		memcpy(_rframeMtx, mtxPointer, matSize);
@@ -99,63 +104,63 @@ namespace Stress
 
 	RotationSolver::~RotationSolver()
 	{
-		_aligned_free(_varX);
-		_aligned_free(_initX);
-		_aligned_free(_varDX);
-		_aligned_free(_hDDX1);
-		_aligned_free(_hDDX2);
-		_aligned_free(_hDDX3);
+		_aligned_free(_varR);
+		_aligned_free(_initR);
+		_aligned_free(_varDR);
+		_aligned_free(_hDDR1);
+		_aligned_free(_hDDR2);
+		_aligned_free(_hDDR3);
 		_aligned_free(_rframeMtx);
 	}
 
 	void RotationSolver::MakeZeroVectors(size_t elementId) const
 	{
 		size_t offset = _vecStride * elementId;
-		memset(_varDX + offset, 0, sizeof(double) * _vecStride);
-		memset(_hDDX1 + offset, 0, sizeof(double) * _vecStride);
-		memset(_hDDX2 + offset, 0, sizeof(double) * _vecStride);
-		memset(_hDDX3 + offset, 0, sizeof(double) * _vecStride);
-		memset(_varX + offset, 0, sizeof(double) * _vecStride);
-		memset(_initX + offset, 0, sizeof(double) * _vecStride);
+		memset(_varDR + offset, 0, sizeof(double) * _vecStride);
+		memset(_hDDR1 + offset, 0, sizeof(double) * _vecStride);
+		memset(_hDDR2 + offset, 0, sizeof(double) * _vecStride);
+		memset(_hDDR3 + offset, 0, sizeof(double) * _vecStride);
+		memset(_varR + offset, 0, sizeof(double) * _vecStride);
+		memset(_initR + offset, 0, sizeof(double) * _vecStride);
 	}
 
 	void RotationSolver::InitIteration() const
 	{
-		memcpy(_initX, _varX, sizeof(double)*_nVariables);
+		memcpy(_initR, _varR, sizeof(double)*_nRVariables);
 	}
 
 	void RotationSolver::Solve1()
 	{
-		for (size_t i = 0; i < _nVariables; i++)
-			_varX[i] = _initX[i] + _hDDX1[i] * 0.5;
+		for (size_t i = 0; i < _nRVariables; i++)
+			_varR[i] = _initR[i] + _hDDR1[i] * 0.5;
 		CalculateRHS(); // k1 = f(t,y)
-		memcpy(_hDDX1,_varDX,sizeof(double)*_nVariables);
+		memcpy(_hDDR1,_varDR,sizeof(double)*_nRVariables);
 		UpdateMtxs();
 	}
 
 	void RotationSolver::Solve2()
 	{
-		for (size_t i = 0; i < _nVariables; i++)
-			_varX[i] = _initX[i] + _hDDX1[i] * 0.5;
+		for (size_t i = 0; i < _nRVariables; i++)
+			_varR[i] = _initR[i] + _hDDR1[i] * 0.5;
 		CalculateRHS(); // k2 = f(t+h/2,y+k1*h/2)
-		memcpy(_hDDX2, _varDX, sizeof(double)*_nVariables);
+		memcpy(_hDDR2, _varDR, sizeof(double)*_nRVariables);
 		UpdateMtxs();
 	}
 
 	void RotationSolver::Solve3()
 	{
-		for (size_t i = 0; i < _nVariables; i++)
-			_varX[i] = _initX[i] + _hDDX3[i];
+		for (size_t i = 0; i < _nRVariables; i++)
+			_varR[i] = _initR[i] + _hDDR3[i];
 		CalculateRHS();// k3 = f(t+h/2,y+k2*h/2)
-		memcpy(_hDDX3, _varDX, sizeof(double)*_nVariables);
+		memcpy(_hDDR3, _varDR, sizeof(double)*_nRVariables);
 		UpdateMtxs();
 	}
 
 	void RotationSolver::Solve4()
 	{
 		CalculateRHS();// k4 = f(t+h/2,y+k3*h)
-		for (size_t i = 0; i < _nVariables; i++)
-			_varX[i] = _initX[i] + (_hDDX1[i] + (_hDDX2[i] + _hDDX3[i]) * 2 + _varDX[i]) / 6.0;
+		for (size_t i = 0; i < _nRVariables; i++)
+			_varR[i] = _initR[i] + (_hDDR1[i] + (_hDDR2[i] + _hDDR3[i]) * 2 + _varDR[i]) / 6.0;
 		
 		// проверка сингулярности
 		for (size_t elementId = 0; elementId < _nElements; elementId++)
@@ -213,26 +218,30 @@ namespace Stress
 			result = false;
 		}
 
+		double* derivatives = GetDerivatives(elementId);
 
-		_varDX[elementId] =	  (wx*cosZ - wy*sinZ) / cosY*_timeStep;
-		_varDX[elementId + 1] =  (wx*sinZ + wy*cosZ)*_timeStep;
-		_varDX[elementId + 2] = ((wy*sinZ - wx*cosZ)*tanY + wz)*_timeStep;
+		derivatives[0] = (wx*cosZ - wy*sinZ) / cosY*_timeStep;
+		derivatives[1] = (wx*sinZ + wy*cosZ)*_timeStep;
+		derivatives[2] = ((wy*sinZ - wx*cosZ)*tanY + wz)*_timeStep;
 		return result;
 	}
 
 	void RotationSolver::UpdateMtx(int elementId) const
 	{
+		double* rotationMtx = GetRotationMtx(elementId);
+		double* rframeMtx = GetRframeMtx(elementId);
+		double* angles = GetAngles(elementId);
 		if (_vecStride == 4)
 		{
-			Mat3x4 rframe(GetRframeMtx(elementId));
-			(rframe*Mat3x4::MakeXYZRotationMtx01(_varX + elementId))
-				.Export(GetRotationMtx(elementId));
+			Mat3x4 rframe(rframeMtx);
+			Mat3x4 newMtx = Mat3x4::MakeXYZRotationMtx10(GetAngles(elementId));
+			(rframe*newMtx).Export(rotationMtx);
 		}
 		else
 		{
-			Mat3 rframe(GetRframeMtx(elementId));
-			(rframe*Mat3::MakeXYZRotationMtx01(_varX + elementId))
-				.Export(GetRotationMtx(elementId));
+			Mat3 rframe(rframeMtx);
+			Mat3 newMtx = Mat3::MakeXYZRotationMtx01(GetAngles(elementId));
+			(rframe*newMtx).Export(rotationMtx);
 		}
 	}
 

@@ -385,7 +385,8 @@ public:
 	double _dampingFactorAngular; // приведенный коэффициент углового демпфирования
 	double _dampingFactorLinear; // приведенный коэффициент линейного демпфирования
 	double _density; // плотность материала
-	double _cellMass; // масса ячейки
+	double _cellMass; // масса элемента
+	double _cellInertia; // момент элемента
 	double _stiffScale; // масштабирование
 	double _poissonRatio; // коэффициент Пуассона
 	double _lameMatrix[6][6]; // матрица перехода от деформациям к напряжениям
@@ -400,7 +401,7 @@ public:
 			double *velocityStrains,	// выход изм. скоростей
 			int nodeId1,				// номер узла 1
 			int nodeId2					// номер узла 2
-		);
+		) const;
 
 	void CalculateStrainsAVX
 		(
@@ -409,7 +410,7 @@ public:
 			double *velocityStrains,	// выход изм. скоростей
 			int nodeId1,				// номер узла 1
 			int nodeId2					// номер узла 2
-		);
+			)const;
 
 	void FindStressStrainMatrix();
 	
@@ -418,7 +419,7 @@ public:
 	// 0 = -x, 1 = x, 2 = -y, 3 = y, 4 = -z, 5 = z
 	// @param side - номер грани
 	// @returns радиус-вектор
-	double* GetRadiusVector(size_t side);
+	double* GetRadiusVector(size_t side) const;
 //protected:
 
 };

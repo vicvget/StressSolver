@@ -130,6 +130,30 @@ namespace MathHelpers
 		return *this;
 	}
 
+	template<typename DataType>
+	Vector3<DataType>& Vector3<DataType>::operator /= (double rhs)
+	{
+		for (size_t coord = 0; coord < 3; coord++)
+			this->_rep._data[coord] /= rhs;
+		return *this;
+	}
+
+	template
+		<
+			typename DataType
+		>
+	template
+		<
+			typename DataType2
+		>
+	Vector3<DataType>& Vector3<DataType>::operator += (const Vector3<DataType2>& rhs)
+	{
+		for (size_t coord = 0; coord < 3; coord++)
+			this->_rep._data[coord] += rhs[coord];
+		return *this;
+	}
+
+
 	template
 		<
 			typename DataType

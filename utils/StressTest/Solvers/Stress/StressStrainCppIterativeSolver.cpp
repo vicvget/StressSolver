@@ -1,10 +1,11 @@
 #include "StressStrainCppIterativeSolver.h"
 #include "../../AdditionalModules/fmath/Matrix3x3.h"
+#include "../../AdditionalModules/fmath/Matrix3x4.h"
 
 
 //#define NOLINKSH
 //#define NO_INTOMSUB
-
+#define NOTIMER
 #ifndef M_PI
 #define M_PI 3.1415926535897932384626433832795
 #endif
@@ -15,6 +16,7 @@ using MathHelpers::Vec3;
 using MathHelpers::Vec3Ref;
 using MathHelpers::MakeVec3;
 using MathHelpers::Mat3;
+using MathHelpers::Mat3x4;
 
 namespace Stress
 {
@@ -159,6 +161,7 @@ void StressStrainCppIterativeSolver::Solve
 
 	}
 	_testTimer.Stop(0);
+#ifndef NOTIMER
 	const int width = 16;
 	_testTimer.SetWidth(width);
 	std::cout << "-----------------------------------\n";
@@ -168,6 +171,7 @@ void StressStrainCppIterativeSolver::Solve
 	//_testTimer.Print(5, "Linksh:");
 	std::cout << std::setw(width) << "Summ: " << t1 + t2 + t3 << std::endl;
 	_testTimer.Print(0, "Total: ");
+#endif
 
 }
 
@@ -443,13 +447,13 @@ void StressStrainCppIterativeSolver::CalculateForces()
 		// обход 6 связанных элементов x-,y-,z-,x+,y+,z+
 		for (size_t side = 0; side < 6; side++)
 		{
-			size_t elementId2 = _linkedElements[side];
+			size_t elementId2 = _linkedElements[6 * elementId1 + side];
 			if (elementId2)
 			{
 				elementId2--;
-#ifdef ALIGNED_MEM
-				CalculateStrainsAVX(side, strains, velocityStrains, elementId1, elementId2);
-#endif
+//#ifdef ALIGNED_MEM
+//				CalculateStrainsAVX(side, strains, velocityStrains, elementId1, elementId2);
+//#endif
 				CalculateStrains(side, strains, velocityStrains, elementId1, elementId2);
 
 				Vec3Ref linear_strains = MakeVec3(&strains[0]);
@@ -464,14 +468,37 @@ void StressStrainCppIterativeSolver::CalculateForces()
 				}
 
 				// сила и момент из полученных деформаций
-				Vec3 force = -linear_vstrains * _dampingFactorLinear - linear_strains * elasticModulus * _gridStep;
-				Vec3 torque = -angular_vstrains * _dampingFactorAngular - angular_strains * elasticModulus * _gridStep3;
+				//Vec3 force = -linear_vstrains * _dampingFactorLinear - linear_strains * elasticModulus * _gridStep;
+				//Vec3 torque = -angular_vstrains * _dampingFactorAngular - angular_strains * elasticModulus * _gridStep3;
 
+				// !DEBUG
+				Vec3 force = -linear_vstrains * _dampingFactorLinear - linear_strains * elasticModulus;
+				Vec3 torque = -angular_vstrains * _dampingFactorAngular - angular_strains * 10;
+				//force = -force;
+				//torque = -torque;
 				// расчет суммарных сил
-				Mat3 matA01(GetRotationMatrix(elementId1));
+				//Mat3 matA01(GetRotationMatrix(elementId1));
+				Vec3 vAcc;
+				if (vecStride == 4)
+				{
+					Mat3x4 matA01(GetRotationMatrix(elementId1));
+					vAcc = matA01*force;
+				}
+				else
+				{
+					Mat3 matA01(GetRotationMatrix(elementId1));
+					vAcc = matA01*force;
+				}
+
 				Vec3Ref vR = MakeVec3(GetRadiusVector(side));
-				Vec3 vAcc = matA01*force;
-				Vec3 vM = vR.Cross(force) + torque;
+				Vec3 forceTorque = vR.Cross(force);
+				Vec3 vM = forceTorque + torque;
+
+				//MakeVec3(GetElementAcceleration(elementId1)) += vAcc;
+				//MakeVec3(GetElementAccelerationAngular(elementId1)) += vM;
+				
+				if (_iterationNumber == 100 && elementId1 == 1 && elementId2 == 0)
+					int debug = 1;
 
 				for (int i = 0; i < 3; i++)
 				{
@@ -737,15 +764,12 @@ void StressStrainCppIterativeSolver::ApplyMass()
 	//_controlfp(0, EM_ZERODIVIDE);
 	//_control87(~_EM_ZERODIVIDE, _MCW_EM);
 #endif
-	double* accelerations = _dataInternal + _nElements * vecStride2 * 2;
 
-	for (int i = 0; i < _nElements; i++)
+	double* accelerations = GetElementAcceleration(0); // debug
+	for (int elementId = 0; elementId < _nElements; elementId++)
 	{
-		for (int j = 0; j < 3; j++)
-		{
-			accelerations[vecStride2 * i + j] /= _cellMass;
-			accelerations[vecStride2 * i + j + vecStride] /= _cellMass * _gridStep * _gridStep / 6;
-		}
+		MakeVec3(GetElementAcceleration(elementId)) /= _cellMass;
+		MakeVec3(GetElementAccelerationAngular(elementId)) /= _cellInertia;
 	}
 }
 }

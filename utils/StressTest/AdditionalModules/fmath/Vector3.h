@@ -69,6 +69,14 @@ namespace MathHelpers
 				const Vector3<DataType2>& copy
 			);
 
+		Vector3<DataType>& operator /= (double rhs);
+		
+		template
+			<
+				typename DataType2
+			>
+		Vector3<DataType>& operator += (const Vector3<DataType2>& rhs);
+
 		void Init
 			(
 				double x,

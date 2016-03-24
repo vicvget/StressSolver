@@ -5,9 +5,9 @@ using std::string;
 
 
 BoundaryParams::BoundaryParams
-	(
-		const BoundaryParams& bp
-	)
+(
+const BoundaryParams& bp
+)
 {
 	_varStride = bp._varStride;
 	_stride = bp._stride;
@@ -28,19 +28,19 @@ BoundaryParams::BoundaryParams
 }
 
 BoundaryParams::BoundaryParams
-	(
-		const int kind,
-		const double* params,
-		const int* nodes,
-		const int nodesCount,
-		size_t stride
-	)
-	:
-		_kind(kind),
-		_nodesCount(nodesCount),
-		_nodesCountInFullBoundary(nodesCount),
-		_stride(stride),
-		_varStride(stride * 2)
+(
+const int kind,
+const double* params,
+const int* nodes,
+const int nodesCount,
+size_t stride
+)
+:
+_kind(kind),
+_nodesCount(nodesCount),
+_nodesCountInFullBoundary(nodesCount),
+_stride(stride),
+_varStride(stride * 2)
 {
 	_params = NULL;
 	_nodes = NULL;
@@ -81,44 +81,44 @@ int BoundaryParams::GetKind() const
 }
 
 void BoundaryParams::GetParams
-	(
-		const double*& params,
-		int& paramsCount
-	)	const
+(
+const double*& params,
+int& paramsCount
+)	const
 {
 	params = _params;
 	paramsCount = GetParamsCount();
 }
 
 double BoundaryParams::GetParam
-	(
-		int paramIndex
-	)	const
+(
+int paramIndex
+)	const
 {
 	CheckIndex
 		(
-			paramIndex,
-			GetParamsCount(),
-			"Incorrect paramIndex value: paramIndex < 0 or paramIndex >= _paramsCount (BoundaryParams)"
+		paramIndex,
+		GetParamsCount(),
+		"Incorrect paramIndex value: paramIndex < 0 or paramIndex >= _paramsCount (BoundaryParams)"
 		);
 
 	return _params[paramIndex];
 }
 
 void BoundaryParams::GetNodes
-	(
-		const int*& nodes,
-		int& nodesCount
-	)	const
+(
+const int*& nodes,
+int& nodesCount
+)	const
 {
 	nodes = _nodes;
 	nodesCount = _nodesCount;
 }
 
 int BoundaryParams::GetNode
-	(
-		int nodeIndex
-	)	const
+(
+int nodeIndex
+)	const
 {
 	return _nodes[nodeIndex];
 }
@@ -129,24 +129,24 @@ int BoundaryParams::GetNodesCount() const
 }
 
 void BoundaryParams::SetParam
-	(
-		double param,
-		int paramIndex
-	)
+(
+double param,
+int paramIndex
+)
 {
 	CheckIndex
 		(
-			paramIndex,
-			GetParamsCount(),
-			"Incorrect paramIndex value: paramIndex < 0 or paramIndex >= _paramsCount (BoundaryParams)"
+		paramIndex,
+		GetParamsCount(),
+		"Incorrect paramIndex value: paramIndex < 0 or paramIndex >= _paramsCount (BoundaryParams)"
 		);
 	_params[paramIndex] = param;
 }
 
 void BoundaryParams::ApplyForceBoundary
-	(
-		double* data
-	)	const
+(
+double* data
+)	const
 {
 	for (int j = 0; j < _nodesCount; j++)
 	{
@@ -162,26 +162,26 @@ void BoundaryParams::ApplyForceBoundary
 }
 
 void BoundaryParams::CorrectForceBoundary
-	(
-		double* accelerations,
-		const double* velocities,
-		const double* shifts,
-		const float* nodes,
-		double elasticModulus,
-		double dampingFactor
-	)	const
+(
+double* accelerations,
+const double* velocities,
+const double* shifts,
+const float* nodes,
+double elasticModulus,
+double dampingFactor
+)	const
 {
 	/// TODO: ÇÀ×ÅÌ ÄÅËÈÒÜ ÍÀ 10 ????
 	double conserv = elasticModulus / 10;
 	double dissip = dampingFactor / 10;
-	
 
-	for(int j = 0; j < _nodesCount; j++)
+
+	for (int j = 0; j < _nodesCount; j++)
 	{
 		int nodeId = _nodes[j] - 1;
-		int nodeOffset = static_cast<int>(_varStride) * nodeId;
-		
-		for(int i = 0; i < 3; i++)
+		int nodeOffset = static_cast<int>(_varStride)* nodeId;
+
+		for (int i = 0; i < 3; i++)
 		{
 			double nodePosisiton = nodes[3 * nodeId + i];
 
@@ -196,13 +196,13 @@ void BoundaryParams::CorrectForceBoundary
 }
 
 void BoundaryParams::ApplySealedBoundary
-	(
-		double* data
-	)	const
+(
+double* data
+)	const
 {
 	for (int j = 0; j < _nodesCount; j++)
 	{
-		int nodeOffset = static_cast<int>(_varStride) * (_nodes[j] - 1);
+		int nodeOffset = static_cast<int>(_varStride)* (_nodes[j] - 1);
 
 		for (int i = 0; i < 3; i++)
 		{
@@ -219,9 +219,9 @@ void BoundaryParams::ApplySealedBoundary
 }
 
 void BoundaryParams::FormIsSealedFlagsList
-	(
-		IsSealedFlagsList& isSealedFlagsList
-	)	const
+(
+IsSealedFlagsList& isSealedFlagsList
+)	const
 {
 	for (int boundaryNodeIndex = 0; boundaryNodeIndex < _nodesCount; ++boundaryNodeIndex)
 	{
@@ -262,16 +262,16 @@ int BoundaryParams::GetParamsCount() const
 
 // static
 void BoundaryParams::CheckIndex
-	(
-		int index,
-		int count,
-		const string& message
-	)
+(
+int index,
+int count,
+const string& message
+)
 {
 	if
 		(
-			(index < 0) ||
-			(index >= count)
+		(index < 0) ||
+		(index >= count)
 		)
 	{
 		throw message;
