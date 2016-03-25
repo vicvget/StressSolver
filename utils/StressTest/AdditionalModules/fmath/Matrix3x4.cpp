@@ -253,13 +253,13 @@ namespace MathHelpers
 		// A01
 
 		res.E(0, 0) = cosY*cosZ;
-		res.E(1, 0) = -cosY*sinZ;
-		res.E(2, 0) = sinY;
-		res.E(0, 1) = sinX*sinY*cosZ + cosX*sinZ;
+		res.E(0, 1) = -cosY*sinZ;
+		res.E(0, 2) = sinY;
+		res.E(1, 0) = sinX*sinY*cosZ + cosX*sinZ;
 		res.E(1, 1) = -sinX*sinY*sinZ + cosX*cosZ;
-		res.E(2, 1) = -sinX*cosY;
-		res.E(0, 2) = -cosX*sinY*cosZ + sinX*sinZ;
-		res.E(1, 2) = cosX*sinY*sinZ + sinX*cosZ;
+		res.E(1, 2) = -sinX*cosY;
+		res.E(2, 0) = -cosX*sinY*cosZ + sinX*sinZ;
+		res.E(2, 1) = cosX*sinY*sinZ + sinX*cosZ;
 		res.E(2, 2) = cosX*cosY;
 
 		return res;
