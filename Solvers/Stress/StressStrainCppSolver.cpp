@@ -106,16 +106,18 @@ StressStrainCppSolver::StressStrainCppSolver
 	_elasticModulusScaled = _elasticModulus / _stiffScale; // отмасштабированный модуль упругости
 
 	_numThreads = (numThreads > 0) ? numThreads : omp_get_max_threads();
-	
+	const double poissonFactor = 0.;
 	// cORRECT EXPRESSION
-	//_shearModulusScaled = _elasticModulusScaled / 2;
-	//_dampingFactorLinear = 0.01 * 2 * _dampingFactor * sqrt(_elasticModulusScaled * _cellMass * _gridStep);
-	//_dampingFactorAngular = 10 * _dampingFactor * sqrt(2 * _elasticModulusScaled * _cellMass * _gridStep / 3) * _gridStep2;
+	_shearModulusScaled = _elasticModulusScaled / (2 * (1 + poissonFactor));
+
+	// TODO: wtf?
+	_dampingFactorLinear = 0.01 * 2 * _dampingFactor * sqrt(_elasticModulusScaled * _cellMass * _gridStep);
+	_dampingFactorAngular = 10 * _dampingFactor * sqrt(2 * _elasticModulusScaled * _cellMass * _gridStep / 3) * _gridStep2;
 
 	// DEBUG!!
-	_shearModulusScaled = _elasticModulusScaled / 100;
-	_dampingFactorLinear = 10;
-	_dampingFactorAngular = 10;
+	//_shearModulusScaled = _elasticModulusScaled / 100;
+	//_dampingFactorLinear = 10;
+	//_dampingFactorAngular = 10;
 	
 	const int outWidth = 15;
 	std::cout << "------------------------------" << std::endl

@@ -468,12 +468,12 @@ void StressStrainCppIterativeSolver::CalculateForces()
 				}
 
 				// сила и момент из полученных деформаций
-				//Vec3 force = -linear_vstrains * _dampingFactorLinear - linear_strains * elasticModulus * _gridStep;
-				//Vec3 torque = -angular_vstrains * _dampingFactorAngular - angular_strains * elasticModulus * _gridStep3;
+				Vec3 force = -linear_vstrains * _dampingFactorLinear - linear_strains * elasticModulus * _gridStep;
+				Vec3 torque = -angular_vstrains * _dampingFactorAngular - angular_strains * 2 * _shearModulusScaled * _gridStep3;
 
 				// !DEBUG
-				Vec3 force = -linear_vstrains * _dampingFactorLinear - linear_strains * elasticModulus;
-				Vec3 torque = -angular_vstrains * _dampingFactorAngular - angular_strains * 10;
+				//Vec3 force = -linear_vstrains * _dampingFactorLinear - linear_strains * elasticModulus;
+				//Vec3 torque = -angular_vstrains * _dampingFactorAngular - angular_strains * 10;
 				//force = -force;
 				//torque = -torque;
 				// расчет суммарных сил
@@ -497,9 +497,7 @@ void StressStrainCppIterativeSolver::CalculateForces()
 				//MakeVec3(GetElementAcceleration(elementId1)) += vAcc;
 				//MakeVec3(GetElementAccelerationAngular(elementId1)) += vM;
 				
-				if (_iterationNumber == 100 && elementId1 == 1 && elementId2 == 0)
-					int debug = 1;
-
+				
 				for (int i = 0; i < 3; i++)
 				{
 					accelerationVector[i] += vAcc[i];

@@ -234,7 +234,7 @@ namespace Stress
 		if (_vecStride == 4)
 		{
 			Mat3x4 rframe(rframeMtx);
-			Mat3x4 newMtx = Mat3x4::MakeXYZRotationMtx10(GetAngles(elementId));
+			Mat3x4 newMtx = Mat3x4::MakeXYZRotationMtx01(GetAngles(elementId));
 			(rframe*newMtx).Export(rotationMtx);
 		}
 		else
