@@ -99,8 +99,8 @@ namespace SpecialSolversTest
 			specialParams._dampingRatio = 1;
 			specialParams._scaleFactor = 1;// 1e8;
 
-			integrationParams._nIterations = 1000;
-			integrationParams._nSubIterations = 100;
+			integrationParams._nIterations = 1;// 1000;
+			integrationParams._nSubIterations = 100000;
 			integrationParams._timeStep = 0.0005f;
 
 			if (solverType == 2)
@@ -120,12 +120,12 @@ namespace SpecialSolversTest
 			};
 			
 			StressStrainSolver _hsolver;
-			ECode code = ztb;
+			ECode code = yfb;
 			switch (code)
 			{
 			case yfb:
 				gridParams._nx = 1;
-				gridParams._ny = 3;
+				gridParams._ny = 10;
 				gridParams._nz = 1;
 				gridParams._gridStep = 0.1;
 
