@@ -99,8 +99,8 @@ namespace SpecialSolversTest
 			specialParams._dampingRatio = 1;
 			specialParams._scaleFactor = 1;// 1e8;
 
-			integrationParams._nIterations = 1;// 1000;
-			integrationParams._nSubIterations = 100000;
+			integrationParams._nIterations = 1000;
+			integrationParams._nSubIterations = 100;
 			integrationParams._timeStep = 0.0005f;
 
 			if (solverType == 2)
@@ -124,9 +124,9 @@ namespace SpecialSolversTest
 			switch (code)
 			{
 			case yfb:
-				gridParams._nx = 1;
-				gridParams._ny = 10;
-				gridParams._nz = 1;
+				gridParams._nx = 3;
+				gridParams._ny = 20;
+				gridParams._nz = 3;
 				gridParams._gridStep = 0.1;
 
 				_hsolver = MakeSolver
@@ -341,14 +341,14 @@ namespace SpecialSolversTest
 				for (size_t i = 0; i < gridParams._nx; i++)
 					for (size_t j = 0; j < gridParams._nz; j++)
 					{
-						bcIndices.push_back(i*gridParams._ny + j + 1);
+						bcIndices.push_back(i*gridParams._ny*gridParams._nz + j + 1);
 					}
 				break;
 			case face_back:
 				for (size_t i = 0; i < gridParams._nx; i++)
 					for (size_t j = 0; j < gridParams._nz; j++)
 					{
-						bcIndices.push_back(i*gridParams._ny + j + gridParams._ny);
+						bcIndices.push_back(i*gridParams._ny*gridParams._nz + j + gridParams._ny);
 					}
 				break;
 			}
