@@ -110,6 +110,8 @@ StressStrainCppSolver::StressStrainCppSolver
 	// cORRECT EXPRESSION
 	_shearModulusScaled = _elasticModulusScaled / (2 * (1 + poissonFactor));
 
+	FindStressStrainMatrix();
+
 	// TODO: wtf?
 	_dampingFactorLinear = 0.01 * 2 * _dampingFactor * sqrt(_elasticModulusScaled * _cellMass * _gridStep);
 	_dampingFactorAngular = 10 * _dampingFactor * sqrt(2 * _elasticModulusScaled * _cellMass * _gridStep / 3) * _gridStep2;

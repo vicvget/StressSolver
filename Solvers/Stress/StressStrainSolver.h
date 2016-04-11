@@ -283,6 +283,7 @@ public:
 
 	virtual double* GetElementGridCoordinates(int elementId) const;;
 	virtual double* GetElementStress(int elementId) const;
+	virtual double* GetElementStressAngular(int elementId) const;
 	virtual double* GetElementShift(int elementId) const;
 	virtual double* GetElementVelocity(int elementId) const;
 	virtual double* GetElementAcceleration(int elementId) const;

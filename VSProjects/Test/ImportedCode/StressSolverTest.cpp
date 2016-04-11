@@ -67,6 +67,9 @@ namespace SpecialSolversTest
 			if (links != nullptr)
 				delete[] links;
 			SetSealedForceBc(_hsolver, sealedFace, forcedFace, force, dof, gridParams);
+			SetSealedForceForceBc(_hsolver, sealedFace, forcedFace, force, dof, (EDOF)((dof+2)%3), gridParams);
+			SetElementForceBc(_hsolver, force*gridParams._gridStep*gridParams._gridStep*10, 119, EDOF::dof_ry);
+			
 
 			return _hsolver;
 		}
@@ -94,13 +97,13 @@ namespace SpecialSolversTest
 			SpecialParams specialParams;
 			IntegrationParams integrationParams;
 			GridParams gridParams;
-			specialParams._E = 1000;
+			specialParams._E = 100;
 			specialParams._density = 1000;
 			specialParams._dampingRatio = 1;
 			specialParams._scaleFactor = 1;// 1e8;
 
-			integrationParams._nIterations = 1000;
-			integrationParams._nSubIterations = 100;
+			integrationParams._nIterations = 500;
+			integrationParams._nSubIterations = 1000;
 			integrationParams._timeStep = 0.0005f;
 
 			if (solverType == 2)
@@ -348,7 +351,7 @@ namespace SpecialSolversTest
 				for (size_t i = 0; i < gridParams._nx; i++)
 					for (size_t j = 0; j < gridParams._nz; j++)
 					{
-						bcIndices.push_back(i*gridParams._ny*gridParams._nz + j + gridParams._ny);
+						bcIndices.push_back((i+1)*gridParams._ny*gridParams._nz - j);
 					}
 				break;
 			}
@@ -375,6 +378,29 @@ namespace SpecialSolversTest
 				bcParams
 				);
 		}
+
+		void AddElementForceBoundary(
+			StressStrainSolver hStressSolver,
+			double force,
+			EDOF dof,
+			size_t nodeId)
+		{
+			double bcParams[6] = { 0 };
+			bcParams[dof] = force;
+			vector<int> bcIndices;			
+			bcIndices.push_back(nodeId);
+
+
+			Stress::AddBoundary
+				(
+				hStressSolver,
+				&bcIndices[0],
+				static_cast<int>(bcIndices.size()),
+				3,
+				bcParams
+				);
+		}
+
 
 		void AddSealedBoundary(
 			StressStrainSolver hStressSolver,
@@ -406,6 +432,29 @@ namespace SpecialSolversTest
 		{
 			AddSealedBoundary(hStressSolver, faceSealed, gridParams);
 			AddForceBoundary(hStressSolver, force, dof, faceForced, gridParams);
+		}
+
+		void SetSealedForceForceBc(
+			StressStrainSolver hStressSolver,
+			EFACE faceSealed,
+			EFACE faceForced,
+			double force,
+			EDOF dof,
+			EDOF dof2,
+			const GridParams& gridParams)
+		{
+			AddSealedBoundary(hStressSolver, faceSealed, gridParams);
+			AddForceBoundary(hStressSolver, force, dof, faceForced, gridParams);
+			AddForceBoundary(hStressSolver, force, dof2, faceForced, gridParams);
+		}
+
+		void SetElementForceBc(
+			StressStrainSolver hStressSolver,
+			double torque,
+			size_t nodeId,
+			EDOF dof)
+		{
+			AddElementForceBoundary(hStressSolver, torque, dof, nodeId);
 		}
 
 		void SetLeftSealRightForceBc
