@@ -369,21 +369,18 @@ void StressStrainCppIterativeSolver::GetStressesByVonMises
 		float* data
 	)
 {
-	double* movements = _dataInternal;
 	double relativeShiftsSigned[6];
-	double maxRelativeShift = 0;
 
 	double sigma[6];
 	
-	for (int nodeIndex = 0; nodeIndex < _nElements; nodeIndex++)
+	for (size_t elementId = 0; elementId < _nElements; elementId++)
 	{
-		for (int i = 0; i < 6; i++)
+		
+		for (size_t dof = 0; dof < 3; dof++)
 		{
-			relativeShiftsSigned[i] = _stress[6 * nodeIndex + i];
-		}
-		for (int i = 0; i < 3; i++)
-		{
-			relativeShiftsSigned[i] /= _gridStep;
+			relativeShiftsSigned[dof] = GetElementStress(elementId)[dof];
+			relativeShiftsSigned[dof] /= _gridStep;
+			relativeShiftsSigned[dof+3] = GetElementStressAngular(elementId)[dof];
 		}
 		
 		double summsq = 0;
@@ -402,7 +399,7 @@ void StressStrainCppIterativeSolver::GetStressesByVonMises
 			}
 		}
 		//summsq = 0;
-		data[nodeIndex] = (float)(_elasticModulus * sqrt
+		data[elementId] = (float)(_elasticModulus * sqrt
 			(
 				0.5 *
 					(

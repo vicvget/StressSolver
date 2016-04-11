@@ -156,8 +156,8 @@ void StressStrainSolver::GetScalarParameter
 		float* data
 	)
 {
-	//GetStressesByVonMises(data);
-	GetStressesByFirstTheoryOfStrength(data);
+	GetStressesByVonMises(data);
+	//GetStressesByFirstTheoryOfStrength(data);
 }
 
 
@@ -171,6 +171,12 @@ double* StressStrainSolver::GetElementStress(int elementId) const
 {
 	return _stress + (elementId * vecStride2);
 }
+
+double* StressStrainSolver::GetElementStressAngular(int elementId) const
+{
+	return _stress + (elementId * vecStride2 + vecStride);
+}
+
 
 //virtual 
 double* StressStrainSolver::GetElementShift(int elementId) const
