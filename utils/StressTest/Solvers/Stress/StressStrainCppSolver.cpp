@@ -76,6 +76,7 @@ StressStrainCppSolver::StressStrainCppSolver
 	)
 	:
 		StressStrainSolver(nElements, stride),
+		_isStiffnessDampingOverriden(false),
 		_isFirstSolution(true),
 		_isFirstIteration(true),
 		_nIteration(0),
@@ -115,6 +116,10 @@ StressStrainCppSolver::StressStrainCppSolver
 	// TODO: wtf?
 	_dampingFactorLinear = 0.01 * 2 * _dampingFactor * sqrt(_elasticModulusScaled * _cellMass * _gridStep);
 	_dampingFactorAngular = 10 * _dampingFactor * sqrt(2 * _elasticModulusScaled * _cellMass * _gridStep / 3) * _gridStep2;
+
+	_elasticFactorLinear = _elasticModulusScaled * _gridStep;
+	_elasticFactorAngular = 2 * _shearModulusScaled * _gridStep3;
+
 
 	// DEBUG!!
 	//_shearModulusScaled = _elasticModulusScaled / 100;
@@ -370,12 +375,28 @@ double* StressStrainCppSolver::GetRadiusVector(size_t side) const
 	return _radiusVectors + side * vecStride;
 }
 
+void StressStrainCppSolver::OverrideStiffness(double elasticModulus, double shearModulus, double dampingFactorLinear, double dampingFactorAngular, double stiffnessScale)
+{
+	_elasticModulus = elasticModulus;
+	_stiffScale = stiffnessScale;
+	_elasticModulusScaled = _elasticModulus / _stiffScale; // отмасштабированный модуль упругости
+	_shearModulusScaled = shearModulus / _stiffScale;
+
+	_dampingFactorAngular = dampingFactorAngular;
+	_dampingFactorLinear = dampingFactorLinear;
+
+	_elasticFactorLinear = _elasticModulusScaled;
+	_elasticFactorAngular = _shearModulusScaled;
+
+	_isStiffnessDampingOverriden = true;
+}
+
 void CrossProduct
-	(
-		double* v1,
-		double* v2,
-		double* res
-	)	
+(
+	double* v1,
+	double* v2,
+	double* res
+)	
 {
 	res[0] = v1[1] * v2[2] - v1[2] * v2[1];
 	res[1] = -v1[0] * v2[2] + v1[2] * v2[0];
