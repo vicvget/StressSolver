@@ -7,6 +7,7 @@
 
 #include <sstream>
 #include <vector>
+#include <StressStrainCppSolver.h>
 
 
 using std::string;
@@ -18,7 +19,7 @@ namespace SpecialSolversTest
 
 	namespace StressStrainStuff
 	{
-		StressStrainSolver MakeSolver(
+		SolverHandler MakeSolver(
 			const GridParams& gridParams,
 			const SpecialParams& specialParams,
 			const IntegrationParams& integrationParams,
@@ -47,7 +48,7 @@ namespace SpecialSolversTest
 
 			double params[5];
 			specialParams.GetParams(params);
-			StressStrainSolver _hsolver = Stress::Init
+			SolverHandler _hsolver = Stress::Init
 				(
 				params,
 				links,
@@ -67,25 +68,44 @@ namespace SpecialSolversTest
 			if (links != nullptr)
 				delete[] links;
 			SetSealedForceBc(_hsolver, sealedFace, forcedFace, force, dof, gridParams);
-			SetSealedForceForceBc(_hsolver, sealedFace, forcedFace, force, dof, (EDOF)((dof+2)%3), gridParams);
-			SetElementForceBc(_hsolver, force*gridParams._gridStep*gridParams._gridStep*10, 119, EDOF::dof_ry);
+			//SetSealedForceForceBc(_hsolver, sealedFace, forcedFace, force, dof, (EDOF)((dof+2)%3), gridParams);
+			//SetElementForceBc(_hsolver, force*gridParams._gridStep*gridParams._gridStep*10, 119, EDOF::dof_ry);
 			
 
 			return _hsolver;
 		}
 
-		StressStrainSolver MakeSolver(const GridParams& gridParams, const SpecialParams& specialParams, const IntegrationParams& integrationParams, const std::string& fileRlc, const int solverType)
+		SolverHandler MakeSolver(const GridParams& gridParams, const SpecialParams& specialParams, const IntegrationParams& integrationParams, const std::string& fileRlc, const int solverType)
 		{
 			return MakeSolver(gridParams, specialParams, integrationParams, fileRlc, face_left, face_right, 10, dof_y, solverType);
 		}
 
+		//void OverrideStiffness(SolverHandler solver_handler, int i, int i1, int i2, int i3, int i4);
+
+		void OverrideStiffness(
+			SolverHandler hStressSolver,
+			double elasticModulus,
+			double shearModulus,
+			double dampingFactorLinear,
+			double dampingFactorAngular,
+			double stiffnessScale)
+		{
+			((Stress::StressStrainCppSolver*)hStressSolver)->OverrideStiffness(
+				elasticModulus,
+				shearModulus,
+				dampingFactorLinear,
+				dampingFactorAngular,
+				stiffnessScale);
+		}
+
+
 		/** Stress solver testing for grid 3x3x10
-		* @param solverType - type of solver
-		* solverType = 0 - default, fortran translated solver
-		* solverType = 1 - static old
-		* solverType = 2 - static 2 solver (mkl)
-		* solverType = other - cpp, rewritten solver
-		*/
+				* @param solverType - type of solver
+				* solverType = 0 - default, fortran translated solver
+				* solverType = 1 - static old
+				* solverType = 2 - static 2 solver (mkl)
+				* solverType = other - cpp, rewritten solver
+				*/
 		void Test3x1x1(int solverType)
 		{
 			stringstream str;
@@ -102,9 +122,13 @@ namespace SpecialSolversTest
 			specialParams._dampingRatio = 1;
 			specialParams._scaleFactor = 1;// 1e8;
 
-			integrationParams._nIterations = 500;
-			integrationParams._nSubIterations = 1000;
+			//integrationParams._nIterations = 500;
+			
+			integrationParams._nIterations = 1000;
+			integrationParams._nSubIterations = 10;
 			integrationParams._timeStep = 0.0005f;
+
+			
 
 			if (solverType == 2)
 			{
@@ -122,14 +146,14 @@ namespace SpecialSolversTest
 				zbt
 			};
 			
-			StressStrainSolver _hsolver;
-			ECode code = yfb;
+			SolverHandler _hsolver;
+			ECode code = xlr;
 			switch (code)
 			{
-			case yfb:
+			case xlr:
 				gridParams._nx = 3;
-				gridParams._ny = 20;
-				gridParams._nz = 3;
+				gridParams._ny = 1;
+				gridParams._nz = 1;
 				gridParams._gridStep = 0.1;
 
 				_hsolver = MakeSolver
@@ -138,10 +162,10 @@ namespace SpecialSolversTest
 					specialParams,
 					integrationParams,
 					fileRlc,
-					face_front,
-					face_back,
-					1,
-					dof_x,
+					face_left,
+					face_right,
+					10,
+					dof_y,
 					solverType
 					);
 				break;
@@ -162,12 +186,20 @@ namespace SpecialSolversTest
 					1,
 					dof_x,
 					solverType
-					);				break;
+					);				
+				break;
 			}
 			SolverPerformanceCounter pc;
 			pc.Reset();
 			if (_hsolver != nullptr)
 			{
+				OverrideStiffness(_hsolver, 
+					1000., 
+					10., 
+					10., 
+					10., 
+					1.);
+					
 				Solve
 					(
 					_hsolver,
@@ -219,7 +251,7 @@ namespace SpecialSolversTest
 			gridParams._nx = 10;
 			gridParams._gridStep = 0.005;
 
-			StressStrainSolver _hsolver = MakeSolver
+			SolverHandler _hsolver = MakeSolver
 				(
 				gridParams,
 				specialParams,
@@ -281,7 +313,7 @@ namespace SpecialSolversTest
 			gridParams._nx = 10;
 			gridParams._gridStep = 0.005;
 
-			StressStrainSolver _hsolver = MakeSolver
+			SolverHandler _hsolver = MakeSolver
 				(
 					gridParams,
 					specialParams,
@@ -358,7 +390,7 @@ namespace SpecialSolversTest
 		}
 
 		void AddForceBoundary(
-			StressStrainSolver hStressSolver,
+			SolverHandler hStressSolver,
 			double force,
 			EDOF dof,
 			EFACE face,
@@ -380,7 +412,7 @@ namespace SpecialSolversTest
 		}
 
 		void AddElementForceBoundary(
-			StressStrainSolver hStressSolver,
+			SolverHandler hStressSolver,
 			double force,
 			EDOF dof,
 			size_t nodeId)
@@ -403,7 +435,7 @@ namespace SpecialSolversTest
 
 
 		void AddSealedBoundary(
-			StressStrainSolver hStressSolver,
+			SolverHandler hStressSolver,
 			EFACE face,
 			const GridParams& gridParams)
 		{
@@ -423,7 +455,7 @@ namespace SpecialSolversTest
 
 
 		void SetSealedForceBc(
-			StressStrainSolver hStressSolver,
+			SolverHandler hStressSolver,
 			EFACE faceSealed,
 			EFACE faceForced,
 			double force,
@@ -434,8 +466,9 @@ namespace SpecialSolversTest
 			AddForceBoundary(hStressSolver, force, dof, faceForced, gridParams);
 		}
 
+		// добавляет 2 силы и одну заделку
 		void SetSealedForceForceBc(
-			StressStrainSolver hStressSolver,
+			SolverHandler hStressSolver,
 			EFACE faceSealed,
 			EFACE faceForced,
 			double force,
@@ -448,8 +481,16 @@ namespace SpecialSolversTest
 			AddForceBoundary(hStressSolver, force, dof2, faceForced, gridParams);
 		}
 
+		void SetSealedBc(
+			SolverHandler hStressSolver,
+			EFACE faceSealed,
+			const GridParams& gridParams)
+		{
+			AddSealedBoundary(hStressSolver, faceSealed, gridParams);
+		}
+
 		void SetElementForceBc(
-			StressStrainSolver hStressSolver,
+			SolverHandler hStressSolver,
 			double torque,
 			size_t nodeId,
 			EDOF dof)
@@ -459,7 +500,7 @@ namespace SpecialSolversTest
 
 		void SetLeftSealRightForceBc
 			(
-			StressStrainSolver hStressSolver,
+			SolverHandler hStressSolver,
 			double force,
 			EDOF dof,
 			const GridParams& gridParams
@@ -470,7 +511,7 @@ namespace SpecialSolversTest
 
 		void SetLeftSealRightForceBc1
 			(
-			StressStrainSolver hStressSolver,
+			SolverHandler hStressSolver,
 			double force,
 			const GridParams& gridParams
 			)

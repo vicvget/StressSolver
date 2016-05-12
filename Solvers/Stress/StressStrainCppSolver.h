@@ -390,9 +390,12 @@ public:
 	double _stiffScale; // масштабирование
 	double _poissonRatio; // коэффициент Пуассона
 	double _lameMatrix[6][6]; // матрица перехода от деформациям к напряжениям
-
+	bool _isStiffnessDampingOverriden;
 	int _numThreads;
 	FTimer _testTimer;
+	
+	double _elasticFactorLinear;
+	double _elasticFactorAngular;
 
 	void CalculateStrains
 		(
@@ -420,7 +423,15 @@ public:
 	// @param side - номер грани
 	// @returns радиус-вектор
 	double* GetRadiusVector(size_t side) const;
-//protected:
+
+	void OverrideStiffness(
+		double elasticModulus,
+		double shearModulus,
+		double dampingFactorLinear,
+		double dampingFactorAngular,
+		double stiffnessScale);
+
+	//protected:
 
 };
 };

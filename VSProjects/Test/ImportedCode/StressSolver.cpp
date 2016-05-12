@@ -59,7 +59,7 @@ namespace SpecialSolvers
 
 		void Solve
 			(
-				StressStrainSolver hSolver,
+				SolverHandler hSolver,
 				const string& fileResults,
 				const GridParams& gridParams,
 				const IntegrationParams& integrationParams
@@ -107,10 +107,11 @@ namespace SpecialSolvers
 #ifndef NOBLENDER
 					exporter.AddFrame(ssSolver->GetElementShift(0), ssSolver->GetDataRotaionMtx());
 #endif
-					writer.WriteFrame(data, dataSize, iteration * integrationParams._timeStep * integrationParams._nSubIterations);
+					double currentTime = iteration * integrationParams._timeStep * integrationParams._nSubIterations;
+					writer.WriteFrame(data, dataSize, currentTime);
 
 					int elementId = 2;
-					dofs << i << ' '
+					dofs << currentTime << ' '
 						<< ssSolver->GetElementShift(elementId)[0] << ' '
 						<< ssSolver->GetElementShift(elementId)[1] << ' '
 						<< ssSolver->GetElementShift(elementId)[2] << ' '

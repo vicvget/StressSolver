@@ -12,7 +12,7 @@ namespace SpecialSolvers
 	namespace StressStrainStuff
 	{
 
-		typedef void* StressStrainSolver;
+		typedef void* SolverHandler;
 
 		struct SpecialParams
 		{
@@ -41,7 +41,7 @@ namespace SpecialSolvers
 
 		void Solve
 			(
-				StressStrainSolver hStressSolver,
+				SolverHandler hStressSolver,
 				const std::string& fileResults,
 				const GridParams& gridParams,
 				const IntegrationParams& integrationParams

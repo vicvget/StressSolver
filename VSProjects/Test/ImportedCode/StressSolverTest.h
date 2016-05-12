@@ -33,7 +33,7 @@ namespace SpecialSolversTest
 		using namespace SpecialSolvers::StressStrainStuff;
 
 
-		StressStrainSolver MakeSolver(
+		SolverHandler MakeSolver(
 			const GridParams& gridParams,
 			const SpecialParams& specialParams,
 			const IntegrationParams& integrationParams,
@@ -44,7 +44,7 @@ namespace SpecialSolversTest
 			EDOF dof,
 			const int solverType);
 
-		StressStrainSolver MakeSolver
+		SolverHandler MakeSolver
 		(
 			const GridParams& gridParams,
 			const SpecialParams& specialParams,
@@ -54,7 +54,7 @@ namespace SpecialSolversTest
 		);
 
 		void SetSealedForceBc(
-			StressStrainSolver hStressSolver,
+			SolverHandler hStressSolver,
 			EFACE faceSealed,
 			EFACE faceForced,
 			double force,
@@ -62,7 +62,7 @@ namespace SpecialSolversTest
 			const GridParams& gridParams);
 
 		void SetSealedForceForceBc(
-			StressStrainSolver hStressSolver,
+			SolverHandler hStressSolver,
 			EFACE faceSealed,
 			EFACE faceForced,
 			double force,
@@ -71,7 +71,7 @@ namespace SpecialSolversTest
 			const GridParams& gridParams);
 
 		void SetElementForceBc(
-			StressStrainSolver hStressSolver,
+			SolverHandler hStressSolver,
 			double torque,
 			size_t nodeId,
 			EDOF dof);
