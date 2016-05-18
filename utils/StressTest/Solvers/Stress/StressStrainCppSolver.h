@@ -363,28 +363,30 @@ public:
 
 	int _nVariables;	// количество неизвестных
 	int _nIteration;	// номер итерации
-	int _stageRK;		// шаг Рунге Кутты 4
+	//int _stageRK;		// шаг Рунге Кутты 4
 	
-	double _time;		// время
-	double _timeTmp;	// вспомогательная функция для сохранения промежуточного значения времени
+	//double _time;		// время
+	//double _timeTmp;	// вспомогательная функция для сохранения промежуточного значения времени
 	double _timeStep;	// шаг по времени
 	double _timeStep2;	// шаг по времени /2
 	double _timeStep4;	// шаг по времени /4
 	
-	bool _isFirstIteration;
+	//bool _isFirstIteration;
 	
 	//double* GR1; // массив результатов
 	double _gridStep; // шаг сетки
 	double _gridStep2; // шаг сетки в квадрате
 	double _gridStep3; // шаг сетки в кубе
 
-	double _elasticModulus; // модуль упругости
-	double _shearModulusScaled; // модуль сдвига
-	double _elasticModulusScaled; // отмасштабированный модуль упругости
-	double _dampingFactor; // коэффициент демпфирования
+	double _elasticModulus; // модуль упругости (используется только для вычисления напряжений)
+	//double _shearModulusScaled; // модуль сдвига
+	//double _elasticModulusScaled; // отмасштабированный модуль упругости
+	//double _dampingFactor; // коэффициент демпфирования
 	double _dampingFactorAngular; // приведенный коэффициент углового демпфирования
-	double _dampingFactorLinear; // приведенный коэффициент линейного демпфирования
-	double _density; // плотность материала
+	double _dampingFactorLinear;  // приведенный коэффициент линейного демпфирования
+	double _elasticFactorLinear;  // приведенный коэффициент линейной жесткости
+	double _elasticFactorAngular; // приведенный коэффициент угловой жесткости
+	//double _density; // плотность материала
 	double _cellMass; // масса элемента
 	double _cellInertia; // момент элемента
 	double _stiffScale; // масштабирование
@@ -394,8 +396,6 @@ public:
 	int _numThreads;
 	FTimer _testTimer;
 	
-	double _elasticFactorLinear;
-	double _elasticFactorAngular;
 
 	void CalculateStrains
 		(

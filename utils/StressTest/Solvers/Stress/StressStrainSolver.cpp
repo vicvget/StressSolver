@@ -184,6 +184,8 @@ double* StressStrainSolver::GetElementShift(int elementId) const
 	return _dataInternal + (elementId * vecStride2);
 }
 
+
+
 //virtual 
 double* StressStrainSolver::GetElementVelocity(int elementId) const
 {

@@ -197,6 +197,12 @@ namespace Stress
 			double scaleFactor = 1.0
 		);
 
+	DLL_FUNCTION
+		void InitialSolve
+		(
+		void* hsolver
+		);
+
 	/** Расчет
 	* @param hsolver - дескриптор решателя
 	* @param nIterations - количество итераций

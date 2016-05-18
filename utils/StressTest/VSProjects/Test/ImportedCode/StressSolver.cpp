@@ -93,7 +93,9 @@ namespace SpecialSolvers
 			int cP = 0;
 
 			ofstream dofs("charts.txt");
-			dofs << "t x y z rx ry rz vx vy vz wx wy wz ax ay az ex ey ez\n";
+//			dofs << "t x y z rx ry rz vx vy vz wx wy wz ax ay az ex ey ez dx dy dz drx dry drz fx fy fz frx fry frz\n";
+			dofs << "t x y z rx ry rz ax ay az ex ey ez\n";
+			Stress::InitialSolve(hSolver);
 			for (int i = 0; i < integrationParams._nIterations; i++)
 			{
 				Stress::Solve(hSolver, integrationParams._nSubIterations);
@@ -107,29 +109,42 @@ namespace SpecialSolvers
 #ifndef NOBLENDER
 					exporter.AddFrame(ssSolver->GetElementShift(0), ssSolver->GetDataRotaionMtx());
 #endif
-					double currentTime = iteration * integrationParams._timeStep * integrationParams._nSubIterations;
+					double currentTime = (1+iteration) * integrationParams._timeStep * integrationParams._nSubIterations;
 					writer.WriteFrame(data, dataSize, currentTime);
 
 					int elementId = 2;
-					dofs << currentTime << ' '
+					dofs << std::setprecision(5) << currentTime << ' ' << std::setprecision(15)
 						<< ssSolver->GetElementShift(elementId)[0] << ' '
 						<< ssSolver->GetElementShift(elementId)[1] << ' '
 						<< ssSolver->GetElementShift(elementId)[2] << ' '
 						<< ssSolver->GetElementShiftAngular(elementId)[0] << ' '
 						<< ssSolver->GetElementShiftAngular(elementId)[1] << ' '
 						<< ssSolver->GetElementShiftAngular(elementId)[2] << ' '
-						<< ssSolver->GetElementVelocity(elementId)[0] << ' '
-						<< ssSolver->GetElementVelocity(elementId)[1] << ' '
-						<< ssSolver->GetElementVelocity(elementId)[2] << ' '
-						<< ssSolver->GetElementVelocityAngular(elementId)[0] << ' '
-						<< ssSolver->GetElementVelocityAngular(elementId)[1] << ' '
-						<< ssSolver->GetElementVelocityAngular(elementId)[2] << ' '
+						//<< ssSolver->GetElementVelocity(elementId)[0] << ' '
+						//<< ssSolver->GetElementVelocity(elementId)[1] << ' '
+						//<< ssSolver->GetElementVelocity(elementId)[2] << ' '
+						//<< ssSolver->GetElementVelocityAngular(elementId)[0] << ' '
+						//<< ssSolver->GetElementVelocityAngular(elementId)[1] << ' '
+						//<< ssSolver->GetElementVelocityAngular(elementId)[2] << ' '
 						<< ssSolver->GetElementAcceleration(elementId)[0] << ' '
 						<< ssSolver->GetElementAcceleration(elementId)[1] << ' '
 						<< ssSolver->GetElementAcceleration(elementId)[2] << ' '
 						<< ssSolver->GetElementAccelerationAngular(elementId)[0] << ' '
 						<< ssSolver->GetElementAccelerationAngular(elementId)[1] << ' '
-						<< ssSolver->GetElementAccelerationAngular(elementId)[2] << '\n';
+						<< ssSolver->GetElementAccelerationAngular(elementId)[2] << ' '
+						//<< ssSolver->df[0] << ' '
+						//<< ssSolver->df[1] << ' '
+						//<< ssSolver->df[2] << ' '
+						//<< ssSolver->df[3] << ' '
+						//<< ssSolver->df[4] << ' '
+						//<< ssSolver->df[5] << ' '
+						//<< ssSolver->df[6] << ' '
+						//<< ssSolver->df[7] << ' '
+						//<< ssSolver->df[8] << ' '
+						//<< ssSolver->df[9] << ' '
+						//<< ssSolver->df[10] << ' '
+						//<< ssSolver->df[11]
+						<< std::endl;
 					
 				}
 
