@@ -83,9 +83,9 @@ namespace Stress
 		const size_t varSize = nElements*_vecStride*sizeof(double);
 
 		_varDR = (double*)_aligned_malloc(varSize, alignment);
-		_hDDR1 = (double*)_aligned_malloc(varSize, alignment);
-		_hDDR2 = (double*)_aligned_malloc(varSize, alignment);
-		_hDDR3 = (double*)_aligned_malloc(varSize, alignment);
+		_hDR1 = (double*)_aligned_malloc(varSize, alignment);
+		_hDR2 = (double*)_aligned_malloc(varSize, alignment);
+		_hDR3 = (double*)_aligned_malloc(varSize, alignment);
 		_varR = (double*)_aligned_malloc(varSize, alignment);
 		_initR = (double*)_aligned_malloc(varSize, alignment);
 
@@ -94,9 +94,9 @@ namespace Stress
 		memset(_varR, 0, varSize);
 		memset(_initR, 0, varSize);
 		memset(_varDR, 0, varSize);
-		memset(_hDDR1, 0, varSize);
-		memset(_hDDR2, 0, varSize);
-		memset(_hDDR3, 0, varSize);
+		memset(_hDR1, 0, varSize);
+		memset(_hDR2, 0, varSize);
+		memset(_hDR3, 0, varSize);
 
 		// если изначально были не нулевые повороты, то будут не единичные матрицы
 		memcpy(_rframeMtx, mtxPointer, matSize);
@@ -107,9 +107,9 @@ namespace Stress
 		_aligned_free(_varR);
 		_aligned_free(_initR);
 		_aligned_free(_varDR);
-		_aligned_free(_hDDR1);
-		_aligned_free(_hDDR2);
-		_aligned_free(_hDDR3);
+		_aligned_free(_hDR1);
+		_aligned_free(_hDR2);
+		_aligned_free(_hDR3);
 		_aligned_free(_rframeMtx);
 	}
 
@@ -117,51 +117,129 @@ namespace Stress
 	{
 		size_t offset = _vecStride * elementId;
 		memset(_varDR + offset, 0, sizeof(double) * _vecStride);
-		memset(_hDDR1 + offset, 0, sizeof(double) * _vecStride);
-		memset(_hDDR2 + offset, 0, sizeof(double) * _vecStride);
-		memset(_hDDR3 + offset, 0, sizeof(double) * _vecStride);
+		memset(_hDR1 + offset, 0, sizeof(double) * _vecStride);
+		memset(_hDR2 + offset, 0, sizeof(double) * _vecStride);
+		memset(_hDR3 + offset, 0, sizeof(double) * _vecStride);
 		memset(_varR + offset, 0, sizeof(double) * _vecStride);
 		memset(_initR + offset, 0, sizeof(double) * _vecStride);
 	}
 
+// corrected
+	//void RotationSolver::InitIteration() const
+	//{
+	//	memcpy(_initR, _varR, sizeof(double)*_nRVariables);
+
+	//	// _hDR1 = k1*h = _varDR
+	//	memcpy(_hDR1, _varDR, sizeof(double)*_nRVariables);
+	//}
+
+	//void RotationSolver::Solve1()
+	//{
+	//	for (size_t i = 0; i < _nRVariables; i++)
+	//		_varR[i] = _initR[i] + _hDR1[i] * 0.5;
+	//	CalculateRHS(); // k2 = f(t+h/2,y+k1*h/2)
+	//	// _hDR2 = k2*h
+	//	memcpy(_hDR2, _varDR, sizeof(double)*_nRVariables);
+	//	UpdateMtxs();
+	//}
+
+	//void RotationSolver::Solve2()
+	//{
+	//	for (size_t i = 0; i < _nRVariables; i++)
+	//		_varR[i] = _initR[i] + _hDR2[i] * 0.5;
+	//	CalculateRHS(); // k3 = f(t+h/2,y+k2*h/2)
+	//	// _hDR3 = k3*h
+	//	memcpy(_hDR3, _varDR, sizeof(double)*_nRVariables);
+	//	UpdateMtxs();
+	//}
+
+	//void RotationSolver::Solve3()
+	//{
+
+	//	for (size_t i = 0; i < _nRVariables; i++)
+	//		_varR[i] = _initR[i] + _hDR3[i];
+	//	CalculateRHS();// k3 = f(t+h/2,y+k2*h/2)
+	//	memcpy(_hDR3, _varDR, sizeof(double)*_nRVariables);
+	//	UpdateMtxs();
+	//}
+
+	//void RotationSolver::Solve4()
+	//{
+	//	CalculateRHS();// k4 = f(t+h/2,y+k3*h)
+	//	for (size_t i = 0; i < _nRVariables; i++)
+	//	{
+	//		//_varR[i] = _initR[i] + (_hDR1[i] + 2 * (_hDR2[i] + _hDR3[i]) + _varDR[i]) / 6.0;
+	//		_varR[i] = _initR[i] + (_hDR1[i] + (_hDR2[i] + _hDR3[i])) / 6.0;
+	//	}
+	 
+	//	// проверка сингулярности
+	//	for (size_t elementId = 0; elementId < _nElements; elementId++)
+	//	{
+	//		double* elementMtx = GetRotationMtx(elementId);
+	//		double* rframeMtx = GetRframeMtx(elementId);
+	//		if (IsSingularityAngle(elementId))
+	//		{
+	//			MakeZeroVectors(elementId);
+	//			memcpy(rframeMtx, elementMtx, _matStride*sizeof(double));
+	//		}
+	//		UpdateMtx(elementId);
+	//	}
+	//}
+
+	void RotationSolver::InitialSolve()
+	{
+		CalculateRHS();
+		UpdateMtxs();
+	}
+
+
 	void RotationSolver::InitIteration() const
 	{
 		memcpy(_initR, _varR, sizeof(double)*_nRVariables);
+		// _hDR1 = k1*h = _varDR
+		memcpy(_hDR1, _varDR, sizeof(double)*_nRVariables);
 	}
 
 	void RotationSolver::Solve1()
-	{
+	{		
+		InitIteration();
 		for (size_t i = 0; i < _nRVariables; i++)
-			_varR[i] = _initR[i] + _hDDR1[i] * 0.5;
-		CalculateRHS(); // k1 = f(t,y)
-		memcpy(_hDDR1,_varDR,sizeof(double)*_nRVariables);
+			_varR[i] = _initR[i] + _hDR1[i] * 0.5;
+		CalculateRHS(); // k2 = f(t+h/2,y+k1*h/2)
+		// _hDR2 = k2*h
+		memcpy(_hDR2, _varDR, sizeof(double)*_nRVariables);
 		UpdateMtxs();
 	}
 
 	void RotationSolver::Solve2()
 	{
 		for (size_t i = 0; i < _nRVariables; i++)
-			_varR[i] = _initR[i] + _hDDR1[i] * 0.5;
-		CalculateRHS(); // k2 = f(t+h/2,y+k1*h/2)
-		memcpy(_hDDR2, _varDR, sizeof(double)*_nRVariables);
+			_varR[i] = _initR[i] + _hDR2[i] * 0.5;
+		CalculateRHS(); // k3 = f(t+h/2,y+k2*h/2)
+		// _hDR3 = k3*h
+		memcpy(_hDR3, _varDR, sizeof(double)*_nRVariables);
 		UpdateMtxs();
 	}
 
 	void RotationSolver::Solve3()
 	{
+		
 		for (size_t i = 0; i < _nRVariables; i++)
-			_varR[i] = _initR[i] + _hDDR3[i];
-		CalculateRHS();// k3 = f(t+h/2,y+k2*h/2)
-		memcpy(_hDDR3, _varDR, sizeof(double)*_nRVariables);
+			_varR[i] = _initR[i] + _hDR3[i];
+		CalculateRHS();// k4 = f(t+h,y+k3*h)
+		//memcpy(_hDR4, _varDR, sizeof(double)*_nRVariables);
 		UpdateMtxs();
 	}
 
 	void RotationSolver::Solve4()
 	{
-		CalculateRHS();// k4 = f(t+h/2,y+k3*h)
+		//CalculateRHS();// k4 = f(t+h/2,y+k3*h)
 		for (size_t i = 0; i < _nRVariables; i++)
-			_varR[i] = _initR[i] + (_hDDR1[i] + (_hDDR2[i] + _hDDR3[i]) * 2 + _varDR[i]) / 6.0;
-		
+		{
+			_varR[i] = _initR[i] + (_hDR1[i] + 2 * (_hDR2[i] + _hDR3[i]) + _varDR[i]) / 6.0;
+			//_varR[i] = _initR[i] + (_hDR1[i] + (_hDR2[i] + _hDR3[i])) / 6.0;
+		}
+		CalculateRHS(); // calculate  _varDR = f(t+h, y(t+h));
 		// проверка сингулярности
 		for (size_t elementId = 0; elementId < _nElements; elementId++)
 		{

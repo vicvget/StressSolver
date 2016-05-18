@@ -43,6 +43,11 @@ public:
 #pragma region overriden
 
 	virtual
+		void InitialSolve
+		(
+		);
+
+	virtual
 	void Solve
 		(
 			const int nIteratons
@@ -107,7 +112,7 @@ public:
 
 #pragma endregion
 
-
+	double df[12]; // debug
 private:
 
 

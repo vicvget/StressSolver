@@ -317,6 +317,19 @@ namespace Stress
 		((StressStrainSolver*)hsolver)->UpdateBuffer(scaleFactor);
 	}
 
+
+	/** –асчет начальноо времени
+	* @param nIterations - количество итераций
+	*/
+	DLL_FUNCTION
+		void InitialSolve
+		(
+		void* hsolver
+		)
+	{
+		((StressStrainSolver*)hsolver)->InitialSolve();
+	}
+
 	/** –асчет
 	* @param nIterations - количество итераций
 	*/

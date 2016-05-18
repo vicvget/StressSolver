@@ -22,7 +22,7 @@ using MathHelpers::Mat3x4;
 #define M_PI 3.1415926535897932384626433832795
 #endif
 
-
+#define OUTPUT_SPACING  15
 namespace Stress
 {
 
@@ -78,22 +78,23 @@ StressStrainCppSolver::StressStrainCppSolver
 		StressStrainSolver(nElements, stride),
 		_isStiffnessDampingOverriden(false),
 		_isFirstSolution(true),
-		_isFirstIteration(true),
+		//_isFirstIteration(true),
 		_nIteration(0),
 		_poissonRatio(0.),
-		_stageRK(0),                // этап вычисления итерации РК4 (0-3)
-		_time(0),					// время
+		//_stageRK(0),                // этап вычисления итерации РК4 (0-3)
+		//_time(0),					// время
 		_timeStep(timeStep),		// шаг интегрирования
 		_timeStep2(timeStep*0.5),   // половина шага интегрирования
 		_timeStep4(timeStep*0.25),  // четверть шага интегрирования
 		_gridStep(gridStep),		// шаг сетки
-		_elasticModulus(params[0]),	// модуль упругости
-		_dampingFactor(params[1]),	// коэффициент демпфирования
-		_density(params[2]),		// плотность материала
+		//_elasticModulus(params[0]),	// модуль упругости
+		//_dampingFactor(params[1]),	// коэффициент демпфирования
+		//_density(params[2]),		// плотность материала
 		_stiffScale(params[3])
 
 {
-	
+	_numThreads = (numThreads > 0) ? numThreads : omp_get_max_threads();
+
 	_nVariables = nElements * vecStride2;
 
 	// масштабный коэффициент
@@ -101,24 +102,26 @@ StressStrainCppSolver::StressStrainCppSolver
 	_gridStep3 = _gridStep * _gridStep2;
 
 	// масса и момент инерции для куба
-	_cellMass = _density * _gridStep3; 
+	double density = params[2];
+	_cellMass = density * _gridStep3; 
 	_cellInertia = _cellMass * _gridStep * _gridStep / 6;
 
-	_elasticModulusScaled = _elasticModulus / _stiffScale; // отмасштабированный модуль упругости
 
-	_numThreads = (numThreads > 0) ? numThreads : omp_get_max_threads();
+	double _elasticModulus = params[0];	// модуль упругости
+	double elasticModulusScaled = _elasticModulus / _stiffScale; // отмасштабированный модуль упругости
+
 	const double poissonFactor = 0.;
-	// cORRECT EXPRESSION
-	_shearModulusScaled = _elasticModulusScaled / (2 * (1 + poissonFactor));
+	double shearModulusScaled = elasticModulusScaled / (2 * (1 + poissonFactor));
 
 	FindStressStrainMatrix();
 
 	// TODO: wtf?
-	_dampingFactorLinear = 0.01 * 2 * _dampingFactor * sqrt(_elasticModulusScaled * _cellMass * _gridStep);
-	_dampingFactorAngular = 10 * _dampingFactor * sqrt(2 * _elasticModulusScaled * _cellMass * _gridStep / 3) * _gridStep2;
+	double dampingFactor = params[1];	// коэффициент демпфирования
+	_dampingFactorLinear = 0.01 * 2 * dampingFactor * sqrt(elasticModulusScaled * _cellMass * _gridStep);
+	_dampingFactorAngular = 10 * dampingFactor * sqrt(2 * elasticModulusScaled * _cellMass * _gridStep / 3) * _gridStep2;
 
-	_elasticFactorLinear = _elasticModulusScaled * _gridStep;
-	_elasticFactorAngular = 2 * _shearModulusScaled * _gridStep3;
+	_elasticFactorLinear = elasticModulusScaled * _gridStep;
+	_elasticFactorAngular = 2 * shearModulusScaled * _gridStep3;
 
 
 	// DEBUG!!
@@ -126,18 +129,21 @@ StressStrainCppSolver::StressStrainCppSolver
 	//_dampingFactorLinear = 10;
 	//_dampingFactorAngular = 10;
 	
-	const int outWidth = 15;
+	
 	std::cout << "------------------------------" << std::endl
 			  << "    CPP SOLVER IS CREATED" << std::endl
 			  << "------------------------------" << std::endl
-		<< std::setw(outWidth) << "THREADS: " << std::setw(outWidth) << _numThreads << std::endl
-		<< std::setw(outWidth) << "VECSTRIDE: " << std::setw(outWidth) << vecStride << std::endl
-		<< std::setw(outWidth) << "STIFF SCALE: " << std::setw(outWidth) << _stiffScale << std::endl
-		<< std::setw(outWidth) << "ELASTIC: "   << std::setw(outWidth) << _elasticModulus << std::endl
-		<< std::setw(outWidth) << "DAMPING: "   << std::setw(outWidth) << _dampingFactor << std::endl
-		<< std::setw(outWidth) << "DENSITY: "   << std::setw(outWidth) << _density << std::endl
-		<< std::setw(outWidth) << "ELEMENTS: "  << std::setw(outWidth) << nElements << std::endl
-		<< std::setw(outWidth) << "GRID STEP: " << std::setw(outWidth) << _gridStep << std::endl;
+		<< std::setw(OUTPUT_SPACING) << "THREADS: " << std::setw(OUTPUT_SPACING) << _numThreads << std::endl
+		<< std::setw(OUTPUT_SPACING) << "VECSTRIDE: " << std::setw(OUTPUT_SPACING) << vecStride << std::endl
+		<< std::setw(OUTPUT_SPACING) << "STIFF SCALE: " << std::setw(OUTPUT_SPACING) << _stiffScale << std::endl
+		<< std::setw(OUTPUT_SPACING) << "STIFFNESS L: "   << std::setw(OUTPUT_SPACING) << _elasticFactorLinear << std::endl
+		<< std::setw(OUTPUT_SPACING) << "STIFFNESS A: " << std::setw(OUTPUT_SPACING) << _elasticFactorAngular << std::endl
+		<< std::setw(OUTPUT_SPACING) << "DAMPING L: " << std::setw(OUTPUT_SPACING) << _dampingFactorLinear << std::endl
+		<< std::setw(OUTPUT_SPACING) << "DAMPING A: " << std::setw(OUTPUT_SPACING) << _dampingFactorAngular << std::endl
+		<< std::setw(OUTPUT_SPACING) << "MASS: " << std::setw(OUTPUT_SPACING) << _cellMass << std::endl
+		<< std::setw(OUTPUT_SPACING) << "INERTIA: " << std::setw(OUTPUT_SPACING) << _cellInertia << std::endl
+		<< std::setw(OUTPUT_SPACING) << "ELEMENTS: " << std::setw(OUTPUT_SPACING) << nElements << std::endl
+		<< std::setw(OUTPUT_SPACING) << "GRID STEP: " << std::setw(OUTPUT_SPACING) << _gridStep << std::endl;
 
 	
 	// выделение памяти
@@ -224,6 +230,8 @@ StressStrainCppSolver::StressStrainCppSolver
 		for (int j = 0; j < 3; j++)
 		{
 			_dataInternal[i * 2 * vecStride + j] = nodes[i * 3 + j];
+			if (i == 2 && j == 0)
+				_dataInternal[i * 2 * vecStride + j] += 0.01;
 		}
 	}
 	_testTimer.Allocate(10);
@@ -375,20 +383,23 @@ double* StressStrainCppSolver::GetRadiusVector(size_t side) const
 	return _radiusVectors + side * vecStride;
 }
 
-void StressStrainCppSolver::OverrideStiffness(double elasticModulus, double shearModulus, double dampingFactorLinear, double dampingFactorAngular, double stiffnessScale)
+void StressStrainCppSolver::OverrideStiffness(double elasticFactorLinear, double elasticFactorAngular, double dampingFactorLinear, double dampingFactorAngular, double stiffScale)
 {
-	_elasticModulus = elasticModulus;
-	_stiffScale = stiffnessScale;
-	_elasticModulusScaled = _elasticModulus / _stiffScale; // отмасштабированный модуль упругости
-	_shearModulusScaled = shearModulus / _stiffScale;
-
+	_stiffScale = stiffScale;
 	_dampingFactorAngular = dampingFactorAngular;
 	_dampingFactorLinear = dampingFactorLinear;
-
-	_elasticFactorLinear = _elasticModulusScaled;
-	_elasticFactorAngular = _shearModulusScaled;
+	_elasticFactorLinear = elasticFactorLinear;
+	_elasticFactorAngular = elasticFactorAngular;
 
 	_isStiffnessDampingOverriden = true;
+
+	std::cout << "PARAMS OVERRIDEN:" << std::endl
+		<< std::setw(OUTPUT_SPACING) << "STIFF SCALE: " << std::setw(OUTPUT_SPACING) << _stiffScale << std::endl
+		<< std::setw(OUTPUT_SPACING) << "STIFFNESS L: " << std::setw(OUTPUT_SPACING) << _elasticFactorLinear << std::endl
+		<< std::setw(OUTPUT_SPACING) << "STIFFNESS A: " << std::setw(OUTPUT_SPACING) << _elasticFactorAngular << std::endl
+		<< std::setw(OUTPUT_SPACING) << "DAMPING L: " << std::setw(OUTPUT_SPACING) << _dampingFactorLinear << std::endl
+		<< std::setw(OUTPUT_SPACING) << "DAMPING A: " << std::setw(OUTPUT_SPACING) << _dampingFactorAngular << std::endl;
+
 }
 
 void CrossProduct

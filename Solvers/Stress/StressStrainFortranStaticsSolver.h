@@ -50,6 +50,10 @@ public:
 			const int nIteratons
 		);
 
+	virtual
+		void InitialSolve
+		(
+		) {}
 	/**
 	* Расчет первой стадии метода Рунге-Кутты
 	*/

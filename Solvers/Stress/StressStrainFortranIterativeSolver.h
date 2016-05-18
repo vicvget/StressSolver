@@ -94,7 +94,7 @@ public:
 	*/
 	virtual
 	void Solve5();
-
+	void InitialSolve();
 	/** Получить смещения
 	* @param data - массив для записи смещений как скалярного параметра
 	*/

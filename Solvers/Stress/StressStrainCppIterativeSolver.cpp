@@ -56,124 +56,156 @@ StressStrainCppIterativeSolver::~StressStrainCppIterativeSolver()
 
 }
 
-// virtual
-void StressStrainCppIterativeSolver::Solve
-	(
-		const int nIterations
-	)
+
+void StressStrainCppIterativeSolver::Solve(const int nIterations)
 {
 	_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
 
 	FTimer test_timer;
-
+	//std::cout << "Full routine\n";
 	_iterationNumber = 0;
 	_testTimer.Start(0);
 	while (_iterationNumber != nIterations && _rotationSolver->IsValid())
 	{
 		_iterationNumber++;
 		_nIteration++;
+		
+		//Solve1();
+		Solve2();
+		Solve3();
+		Solve4();
+		Solve5();
+
 		// _timeTmp - это член класса, а тут объявлялась временная переменная с таким же названием
-		_timeTmp = _iterationNumber * _timeStep;
-		_time = _timeTmp - _timeStep2;
-		_rotationSolver->InitIteration();
-
-		_stageRK = 1;
-		_testTimer.Start(1);
-		_rotationSolver->Solve1();
-		_testTimer.Stop(1);
-		_testTimer.Start(2);
-		CalculateForces();
-		_testTimer.Start(2);
-
-		_testTimer.Start(3);
-		memcpy(_initX, _varX, sizeof(double)*_nVariables);
-		memcpy(_initDX, _varDX, sizeof(double)*_nVariables);
-		_rotationSolver->InitIteration();
-
-		// RK4 step 1
-		#pragma omp parallel for num_threads(_numThreads)
-		for (int j = 0; j < _nVariables; j++)
-		{
-			_hDDX1[j] = _varDDX[j] * _timeStep;
-			_varX[j] += _varDX[j] * _timeStep2;
-			_varDX[j] += _hDDX1[j] * 0.5;       
-		}
-		_stageRK = 2;
-		_testTimer.Stop(3);
-
-
-		_testTimer.Start(1);
-		_rotationSolver->Solve2();
-		_testTimer.Stop(1);
-		_testTimer.Start(2);
-		CalculateForces();
-		_testTimer.Stop(2);
-
-		_testTimer.Start(3);
-		// RK4 step 2
-		#pragma omp parallel for num_threads(_numThreads)
-		for (int j = 0; j < _nVariables; j++)
-		{
-			_hDDX2[j] = _varDDX[j] * _timeStep;
-			_varX[j] += _hDDX1[j] * _timeStep4;
-			_varDX[j] = _initDX[j] + _hDDX2[j] * 0.5;
-		}
-		_stageRK = 3;
-		_testTimer.Stop(3);
-
-		_testTimer.Start(1);
-		_rotationSolver->Solve3();
-		_testTimer.Stop(1);
-		_testTimer.Start(2);
-		CalculateForces();
-		_testTimer.Stop(2);
-		_time = _timeTmp + _timeStep;
-
-		_testTimer.Start(3);
-		// RK4 step 3
-		#pragma omp parallel for num_threads(_numThreads)
-		for (int j = 0; j < _nVariables; j++)
-		{      
-			_hDDX3[j] = _varDDX[j] * _timeStep;
-			_varX[j] = _initX[j] + (_initDX[j] + _hDDX2[j] * 0.5) * _timeStep;
-			_varDX[j] = _initDX[j] + _hDDX3[j];
-		}
-		_stageRK = 4;
-		_testTimer.Stop(3);
-
-		_testTimer.Start(1);
-		_rotationSolver->Solve4();
-		_testTimer.Stop(1);
-		_testTimer.Start(2);
-		CalculateForces();
-		_testTimer.Stop(2);
-
-		_testTimer.Start(3);
-		// RK4 step 4
-		#pragma omp parallel for num_threads(_numThreads)
-		for (int j = 0; j < _nVariables; j++)
-		{  
-			double sDDX = _hDDX2[j]+_hDDX3[j];
-			_varX[j] = _initX[j] + (_initDX[j] + sDDX / 6.0) * _timeStep;
-			_varDX[j] = _initDX[j] + (_hDDX1[j] + sDDX + sDDX + _varDDX[j] * _timeStep) / 6.0;
-		}
-		_testTimer.Stop(3);
-
+		//_timeTmp = _iterationNumber * _timeStep;
+		//_time = _timeTmp - _timeStep2;
+		//_rotationSolver->InitIteration();
+		//_stageRK = 1;
 	}
-	_testTimer.Stop(0);
-#ifndef NOTIMER
-	const int width = 16;
-	_testTimer.SetWidth(width);
-	std::cout << "-----------------------------------\n";
-	double t1 = _testTimer.Print(1, "Rotations: ");
-	double t2 = _testTimer.Print(2, "Forces: ");
-	double t3 = _testTimer.Print(3, "Integration: ");
-	//_testTimer.Print(5, "Linksh:");
-	std::cout << std::setw(width) << "Summ: " << t1 + t2 + t3 << std::endl;
-	_testTimer.Print(0, "Total: ");
-#endif
-
 }
+
+// virtual
+void StressStrainCppIterativeSolver::InitialSolve()
+{
+	_rotationSolver->InitialSolve();
+	CalculateForces();
+}
+
+
+
+//// virtual
+//void StressStrainCppIterativeSolver::Solvex
+//	(
+//		const int nIterations
+//	)
+//{
+//	_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
+//
+//	FTimer test_timer;
+//	//std::cout << "Full routine\n";
+//	_iterationNumber = 0;
+//	_testTimer.Start(0);
+//	while (_iterationNumber != nIterations && _rotationSolver->IsValid())
+//	{
+//		_iterationNumber++;
+//		_nIteration++;
+//		// _timeTmp - это член класса, а тут объявлялась временная переменная с таким же названием
+//		//_timeTmp = _iterationNumber * _timeStep;
+//		//_time = _timeTmp - _timeStep2;
+//		//_rotationSolver->InitIteration();
+//
+////		_stageRK = 1;
+//		
+//		_rotationSolver->Solve1();
+//		CalculateForces();
+//		memcpy(_initX, _varX, sizeof(double)*_nVariables);
+//		memcpy(_initDX, _varDX, sizeof(double)*_nVariables);
+//		_rotationSolver->InitIteration();
+//
+//		// RK4 step 1
+//		#pragma omp parallel for num_threads(_numThreads)
+//		for (int j = 0; j < _nVariables; j++)
+//		{
+//			_hDDX1[j] = _varDDX[j] * _timeStep;
+//			_varX[j] += _varDX[j] * _timeStep2;
+//			_varDX[j] += _hDDX1[j] * 0.5;       
+//		}
+////		_stageRK = 2;
+//		_testTimer.Stop(3);
+//
+//
+//		_testTimer.Start(1);
+//		_rotationSolver->Solve2();
+//		_testTimer.Stop(1);
+//		_testTimer.Start(2);
+//		CalculateForces();
+//		_testTimer.Stop(2);
+//
+//		_testTimer.Start(3);
+//		// RK4 step 2
+//		#pragma omp parallel for num_threads(_numThreads)
+//		for (int j = 0; j < _nVariables; j++)
+//		{
+//			_hDDX2[j] = _varDDX[j] * _timeStep;
+//			_varX[j] += _hDDX1[j] * _timeStep4;
+//			_varDX[j] = _initDX[j] + _hDDX2[j] * 0.5;
+//		}
+////		_stageRK = 3;
+//		_testTimer.Stop(3);
+//
+//		_testTimer.Start(1);
+//		_rotationSolver->Solve3();
+//		_testTimer.Stop(1);
+//		_testTimer.Start(2);
+//		CalculateForces();
+//		_testTimer.Stop(2);
+//		//_time = _timeTmp + _timeStep;
+//
+//		_testTimer.Start(3);
+//		// RK4 step 3
+//		#pragma omp parallel for num_threads(_numThreads)
+//		for (int j = 0; j < _nVariables; j++)
+//		{      
+//			_hDDX3[j] = _varDDX[j] * _timeStep;
+//			_varX[j] = _initX[j] + (_initDX[j] + _hDDX2[j] * 0.5) * _timeStep;
+//			_varDX[j] = _initDX[j] + _hDDX3[j];
+//		}
+////		_stageRK = 4;
+//		_testTimer.Stop(3);
+//
+//		_testTimer.Start(1);
+//		_rotationSolver->Solve4();
+//		_testTimer.Stop(1);
+//		_testTimer.Start(2);
+//		CalculateForces();
+//		_testTimer.Stop(2);
+//
+//		_testTimer.Start(3);
+//		// RK4 step 4
+//		#pragma omp parallel for num_threads(_numThreads)
+//		for (int j = 0; j < _nVariables; j++)
+//		{  
+//			double sDDX = _hDDX2[j]+_hDDX3[j];
+//			_varX[j] = _initX[j] + (_initDX[j] + (_hDDX1[j] + sDDX) / 6.0) * _timeStep;
+//			_varDX[j] = _initDX[j] + (_hDDX1[j] + sDDX + sDDX + _varDDX[j] * _timeStep) / 6.0;
+//		}
+//		_testTimer.Stop(3);
+//
+//	}
+//	_testTimer.Stop(0);
+//#ifndef NOTIMER
+//	const int width = 16;
+//	_testTimer.SetWidth(width);
+//	std::cout << "-----------------------------------\n";
+//	double t1 = _testTimer.Print(1, "Rotations: ");
+//	double t2 = _testTimer.Print(2, "Forces: ");
+//	double t3 = _testTimer.Print(3, "Integration: ");
+//	//_testTimer.Print(5, "Linksh:");
+//	std::cout << std::setw(width) << "Summ: " << t1 + t2 + t3 << std::endl;
+//	_testTimer.Print(0, "Total: ");
+//#endif
+//
+//}
 
 /**
 * Расчет первой стадии метода Рунге-Кутты
@@ -183,11 +215,10 @@ void StressStrainCppIterativeSolver::Solve1()
 {
 	_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
 
-	_iterationNumber++;
-	double _timeTmp = _iterationNumber * _timeStep;
-	_time = _timeTmp - _timeStep * 0.5;
-
-	_stageRK = 1;
+//	_iterationNumber++;
+//	double _timeTmp = _iterationNumber * _timeStep;
+//	_time = _timeTmp - _timeStep * 0.5;
+//	_stageRK = 1;
 	_rotationSolver->Solve1();
 	CalculateForces();
 }
@@ -210,7 +241,7 @@ void StressStrainCppIterativeSolver::Solve2()
 		_varX[j] += _varDX[j] * _timeStep * 0.5;
 		_varDX[j] += _hDDX1[j] * 0.5;       
 	}
-	_stageRK = 2;
+//	_stageRK = 2;
 	_rotationSolver->Solve2();
 	CalculateForces();
 }
@@ -231,7 +262,7 @@ void StressStrainCppIterativeSolver::Solve3()
 		_varX[j] += _hDDX1[j] * _timeStep * 0.25;
 		_varDX[j] = _initDX[j] + _hDDX2[j] * 0.5;
 	}
-	_stageRK = 3;
+//	_stageRK = 3;
 	_rotationSolver->Solve3();
 	CalculateForces();
 }
@@ -243,7 +274,7 @@ void StressStrainCppIterativeSolver::Solve3()
 void StressStrainCppIterativeSolver::Solve4()
 {
 	_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
-	_time = _timeTmp + _timeStep;
+//	_time = _timeTmp + _timeStep;
 
 	// RK4 step 3
 	#pragma omp parallel for num_threads(_numThreads)
@@ -253,7 +284,7 @@ void StressStrainCppIterativeSolver::Solve4()
 		_varX[j] = _initX[j] + (_initDX[j] + _hDDX2[j] * 0.5) * _timeStep;
 		_varDX[j] = _initDX[j] + _hDDX3[j];
 	}
-	_stageRK = 4;
+//	_stageRK = 4;
 	_rotationSolver->Solve4();
 	CalculateForces();
 }
@@ -269,9 +300,11 @@ void StressStrainCppIterativeSolver::Solve5()
 	for (int j = 0; j < _nVariables; j++)
 	{  
 		double sDDX = _hDDX2[j]+_hDDX3[j];
-		_varX[j] = _initX[j] + (_initDX[j] + sDDX / 6.0) * _timeStep;
+		_varX[j] = _initX[j] + (_initDX[j] + (_hDDX1[j] + sDDX) / 6.0) * _timeStep;
 		_varDX[j] = _initDX[j] + (_hDDX1[j] + sDDX + sDDX + _varDDX[j] * _timeStep) / 6.0;
 	}
+	_rotationSolver->Solve1();
+	CalculateForces();
 }
 
 /** Получить смещения
@@ -418,16 +451,16 @@ void StressStrainCppIterativeSolver::CalculateForces()
 	_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
 	static int it = 0;
 
-	if (_isFirstIteration)
-	{
-		_isFirstIteration = false;
-		_stageRK = 0;
-		//CalculateRotations();
-		_stageRK = 1;
-	}
+	//if (_isFirstIteration)
+	//{
+	//	_isFirstIteration = false;
+	//	//_stageRK = 0;
+	//	//CalculateRotations();
+	//	_stageRK = 1;
+	//}
 
 	//double E = _elasticModulusScaled * _gridStep;
-	double elasticModulus = _elasticModulusScaled;
+	//double elasticModulus = _elasticModulusScaled;
 
 	__declspec(align(32)) double strains[8], velocityStrains[8];
 
@@ -465,8 +498,27 @@ void StressStrainCppIterativeSolver::CalculateForces()
 				}
 
 				// сила и момент из полученных деформаций
+//				Vec3 force = -linear_vstrains * _dampingFactorLinear - linear_strains * _elasticFactorLinear;
+//				Vec3 torque = -angular_vstrains * _dampingFactorAngular - angular_strains * _elasticFactorAngular;
+
 				Vec3 force = -linear_vstrains * _dampingFactorLinear - linear_strains * _elasticFactorLinear;
 				Vec3 torque = -angular_vstrains * _dampingFactorAngular - angular_strains * _elasticFactorAngular;
+				//force[0] = -linear_vstrains[0] * _dampingFactorLinear;
+				//force[0] = force[0] / 2;
+				df[0] = -strains[0];
+				df[1] = -strains[1];
+				df[2] = -strains[2];
+				df[3] = -strains[0 + vecStride];
+				df[4] = -strains[1 + vecStride];
+				df[5] = -strains[2 + vecStride];
+				df[6] = force.X();
+				df[7] = force.Y();
+				df[8] = force.Z();
+				df[9] = torque.X();
+				df[10] = torque.Y();
+				df[11] = torque.Z();
+
+
 
 				// !DEBUG
 				//Vec3 force = -linear_vstrains * _dampingFactorLinear - linear_strains * elasticModulus;

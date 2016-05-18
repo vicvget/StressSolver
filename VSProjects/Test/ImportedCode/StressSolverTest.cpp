@@ -84,15 +84,15 @@ namespace SpecialSolversTest
 
 		void OverrideStiffness(
 			SolverHandler hStressSolver,
-			double elasticModulus,
-			double shearModulus,
+			double elasticFactorLinear,
+			double elasticFactorAngular,
 			double dampingFactorLinear,
 			double dampingFactorAngular,
 			double stiffnessScale)
 		{
 			((Stress::StressStrainCppSolver*)hStressSolver)->OverrideStiffness(
-				elasticModulus,
-				shearModulus,
+				elasticFactorLinear,
+				elasticFactorAngular,
 				dampingFactorLinear,
 				dampingFactorAngular,
 				stiffnessScale);
@@ -124,9 +124,9 @@ namespace SpecialSolversTest
 
 			//integrationParams._nIterations = 500;
 			
-			integrationParams._nIterations = 1000;
+			integrationParams._nIterations = 10000;
 			integrationParams._nSubIterations = 10;
-			integrationParams._timeStep = 0.0005f;
+			integrationParams._timeStep = 0.00001f;
 
 			
 
@@ -165,7 +165,7 @@ namespace SpecialSolversTest
 					face_left,
 					face_right,
 					10,
-					dof_y,
+					dof_z,
 					solverType
 					);
 				break;

@@ -18,9 +18,9 @@ namespace Stress
 		double* _varR;	// текущие переменные
 		double* _varDR;	// текущие производные по времени
 		double* _initR;	// значения переменных предыдущего шага
-		double* _hDDR1;	// вспомогательные переменные (RK4)
-		double* _hDDR2; // вспомогательные переменные (RK4)
-		double* _hDDR3; // вспомогательные переменные (RK4)
+		double* _hDR1;	// вспомогательные переменные (RK4)
+		double* _hDR2; // вспомогательные переменные (RK4)
+		double* _hDR3; // вспомогательные переменные (RK4)
 
 		// матрица для изменения системы кординат отсчета углов при приближении к сингулярности
 		// для выбранной системы углов (x,y,z) при abs(y % pi) близком к pi/2 матрица 
@@ -53,6 +53,7 @@ namespace Stress
 		void MakeZeroVectors(size_t elementId) const;
 
 		void InitIteration() const;
+		void InitialSolve();
 		void Solve1();
 		void Solve2();
 		void Solve3();

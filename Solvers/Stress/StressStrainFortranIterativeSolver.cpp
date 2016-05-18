@@ -296,13 +296,21 @@ void StressStrainFortranIterativeSolver::Solve4()
 void StressStrainFortranIterativeSolver::Solve5()
 {
 	_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
-
+	std::cout << "Partial Solve 5" << std::endl;
 	for (int j = 0; j < _nVariables; j++)
 	{
 		double sDDX = _hDDX2[j] + _hDDX3[j];
 		_varX[j] = _initX[j] + (_initDX[j] + sDDX / 6.0) * H;
 		_varDX[j] = _initDX[j] + (_hDDX1[j] + sDDX + sDDX + _varDDX[j] * H) / 6.0;
 	}
+}
+
+// virtual
+void StressStrainFortranIterativeSolver::InitialSolve()
+{
+	// TODO:
+	//_rotationSolver->InitialSolve();
+	//CalculateForces();
 }
 
 //void StressStrainFortranIterativeSolver::urejl4s(double* a, double *ug, double *om, int mets, const int id)
