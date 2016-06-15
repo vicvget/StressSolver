@@ -110,7 +110,7 @@ namespace SpecialSolvers
 					exporter.AddFrame(ssSolver->GetElementShift(0), ssSolver->GetDataRotaionMtx());
 #endif
 					double currentTime = (1+iteration) * integrationParams._timeStep * integrationParams._nSubIterations;
-					writer.WriteFrame(data, dataSize, currentTime);
+					writer.WriteFrame(data, dataSize, (float)currentTime);
 
 					int elementId = 2;
 					dofs << std::setprecision(5) << currentTime << ' ' << std::setprecision(15)

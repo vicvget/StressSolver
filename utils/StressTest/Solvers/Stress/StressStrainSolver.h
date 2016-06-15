@@ -11,35 +11,16 @@ enum DataType
 	DT_Accelerations=2
 };
 
-#define ALIGNED_MEM
 namespace stress
 {
-#define MAX(x, y) ((x) > (y) ? x : y)
+	#define MAX(x, y) ((x) > (y) ? x : y)
 	double DMOD(const double d1, const double d2);
-
-//#ifdef ALIGNED_MEM
-//	const size_t vecStride = 4;				// смещение векторов
-//#else
-//	const size_t vecStride = 3;				// смещение векторов
-//#endif
-//
-//	const size_t matStride = vecStride * 3; // смещения матриц поворота (3x3, 3x4)
-//	const size_t vecStride2 = vecStride * 2; // смещение векторов неизвестных для узла((3+0)X, (3+0)R)
-//	const size_t alignment = 32;
 }
 
 #define MAX(x, y) ((x) > (y) ? x : y)
 double DMOD(const double d1, const double d2);
 
-//#ifdef ALIGNED_MEM
-//const size_t vecStride = 4;				// смещение векторов
-//#else
-//const size_t vecStride = 3;				// смещение векторов
-//#endif
-
-//const size_t matStride = vecStride * 3; // смещения матриц поворота (3x3, 3x4)
-//const size_t vecStride2 = vecStride * 2; // смещение векторов неизвестных для узла((3+0)X, (3+0)R)
-const size_t alignment = 32;
+const size_t alignment = 64; // AVX
 
 
 //typedef T double;
@@ -290,15 +271,16 @@ public:
 	int _nElements;				// число элементов
 
 
-	virtual double* GetElementGridCoordinates(int elementId) const;;
-	virtual double* GetElementStress(int elementId) const;
-	virtual double* GetElementStressAngular(int elementId) const;
-	virtual double* GetElementShift(int elementId) const;
-	virtual double* GetElementVelocity(int elementId) const;
-	virtual double* GetElementAcceleration(int elementId) const;
-	virtual double* GetElementShiftAngular(int elementId) const;
-	virtual double* GetElementVelocityAngular(int elementId) const;
-	virtual double* GetElementAccelerationAngular(int elementId) const;
-	virtual double* GetRotationMatrix(int elementId) const;
+	// Методы для получения характеристик элемента
+	virtual double* GetElementGridCoordinates		(size_t elementId) const;
+	virtual double* GetElementStress				(size_t elementId) const;
+	virtual double* GetElementStressAngular			(size_t elementId) const;
+	virtual double* GetElementShift					(size_t elementId) const;
+	virtual double* GetElementVelocity				(size_t elementId) const;
+	virtual double* GetElementAcceleration			(size_t elementId) const;
+	virtual double* GetElementShiftAngular			(size_t elementId) const;
+	virtual double* GetElementVelocityAngular		(size_t elementId) const;
+	virtual double* GetElementAccelerationAngular	(size_t elementId) const;
+	virtual double* GetRotationMatrix				(size_t elementId) const;
 };
 

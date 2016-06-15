@@ -6,7 +6,7 @@
 class IStressStrainSolver: public IMemory
 {
 public:
-	virtual	~StressStrainSolver() = 0;
+	virtual ~IStressStrainSolver() = 0;
 
 	/** Добавление связей
 	* @param links - массив 6*_nElements с признаками связей (1 - есть связь, 0 - нет связи)

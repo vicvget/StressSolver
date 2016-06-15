@@ -52,7 +52,7 @@ namespace Stress
 	bool RotationSolver::IsSingularityAngle(size_t elementId) const
 	{
 		double angle = GetAngles(elementId)[1];
-		return std::abs(M_PI_2 - (angle - ((int)(angle / M_PI)) * M_PI) < 0.1);
+		return std::abs(M_PI_2 - (angle - ((int)(angle / M_PI)) * M_PI)) < 0.1;
 
 	}
 
@@ -266,7 +266,7 @@ namespace Stress
 		}
 	}
 
-	bool RotationSolver::UpdateRHS(int elementId) const
+	bool RotationSolver::UpdateRHS(size_t elementId) const
 	{
 		double* angles = GetAngles(elementId);
 		double* elementW = GetAngularVelocity(elementId);
@@ -304,7 +304,7 @@ namespace Stress
 		return result;
 	}
 
-	void RotationSolver::UpdateMtx(int elementId) const
+	void RotationSolver::UpdateMtx(size_t elementId) const
 	{
 		double* rotationMtx = GetRotationMtx(elementId);
 		double* rframeMtx = GetRframeMtx(elementId);

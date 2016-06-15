@@ -161,63 +161,61 @@ void StressStrainSolver::GetScalarParameter
 }
 
 
-double* StressStrainSolver::GetElementGridCoordinates(int elementId) const
+double* StressStrainSolver::GetElementGridCoordinates(size_t elementId) const
 {
 	return _elements + elementId * 3;
 }
 
 //virtual 
-double* StressStrainSolver::GetElementStress(int elementId) const
+double* StressStrainSolver::GetElementStress(size_t elementId) const
 {
 	return _stress + (elementId * vecStride2);
 }
 
-double* StressStrainSolver::GetElementStressAngular(int elementId) const
+double* StressStrainSolver::GetElementStressAngular(size_t elementId) const
 {
 	return _stress + (elementId * vecStride2 + vecStride);
 }
 
 
 //virtual 
-double* StressStrainSolver::GetElementShift(int elementId) const
+double* StressStrainSolver::GetElementShift(size_t elementId) const
 {
 	return _dataInternal + (elementId * vecStride2);
 }
 
-
-
 //virtual 
-double* StressStrainSolver::GetElementVelocity(int elementId) const
+double* StressStrainSolver::GetElementVelocity(size_t elementId) const
 {
 	return _dataInternal + (_nElements * vecStride2 + elementId * vecStride2);
 }
 
 //virtual 
-double* StressStrainSolver::GetElementAcceleration(int elementId) const
+double* StressStrainSolver::GetElementAcceleration(size_t elementId) const
 {
 	return _dataInternal + (_nElements * vecStride2 * 2 + elementId * vecStride2);
 }
 
 //virtual 
-double* StressStrainSolver::GetElementShiftAngular(int elementId) const
+double* StressStrainSolver::GetElementShiftAngular(size_t elementId) const
 {
 	return _dataInternal + (elementId * vecStride2 + vecStride);
 }
 
 //virtual 
-double* StressStrainSolver::GetElementVelocityAngular(int elementId) const
+double* StressStrainSolver::GetElementVelocityAngular(size_t elementId) const
 {
 	return _dataInternal + (_nElements * vecStride2 + elementId * vecStride2 + vecStride);
 }
 
 //virtual 
-double* StressStrainSolver::GetElementAccelerationAngular(int elementId) const
+double* StressStrainSolver::GetElementAccelerationAngular(size_t elementId) const
 {
 	return _dataInternal + (_nElements * vecStride2 * 2 + elementId * vecStride2 + vecStride);
 }
 
 //virtual 
-double* StressStrainSolver::GetRotationMatrix(int elementId) const
+double* StressStrainSolver::GetRotationMatrix(size_t elementId) const
 {
 	return _dataRotationMtx + (elementId * matStride);
 }

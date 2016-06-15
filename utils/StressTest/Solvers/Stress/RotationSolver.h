@@ -39,12 +39,6 @@ namespace Stress
 
 	public:
 
-		double* GetRframeMtx(size_t elementId) const;
-		double* GetRotationMtx(size_t elementId) const;
-		double* GetAngles(size_t elementId) const;
-		double* GetDerivatives(size_t elementId) const;
-		double* GetAngularVelocity(size_t elementId) const;
-
 		bool IsSingularityAngle(size_t elementId) const;
 
 		bool IsValid() const;
@@ -73,67 +67,23 @@ namespace Stress
 		size_t _nElements;
 		size_t _nRVariables;
 		void CalculateRHS();		
-		bool UpdateRHS(int elementId) const;
-		void UpdateMtx(int elementId) const;
+		
+		// обновление правых частей
+		bool UpdateRHS(size_t elementId) const;
+		
+		// обновление матриц
+		void UpdateMtx(size_t elementId) const;
 		void UpdateMtxs() const;
 
-		void UpdateR2(const int offet, const int stageRK) const;
+		//void UpdateR2(const int offet, const int stageRK) const;
+
+		// ћетоды дл€ получени€ характеристик элемента
+		double* GetRframeMtx(size_t elementId) const;
+		double* GetRotationMtx(size_t elementId) const;
+		double* GetAngles(size_t elementId) const;
+		double* GetDerivatives(size_t elementId) const;
+		double* GetAngularVelocity(size_t elementId) const;
 
 	};
 
-
-	//struct Copym
-	//{
-	//	bool* isFirstCopy;
-	//	//double T;
-	//	//COMMON/UGR/ KGR1,KGR2,T
-	//	double* TM;
-	//	double* AZ;
-	//	double T0;
-
-	//	int vecStride, vecStride2, matStride;
-	//	Copym(const int nNodes, int stride) :
-	//		vecStride(stride),
-	//		vecStride2(stride * 2),
-	//		matStride(stride * 3)
-	//	{
-	//		isFirstCopy = new bool[nNodes];
-	//		for (int i = 0; i < nNodes; i++)
-	//			isFirstCopy[i] = true;
-	//		TM = new double[nNodes];
-	//		AZ = new double[nNodes*matStride];
-	//		T0 = 0;
-	//	}
-
-	//	~Copym()
-	//	{
-	//		delete[] isFirstCopy;
-	//		delete[] TM;
-	//		delete[] AZ;
-	//	}
-
-	//	void Copy(double* A, double* A1, const int N, const double T)
-	//	{
-	//		if (isFirstCopy[N] || T == T0)
-	//		{
-	//			memcpy(A1, A, matStride*sizeof(double));
-	//			isFirstCopy[N] = false;
-	//			TM[N] = T;
-	//		}
-	//		else
-	//		{
-	//			const int KA = N*matStride;
-	//			if (TM[N] != T)
-	//			{
-	//				memcpy(A1, A, matStride*sizeof(double));
-	//				TM[N] = T;
-	//				memcpy(AZ + KA, A, matStride*sizeof(double));
-	//			}
-	//			else
-	//			{
-	//				memcpy(A1, AZ + KA, matStride*sizeof(double));
-	//			}
-	//		}
-	//	}
-	//};
 };

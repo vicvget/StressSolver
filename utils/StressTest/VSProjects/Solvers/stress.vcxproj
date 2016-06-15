@@ -175,6 +175,7 @@
     <ClCompile Include="..\..\Solvers\Stress\StiffnessMatrixPackedInCSCFormat.cpp" />
     <ClCompile Include="..\..\Solvers\Stress\StiffnessRHS.cpp" />
     <ClCompile Include="..\..\Solvers\Stress\StressStrainCppIterativeSolver.cpp" />
+    <ClCompile Include="..\..\Solvers\Stress\StressStrainCppIterativeSolverAVX.cpp" />
     <ClCompile Include="..\..\Solvers\Stress\StressStrainCppSolver.cpp" />
     <ClCompile Include="..\..\Solvers\Stress\StressStrainFortranIterativeSolver.cpp" />
     <ClCompile Include="..\..\Solvers\Stress\StressStrainFortranSolver.cpp" />
@@ -182,14 +183,9 @@
     <ClCompile Include="..\..\Solvers\Stress\StressStrainFortranStaticsSolver.cpp" />
     <ClCompile Include="..\..\Solvers\Stress\StressStrainSolver.cpp" />
     <ClCompile Include="..\..\Solvers\stress\StressStrainSolverExports.cpp" />
-    <ClCompile Include="..\..\Solvers\Stress\RegularMemory.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Solvers\Stress\AuxiliaryStressStuff.h" />
-    <ClInclude Include="..\..\Solvers\Stress\IMemory.h" />
-    <ClInclude Include="..\..\Solvers\Stress\IMemoryAllocator.h" />
-    <ClInclude Include="..\..\Solvers\Stress\RegularMemory.h" />
-    <ClInclude Include="..\..\Solvers\Stress\RegularMemoryAllocator.h" />
     <ClInclude Include="..\..\Solvers\Stress\BoundaryParams.h" />
     <ClInclude Include="..\..\Solvers\Stress\CsrSymmetricMatrix.h" />
     <ClInclude Include="..\..\Solvers\Stress\FTimer.h" />
@@ -207,6 +203,7 @@
     <ClInclude Include="..\..\Solvers\Stress\StiffnessMatrixPackedInCSCFormat.h" />
     <ClInclude Include="..\..\Solvers\Stress\StiffnessRHS.h" />
     <ClInclude Include="..\..\Solvers\Stress\StressStrainCppIterativeSolver.h" />
+    <ClInclude Include="..\..\Solvers\Stress\StressStrainCppIterativeSolverAVX.h" />
     <ClInclude Include="..\..\Solvers\Stress\StressStrainCppSolver.h" />
     <ClInclude Include="..\..\Solvers\Stress\StressStrainFortranIterativeSolver.h" />
     <ClInclude Include="..\..\Solvers\stress\StressStrainFortranSolver.h" />

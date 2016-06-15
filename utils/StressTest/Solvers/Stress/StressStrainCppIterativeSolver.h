@@ -47,11 +47,8 @@ public:
 		(
 		);
 
-	virtual
-	void Solve
-		(
-			const int nIteratons
-		);
+	virtual	void Solve(const int nIteratons);
+	virtual void SolveFull(const int nIteratons);;
 
 	/**
 	* Расчет первой стадии метода Рунге-Кутты
@@ -113,17 +110,14 @@ public:
 #pragma endregion
 
 	double df[12]; // debug
-private:
 
-
+protected:
 	// номер итерации расчетного цикла
+
+	virtual void CalculateForces();
+
 	int _iterationNumber;
-
-
-	void CalculateForces();
-
 	void ApplyBoundary();
-
 	void ApplyMass();
 
 };
