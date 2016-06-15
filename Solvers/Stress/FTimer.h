@@ -1,50 +1,80 @@
 #pragma once
 
 
-#include <windows.h>
-#include <vector>
+// include OS specific timing library
+#ifdef _MSC_VER
+// Windows
+#include <Windows.h>
+#else
+// Linux
+#include <sys/time.h>
+#endif
 
+#include <vector>
+#include <iomanip>
 
 class PerformanceCounter
 {
 private:
+#ifdef _MSC_VER
 	LARGE_INTEGER _freq;
 	LARGE_INTEGER _current;
 	LARGE_INTEGER _total;
-	int _width;
-public: 
+#else
+	// lower resolution but never wraps around:
+	struct timeval _current;
+	struct timeval _total;
+#endif
+
+
+public:
 	PerformanceCounter()
 	{
+#ifdef _MSC_VER
 		QueryPerformanceFrequency(&_freq);
 		_total.QuadPart = 0LL;
+#endif
 	}
 	void Start()
 	{
+#ifdef _MSC_VER
 		QueryPerformanceCounter(&_current);
+#else
+		gettimeofday(&_current, NULL);
+#endif
 	}
 
 	void Stop()
 	{
-		LARGE_INTEGER current_time;	
+#ifdef _MSC_VER
+		LARGE_INTEGER current_time;
 		QueryPerformanceCounter(&current_time);
-		_total.QuadPart+=(current_time.QuadPart - _current.QuadPart);
+		_total.QuadPart += (current_time.QuadPart - _current.QuadPart);
+#else
+		struct timeval _current;
+		gettimeofday(&_current, NULL);
+		_total += (current - _current);
+#endif
 	}
 
 	double Get(bool isStop = false)
 	{
-		if(isStop) Stop();
-		double current_time = (double)(_total.QuadPart)/_freq.QuadPart;
+		if (isStop) Stop();
+		double current_time;
+
+#ifdef _MSC_VER
+		current_time = (double)(_total.QuadPart) / _freq.QuadPart;
+#else
+		current_time = (double)(_total.tv_sec + _total.tv_usec / 1e6);
+#endif
+
 		return current_time;
-	}
-	void SetWidth(int width)
-	{
-		_width = width;
 	}
 
 	double Print(const char* tag, bool isStop = false)
 	{
 		double current_time = Get(isStop);
-		std::cout << std::setw(_width) << tag << std::setprecision(20) << current_time << std::endl;
+		std::cout << std::setw(10) << tag << std::setprecision(20) << current_time << std::endl;
 		return current_time;
 	}
 };
@@ -71,28 +101,16 @@ public:
 
 	void Start(unsigned int id)
 	{
-		if(id < _counters.size())
+		if (id < _counters.size())
 			_counters[id].Start();
 	}
 
 	void Stop(unsigned int id)
 	{
-		if(id < _counters.size())
+		if (id < _counters.size())
 			_counters[id].Stop();
 	}
-	
-	void SetWidth(int width)
-	{
-		//for (int i = 0; i < _counters.size(); i++)
-		//{
-		//	_counters[i].SetWidth(width);
-		//}
-		for (PerformanceCounter& counter : _counters)
-		{
-				counter.SetWidth(width);
-		}
-	}
-	
+
 	double Print(unsigned int id, const char* tag)
 	{
 		return id < _counters.size() ? _counters[id].Print(tag) : 0.;

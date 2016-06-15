@@ -333,8 +333,8 @@ public:
 	Fue* _fue;
 	Copym* _copym;
 
-	int _nVariables;
-	int _nIteration;
+	size_t _nVariables;
+	size_t _nIteration;
 	int METS;
 	double T; // время
 	double TZ; // вспомогательная функция для сохранения промежуточного значения времени

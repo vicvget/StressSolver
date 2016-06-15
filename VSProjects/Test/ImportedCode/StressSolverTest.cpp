@@ -164,8 +164,8 @@ namespace SpecialSolversTest
 					fileRlc,
 					face_left,
 					face_right,
-					10,
-					dof_z,
+					1000,
+					dof_ry,
 					solverType
 					);
 				break;
@@ -362,28 +362,28 @@ namespace SpecialSolversTest
 				for (size_t i = 0; i < gridParams._nx; i++)
 					for (size_t j = 0; j < gridParams._ny; j++)
 					{
-						bcIndices.push_back(i*gridParams._nx*gridParams._ny + j * gridParams._nx + 1);
+						bcIndices.push_back((int)(i*gridParams._nx*gridParams._ny + j * gridParams._nx + 1));
 					}
 				break;
 			case face_top:
 				for (size_t i = 0; i < gridParams._nx; i++)
 					for (size_t j = 0; j < gridParams._ny; j++)
 					{
-						bcIndices.push_back(i*gridParams._nx*gridParams._ny + j * gridParams._nx + gridParams._nz);
+						bcIndices.push_back((int)(i*gridParams._nx*gridParams._ny + j * gridParams._nx + gridParams._nz));
 					}
 				break;
 			case face_front:
 				for (size_t i = 0; i < gridParams._nx; i++)
 					for (size_t j = 0; j < gridParams._nz; j++)
 					{
-						bcIndices.push_back(i*gridParams._ny*gridParams._nz + j + 1);
+						bcIndices.push_back((int)(i*gridParams._ny*gridParams._nz + j + 1));
 					}
 				break;
 			case face_back:
 				for (size_t i = 0; i < gridParams._nx; i++)
 					for (size_t j = 0; j < gridParams._nz; j++)
 					{
-						bcIndices.push_back((i+1)*gridParams._ny*gridParams._nz - j);
+						bcIndices.push_back((int)((i+1)*gridParams._ny*gridParams._nz - j));
 					}
 				break;
 			}
@@ -420,7 +420,7 @@ namespace SpecialSolversTest
 			double bcParams[6] = { 0 };
 			bcParams[dof] = force;
 			vector<int> bcIndices;			
-			bcIndices.push_back(nodeId);
+			bcIndices.push_back((int)nodeId);
 
 
 			Stress::AddBoundary

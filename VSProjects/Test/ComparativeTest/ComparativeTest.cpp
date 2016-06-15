@@ -30,7 +30,7 @@ int CompareArrays(double* array1, double* array2, int count)
 	for (size_t i = 0; i < count; i++)
 	{
 		if (std::abs(array1[i] - array2[i]) > 1e-8)
-			return i;
+			return (int)i;
 	}
 	return 0;
 }
@@ -38,15 +38,16 @@ int CompareArrays(double* array1, double* array2, int count)
 bool ComparativeTest()
 {
 	double params[4] = { 1e10, 0.01, 1, 1e8 };
-	int links[1];
-	double nLinks = 0;
 	double nodes[300];
-	int nElements = 100;
 	double gridStep = 1;
 	double timeStep = 1e-4;
-	double nThreads = 1;
-	double for_stride = 3;
-	double cpp_stride = 4;
+
+	int links[1];
+	int nLinks = 0;
+	int nElements = 100;
+	int nThreads = 1;
+	int for_stride = 3;
+	int cpp_stride = 4;
 
 	// random coordinates
 	for (int i = 0; i < nElements * 3; i++)
@@ -88,9 +89,9 @@ bool ComparativeTest()
 
 	// make random matrices
 	double UE[3];
-	for (int i = 0; i < nElements; i++)
+	for (size_t i = 0; i < nElements; i++)
 	{
-		for (int j = 0; j < 3; j++)
+		for (size_t j = 0; j < 3; j++)
 		{
 			UE[j] = ((double)rand()) / RAND_MAX * 2 * M_PI;
 		}
@@ -122,7 +123,6 @@ bool ComparativeTest()
 	__declspec(align(32)) double SL3[8] = { 0 }, VL3[8] = { 0 };
 	__declspec(align(32)) double SL4[8] = { 0 }, VL4[8] = { 0 };
 	__declspec(align(32)) double SL5[8] = { 0 }, VL5[8] = { 0 };
-	double rx, ry, rz;
 
 	double cVec1[] = { -gridStep * 0.5, 0, 0 };
 	double cVec2[] = { gridStep * 0.5, 0, 0 };
