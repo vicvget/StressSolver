@@ -1,5 +1,3 @@
-#include "StressStrainFortranIterativeSolver.h"
-
 #include "../../Fcore/Exceptions/fcExceptions.h"
 
 

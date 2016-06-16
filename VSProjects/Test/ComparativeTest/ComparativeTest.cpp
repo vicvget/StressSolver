@@ -2,6 +2,7 @@
 #include "StressStrainCppIterativeSolver.h"
 #include "../../AdditionalModules/fmath/Matrix3x4.h"
 #include "../../AdditionalModules/fmath/Matrix3x3.h"
+#include <StressStrainCppIterativeSolverAVX.h>
 
 #define M_PI 3.1415926535897932384626433832795
 using std::setw;
@@ -72,8 +73,8 @@ bool ComparativeTest()
 		);
 
 	// create solver to compare
-	std::shared_ptr<StressStrainFortranIterativeSolver> forSolver =
-		std::make_shared < StressStrainFortranIterativeSolver >
+	std::shared_ptr<Stress::StressStrainCppIterativeSolverAVX> forSolver =
+		std::make_shared <Stress::StressStrainCppIterativeSolverAVX >
 		(
 		params,
 		links,
@@ -128,9 +129,9 @@ bool ComparativeTest()
 	double cVec2[] = { gridStep * 0.5, 0, 0 };
 	double A[36], C[36];
 
-	forSolver->linksh(cVec1, cVec2, SL3, VL3, A, C, 0, 1, nElements);
-	forSolver->linksh2(cVec1, cVec2, SL4, VL4, A, C, 0, 1, nElements);
-	forSolver->linksh3(cVec1, cVec2, SL5, VL5, A, C, 0, 1, nElements);
+//	forSolver->linksh(cVec1, cVec2, SL3, VL3, A, C, 0, 1, nElements);
+//	forSolver->linksh2(cVec1, cVec2, SL4, VL4, A, C, 0, 1, nElements);
+//	forSolver->linksh3(cVec1, cVec2, SL5, VL5, A, C, 0, 1, nElements);
 
 	cppSolver->CalculateStrains
 		(
@@ -145,14 +146,32 @@ bool ComparativeTest()
 	cppSolver->CalculateStrainsAVX
 		(
 		0,	// 0 = -x, 1 = x, 2 = -y, 3 = y, 4 = -z, 5 = z
-		&SL2[0],		// выход деформаций
+		&SL2[0],		// выход деформаций 
 		&VL2[0],		// выход деформаций
 		0,	// номер узла 1
 		1	// номер узла 2
 		);
 
+	cppSolver->CalculateStrainsSSE
+		(
+		0,	// 0 = -x, 1 = x, 2 = -y, 3 = y, 4 = -z, 5 = z
+		&SL3[0],		// выход деформаций 
+		&VL3[0],		// выход деформаций
+		0,	// номер узла 1
+		1	// номер узла 2
+		);
+
+	cppSolver->CalculateStrainsFMA
+		(
+		0,	// 0 = -x, 1 = x, 2 = -y, 3 = y, 4 = -z, 5 = z
+		&SL3[0],		// выход деформаций 
+		&VL3[0],		// выход деформаций
+		0,	// номер узла 1
+		1	// номер узла 2
+		);
+
 	const int width = 9;
-	std::cout << "SL cpp " << setw(width) << "avx " << setw(width) << "l1" << setw(width) << "l2" << setw(width) << "l3\n";
+	std::cout << "SL cpp " << setw(width) << "avx " << setw(width) << "sse" << setw(width) << "fma" << setw(width) << "l3\n";
 	for (int i = 0; i < 8; i++)
 	{
 		std::cout << setw(width) << SL[i] << " "

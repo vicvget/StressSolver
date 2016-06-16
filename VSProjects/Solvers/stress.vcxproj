@@ -166,49 +166,22 @@
   <ItemGroup>
     <ClCompile Include="..\..\Fcore\Exceptions\fcExceptions.cpp" />
     <ClCompile Include="..\..\Solvers\Stress\BoundaryParams.cpp" />
-    <ClCompile Include="..\..\Solvers\Stress\CsrSymmetricMatrix.cpp" />
-    <ClCompile Include="..\..\Solvers\Stress\PardisoSolver.cpp" />
     <ClCompile Include="..\..\Solvers\Stress\RotationSolver.cpp" />
-    <ClCompile Include="..\..\Solvers\Stress\StiffnessMatrices.cpp" />
-    <ClCompile Include="..\..\Solvers\Stress\StiffnessMatrix.cpp" />
-    <ClCompile Include="..\..\Solvers\Stress\StiffnessMatrixPackedInCoordinateFormat.cpp" />
-    <ClCompile Include="..\..\Solvers\Stress\StiffnessMatrixPackedInCSCFormat.cpp" />
-    <ClCompile Include="..\..\Solvers\Stress\StiffnessRHS.cpp" />
     <ClCompile Include="..\..\Solvers\Stress\StressStrainCppIterativeSolver.cpp" />
     <ClCompile Include="..\..\Solvers\Stress\StressStrainCppIterativeSolverAVX.cpp" />
     <ClCompile Include="..\..\Solvers\Stress\StressStrainCppSolver.cpp" />
-    <ClCompile Include="..\..\Solvers\Stress\StressStrainFortranIterativeSolver.cpp" />
-    <ClCompile Include="..\..\Solvers\Stress\StressStrainFortranSolver.cpp" />
-    <ClCompile Include="..\..\Solvers\Stress\StressStrainFortranStaticSolver2.cpp" />
-    <ClCompile Include="..\..\Solvers\Stress\StressStrainFortranStaticsSolver.cpp" />
     <ClCompile Include="..\..\Solvers\Stress\StressStrainSolver.cpp" />
     <ClCompile Include="..\..\Solvers\stress\StressStrainSolverExports.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Solvers\Stress\AuxiliaryStressStuff.h" />
     <ClInclude Include="..\..\Solvers\Stress\BoundaryParams.h" />
-    <ClInclude Include="..\..\Solvers\Stress\CsrSymmetricMatrix.h" />
     <ClInclude Include="..\..\Solvers\Stress\FTimer.h" />
     <ClInclude Include="..\..\Solvers\Stress\IStressStrainSolver.h" />
-    <ClInclude Include="..\..\Solvers\Stress\PardisoSolver.h" />
     <ClInclude Include="..\..\Solvers\Stress\RotationSolver.h" />
-    <ClInclude Include="..\..\Solvers\Stress\StiffnessMatrices.h" />
-    <ClInclude Include="..\..\Solvers\Stress\StiffnessMatricesFunctions.h" />
-    <ClInclude Include="..\..\Solvers\Stress\StiffnessMatrix.h" />
-    <ClInclude Include="..\..\Solvers\Stress\StiffnessMatrixFileFormat.h" />
-    <ClInclude Include="..\..\Solvers\Stress\StiffnessMatrixFileFormatList.h" />
-    <ClInclude Include="..\..\Solvers\Stress\StiffnessMatrixIO.h" />
-    <ClInclude Include="..\..\Solvers\Stress\StiffnessMatrixIO.hpp" />
-    <ClInclude Include="..\..\Solvers\Stress\StiffnessMatrixPackedInCoordinateFormat.h" />
-    <ClInclude Include="..\..\Solvers\Stress\StiffnessMatrixPackedInCSCFormat.h" />
-    <ClInclude Include="..\..\Solvers\Stress\StiffnessRHS.h" />
     <ClInclude Include="..\..\Solvers\Stress\StressStrainCppIterativeSolver.h" />
     <ClInclude Include="..\..\Solvers\Stress\StressStrainCppIterativeSolverAVX.h" />
     <ClInclude Include="..\..\Solvers\Stress\StressStrainCppSolver.h" />
-    <ClInclude Include="..\..\Solvers\Stress\StressStrainFortranIterativeSolver.h" />
-    <ClInclude Include="..\..\Solvers\stress\StressStrainFortranSolver.h" />
-    <ClInclude Include="..\..\Solvers\Stress\StressStrainFortranStaticSolver2.h" />
-    <ClInclude Include="..\..\Solvers\Stress\StressStrainFortranStaticsSolver.h" />
     <ClInclude Include="..\..\Solvers\Stress\StressStrainSolver.h" />
     <ClInclude Include="..\..\Solvers\Stress\StressStrainSolverExports.h" />
   </ItemGroup>

@@ -14,7 +14,7 @@ class RLCControlWriter:public MeshDataProvider
 public:
 	RLCControlWriter(OccRectilinearGrid *grid);
 	RLCControlWriter(OccRectilinearGrid *grid,vector<BoundaryCondition *> Surfaces);
-	RLCControlWriter(OccRectilinearGrid *grid, const vector<BoundaryCondition *> &surfaces, FreeSolverGridParams *freeSolverGridParams, const vector<BoundaryNormal*> &boundaryNormals);
+//	RLCControlWriter(OccRectilinearGrid *grid, const vector<BoundaryCondition *> &surfaces, FreeSolverGridParams *freeSolverGridParams, const vector<BoundaryNormal*> &boundaryNormals);
 	~RLCControlWriter(void);
 	/**
 	* Функция записывает бинарный файл со сжатым форматом хранения сетки

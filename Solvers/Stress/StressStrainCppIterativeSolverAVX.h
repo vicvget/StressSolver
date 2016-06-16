@@ -37,10 +37,7 @@ public:
 
 #pragma region overriden
 
-	virtual
-		void InitialSolve
-		(
-		);
+	virtual	void InitialSolve();
 
 	virtual void Solve(const int nIteratons);
 	virtual	void SolveFull(const int nIteratons);

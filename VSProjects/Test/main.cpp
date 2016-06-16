@@ -5,12 +5,12 @@
 int main()
 {
 	// RHS calculation based on random data test
-	//std::cout << (ComparativeTest() ? "PASSED!\n" : "NOT PASSED\n");
+	std::cout << (ComparativeTest() ? "PASSED!\n" : "NOT PASSED\n");
 
 
 	// Solver  test
 	using namespace SpecialSolversTest;
-	StressStrainStuff::Test3x1x1(-1);
+	StressStrainStuff::Test3x1x1(0);
 
 	return 0;
 }

@@ -9,45 +9,14 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
     </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
-    </Filter>
-    <Filter Include="Header Files\StiffnessMatrix">
-      <UniqueIdentifier>{dd1ef433-6e13-4000-b8e2-06749963ca5d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\StiffnessMatrix">
-      <UniqueIdentifier>{bed9678e-d89a-45f8-bbd4-9d21c0a6d964}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\CpuSolver">
       <UniqueIdentifier>{3638c833-14ac-40a6-bb70-270933b38901}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\CpuSolver">
       <UniqueIdentifier>{1425f785-ab45-4c5e-a397-0fdfaa851932}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Unused">
-      <UniqueIdentifier>{ee7a32a2-930e-4d2c-9b96-ab127ed22d9a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Unused">
-      <UniqueIdentifier>{4b752563-00da-4598-bb11-d360c018ba12}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\Solvers\Stress\StiffnessMatrix.cpp">
-      <Filter>Source Files\StiffnessMatrix</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Solvers\Stress\StiffnessMatrixPackedInCoordinateFormat.cpp">
-      <Filter>Source Files\StiffnessMatrix</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Solvers\Stress\StiffnessMatrices.cpp">
-      <Filter>Source Files\StiffnessMatrix</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Solvers\Stress\StiffnessMatrixPackedInCSCFormat.cpp">
-      <Filter>Source Files\StiffnessMatrix</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Solvers\Stress\StiffnessRHS.cpp">
-      <Filter>Source Files\StiffnessMatrix</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Fcore\Exceptions\fcExceptions.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -55,9 +24,6 @@
       <Filter>Source Files\CpuSolver</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Solvers\Stress\StressStrainCppIterativeSolver.cpp">
-      <Filter>Source Files\CpuSolver</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Solvers\Stress\StressStrainFortranIterativeSolver.cpp">
       <Filter>Source Files\CpuSolver</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Solvers\Stress\StressStrainCppSolver.cpp">
@@ -68,21 +34,6 @@
     </ClCompile>
     <ClCompile Include="..\..\Solvers\stress\StressStrainSolverExports.cpp">
       <Filter>Source Files\CpuSolver</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Solvers\Stress\PardisoSolver.cpp">
-      <Filter>Source Files\Unused</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Solvers\Stress\StressStrainFortranSolver.cpp">
-      <Filter>Source Files\Unused</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Solvers\Stress\StressStrainFortranStaticSolver2.cpp">
-      <Filter>Source Files\Unused</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Solvers\Stress\StressStrainFortranStaticsSolver.cpp">
-      <Filter>Source Files\Unused</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Solvers\Stress\CsrSymmetricMatrix.cpp">
-      <Filter>Source Files\Unused</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Solvers\Stress\BoundaryParams.cpp">
       <Filter>Source Files\CpuSolver</Filter>
@@ -95,38 +46,8 @@
     <ClInclude Include="..\..\Solvers\Stress\FTimer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Solvers\Stress\StiffnessMatrix.h">
-      <Filter>Header Files\StiffnessMatrix</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Solvers\Stress\StiffnessMatrixPackedInCoordinateFormat.h">
-      <Filter>Header Files\StiffnessMatrix</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Solvers\Stress\StiffnessMatrices.h">
-      <Filter>Header Files\StiffnessMatrix</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Solvers\Stress\StiffnessMatricesFunctions.h">
-      <Filter>Header Files\StiffnessMatrix</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Solvers\Stress\StiffnessMatrixIO.h">
-      <Filter>Header Files\StiffnessMatrix</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Solvers\Stress\StiffnessMatrixFileFormat.h">
-      <Filter>Header Files\StiffnessMatrix</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Solvers\Stress\StiffnessMatrixFileFormatList.h">
-      <Filter>Header Files\StiffnessMatrix</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Solvers\Stress\StiffnessMatrixIO.hpp">
-      <Filter>Source Files\StiffnessMatrix</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Solvers\Stress\StiffnessMatrixPackedInCSCFormat.h">
-      <Filter>Header Files\StiffnessMatrix</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Solvers\Stress\AuxiliaryStressStuff.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Solvers\Stress\StiffnessRHS.h">
-      <Filter>Header Files\StiffnessMatrix</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Solvers\Stress\IStressStrainSolver.h">
       <Filter>Header Files\CpuSolver</Filter>
@@ -145,24 +66,6 @@
     </ClInclude>
     <ClInclude Include="..\..\Solvers\Stress\StressStrainSolverExports.h">
       <Filter>Header Files\CpuSolver</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Solvers\Stress\CsrSymmetricMatrix.h">
-      <Filter>Header Files\Unused</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Solvers\Stress\PardisoSolver.h">
-      <Filter>Header Files\Unused</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Solvers\Stress\StressStrainFortranIterativeSolver.h">
-      <Filter>Header Files\Unused</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Solvers\stress\StressStrainFortranSolver.h">
-      <Filter>Header Files\Unused</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Solvers\Stress\StressStrainFortranStaticSolver2.h">
-      <Filter>Header Files\Unused</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Solvers\Stress\StressStrainFortranStaticsSolver.h">
-      <Filter>Header Files\Unused</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Solvers\Stress\BoundaryParams.h">
       <Filter>Header Files\CpuSolver</Filter>

@@ -348,10 +348,7 @@ void StressStrainCppIterativeSolver::CalculateForces()
 			if (elementId2)
 			{
 				elementId2--;
-#ifdef ALIGNED_MEM
-				CalculateStrainsAVX(side, strains, velocityStrains, elementId1, elementId2);
-#endif
-///				CalculateStrains(side, strains, velocityStrains, elementId1, elementId2);
+				CalculateStrains(side, strains, velocityStrains, elementId1, elementId2);
 
 				Vec3Ref linear_strains = MakeVec3(&strains[0]);
 				Vec3Ref angular_strains = MakeVec3(&strains[0] + vecStride);

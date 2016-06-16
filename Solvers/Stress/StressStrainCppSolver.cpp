@@ -417,11 +417,11 @@ void CrossProduct
 
 void StressStrainCppSolver::CalculateStrainsSSE
 (
-size_t side,			// 0 = -x, 1 = x, 2 = -y, 3 = y, 4 = -z, 5 = z
-double *shiftStrains,		// выход деформаций
-double *velocityStrains,	// выход изм. скоростей
-int nodeId1,				// номер узла 1
-int nodeId2					// номер узла 2
+	size_t side,				// 0 = -x, 1 = x, 2 = -y, 3 = y, 4 = -z, 5 = z
+	double *shiftStrains,		// выход деформаций
+	double *velocityStrains,	// выход изм. скоростей
+	size_t nodeId1,				// номер узла 1
+	size_t nodeId2				// номер узла 2
 ) const
 {
 	// Start SSE code
@@ -620,8 +620,8 @@ void StressStrainCppSolver::CalculateStrainsAVX
 		size_t side,			// 0 = -x, 1 = x, 2 = -y, 3 = y, 4 = -z, 5 = z
 		double *shiftStrains,		// выход деформаций
 		double *velocityStrains,	// выход изм. скоростей
-		int nodeId1,				// номер узла 1
-		int nodeId2					// номер узла 2
+		size_t nodeId1,				// номер узла 1
+		size_t nodeId2					// номер узла 2
 		) const
 {
 
@@ -758,13 +758,146 @@ void StressStrainCppSolver::CalculateStrainsAVX
 	_mm256_store_pd(velocityStrains + vecStride, _mm256_sub_pd(x1, x2));
 }
 
+void StressStrainCppSolver::CalculateStrainsFMA
+(
+size_t side,			// 0 = -x, 1 = x, 2 = -y, 3 = y, 4 = -z, 5 = z
+double *shiftStrains,		// выход деформаций
+double *velocityStrains,	// выход изм. скоростей
+size_t nodeId1,				// номер узла 1
+size_t nodeId2					// номер узла 2
+) const
+{
+
+	// Start AVX code
+	double* pmatA01 = GetRotationMatrix(nodeId1);
+	double* pmatA02 = GetRotationMatrix(nodeId2);
+
+	// vecStride must be 4
+	__m256d matA01row1 = _mm256_load_pd(pmatA01);
+	__m256d matA01row2 = _mm256_load_pd(pmatA01 + vecStride);
+	__m256d matA01row3 = _mm256_load_pd(pmatA01 + vecStride2);
+
+	__m256d matA02el1;
+	__m256d matA02el2;
+	__m256d matA02el3;
+
+	__m256d matA21row1;
+	__m256d matA21row2;
+	__m256d matA21row3;
+
+	// matA02 column 1/3
+	matA02el1 = _mm256_set1_pd(pmatA02[0]);
+	matA02el2 = _mm256_set1_pd(pmatA02[vecStride]);
+	matA02el3 = _mm256_set1_pd(pmatA02[vecStride2]);
+
+	// matA01.TMul(matA02)
+	matA02el1 = _mm256_mul_pd(matA01row1, matA02el1);
+	matA21row1 = _mm256_fmadd_pd(matA01row2, matA02el2, matA02el1);
+	matA21row1 = _mm256_fmadd_pd(matA01row3, matA02el3, matA21row1);
+
+	// matA02 column 2/3
+	matA02el1 = _mm256_set1_pd(pmatA02[1]);
+	matA02el2 = _mm256_set1_pd(pmatA02[vecStride + 1]);
+	matA02el3 = _mm256_set1_pd(pmatA02[vecStride2 + 1]);
+
+	// matA01.TMul(matA02)
+	matA02el1 = _mm256_mul_pd(matA01row1, matA02el1);
+	matA21row2 = _mm256_fmadd_pd(matA01row2, matA02el2, matA02el1);
+	matA21row2 = _mm256_fmadd_pd(matA01row3, matA02el3, matA21row2);
+
+	// matA02 column 3/3
+	matA02el1 = _mm256_set1_pd(pmatA02[2]);
+	matA02el2 = _mm256_set1_pd(pmatA02[vecStride + 2]);
+	matA02el3 = _mm256_set1_pd(pmatA02[vecStride2 + 2]);
+
+	// matA01.TMul(matA02)
+	matA02el1 = _mm256_mul_pd(matA01row1, matA02el1);
+	matA21row3 = _mm256_fmadd_pd(matA01row2, matA02el2, matA02el1);
+	matA21row3 = _mm256_fmadd_pd(matA01row3, matA02el3, matA21row3);
+	// ћатрица A_{21} сформирована
+
+	__m256d ivecC1 = _mm256_load_pd(GetRadiusVector(side));
+	__m256d vecDP = _mm256_sub_pd(
+		_mm256_load_pd(GetElementShift(nodeId1)),
+		_mm256_load_pd(GetElementShift(nodeId2))); // P1-P2
+
+	matA02el1 = _mm256_set1_pd(ivecC1.m256d_f64[0]);
+	matA02el2 = _mm256_set1_pd(ivecC1.m256d_f64[1]);
+	matA02el3 = _mm256_set1_pd(ivecC1.m256d_f64[2]);
+
+	__m256d 
+	res = _mm256_fmadd_pd(matA21row1, matA02el1, ivecC1);
+	res = _mm256_fmadd_pd(matA21row2, matA02el2, res);
+	res = _mm256_fmadd_pd(matA21row2, matA02el2, res);
+
+	matA02el1 = _mm256_set1_pd(vecDP.m256d_f64[0]);
+	matA02el2 = _mm256_set1_pd(vecDP.m256d_f64[1]);
+	matA02el3 = _mm256_set1_pd(vecDP.m256d_f64[2]);
+
+	res = _mm256_fmadd_pd(matA01row1, matA02el1, res);
+	res = _mm256_fmadd_pd(matA01row2, matA02el2, res);
+	res = _mm256_fmadd_pd(matA01row3, matA02el3, res);
+
+	_mm256_store_pd(shiftStrains, res); // получено SL, линейные компоненты
+
+	// –асчет VL
+	// переводим вектор разницы линейных скоростей точек св€зи —2-—1 в — 1
+	// Vec3 VecT1 = matA01.Tmul(vecV1 - vecV2) + vecW1.Cross(vecC1) - matA12*(vecW2.Cross(vecC2));
+	// vecC2 = -vecC1
+	// vecC2.Cross(vecW1) = -vecC1.Cross(vecW1)
+
+	__declspec(align(32)) double cp1[4] = { 0 };	// векторное произведение 
+	__declspec(align(32)) double cp2[4] = { 0 };	// векторное произведение
+
+	CrossProduct(GetElementVelocityAngular(nodeId1), GetRadiusVector(side), cp1);	// [w1 x c1]
+	CrossProduct(GetElementVelocityAngular(nodeId2), GetRadiusVector(side), cp2);	// -[w2 x c2] = [w2 x c1]
+
+	__m256d cp1r = _mm256_load_pd(&cp1[0]);
+	__m256d vecDV = _mm256_sub_pd(
+		_mm256_load_pd(GetElementVelocity(nodeId1)),
+		_mm256_load_pd(GetElementVelocity(nodeId2))); // V1-V2
+
+	matA02el1 = _mm256_set1_pd(cp2[0]);
+	matA02el2 = _mm256_set1_pd(cp2[1]);
+	matA02el3 = _mm256_set1_pd(cp2[2]);
+
+	matA02el1 = _mm256_mul_pd(matA21row1, matA02el1);
+	matA02el2 = _mm256_mul_pd(matA21row2, matA02el2);
+	matA02el3 = _mm256_mul_pd(matA21row3, matA02el3);
+
+	__m256d mul1 = _mm256_add_pd(_mm256_add_pd(matA02el1, matA02el2), matA02el3);
+
+	matA02el1 = _mm256_set1_pd(vecDV.m256d_f64[0]);
+	matA02el2 = _mm256_set1_pd(vecDV.m256d_f64[1]);
+	matA02el3 = _mm256_set1_pd(vecDV.m256d_f64[2]);
+
+	matA02el1 = _mm256_mul_pd(matA01row1, matA02el1);
+	matA02el2 = _mm256_mul_pd(matA01row2, matA02el2);
+	matA02el3 = _mm256_mul_pd(matA01row3, matA02el3);
+
+	__m256d mul2 = _mm256_add_pd(_mm256_add_pd(matA02el1, matA02el2), matA02el3);
+
+	res = _mm256_add_pd(_mm256_add_pd(cp1r, mul1), mul2);
+
+	_mm256_store_pd(velocityStrains, res); // получено VL, линейные компоненты
+
+	__m256d x1 = _mm256_load_pd(GetElementShiftAngular(nodeId1));
+	__m256d x2 = _mm256_load_pd(GetElementShiftAngular(nodeId2));
+	_mm256_store_pd(shiftStrains + vecStride, _mm256_sub_pd(x1, x2));
+
+	x1 = _mm256_load_pd(GetElementVelocityAngular(nodeId1));
+	x2 = _mm256_load_pd(GetElementVelocityAngular(nodeId2));
+	_mm256_store_pd(velocityStrains + vecStride, _mm256_sub_pd(x1, x2));
+}
+
+
 void StressStrainCppSolver::CalculateStrains
 	(
 		size_t side,			// 0 = -x, 1 = x, 2 = -y, 3 = y, 4 = -z, 5 = z
 		double *shiftStrains,		// выход деформаций
 		double *velocityStrains,	// выход изм. скоростей
-		int nodeId1,				// номер узла 1
-		int nodeId2					// номер узла 2
+		size_t nodeId1,				// номер узла 1
+		size_t nodeId2					// номер узла 2
 		) const
 {
 	MathHelpers::Mat3x4 matA01(GetRotationMatrix(nodeId1));
