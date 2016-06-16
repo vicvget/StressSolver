@@ -127,7 +127,7 @@ bool ComparativeTest()
 
 	double cVec1[] = { -gridStep * 0.5, 0, 0 };
 	double cVec2[] = { gridStep * 0.5, 0, 0 };
-	double A[36], C[36];
+//	double A[36], C[36];
 
 //	forSolver->linksh(cVec1, cVec2, SL3, VL3, A, C, 0, 1, nElements);
 //	forSolver->linksh2(cVec1, cVec2, SL4, VL4, A, C, 0, 1, nElements);
@@ -164,14 +164,14 @@ bool ComparativeTest()
 	cppSolver->CalculateStrainsFMA
 		(
 		0,	// 0 = -x, 1 = x, 2 = -y, 3 = y, 4 = -z, 5 = z
-		&SL3[0],		// выход деформаций 
-		&VL3[0],		// выход деформаций
+		&SL4[0],		// выход деформаций 
+		&VL4[0],		// выход деформаций
 		0,	// номер узла 1
 		1	// номер узла 2
 		);
 
 	const int width = 9;
-	std::cout << "SL cpp " << setw(width) << "avx " << setw(width) << "sse" << setw(width) << "fma" << setw(width) << "l3\n";
+	std::cout << "SL cpp " << setw(width) << "avx " << setw(width) << "sse" << setw(width) << "fma" << setw(width) << "knc\n";
 	for (int i = 0; i < 8; i++)
 	{
 		std::cout << setw(width) << SL[i] << " "

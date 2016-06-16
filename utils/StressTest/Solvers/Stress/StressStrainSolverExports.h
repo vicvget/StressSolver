@@ -1,6 +1,4 @@
-#ifndef StressStrainSolverExportsH
-#define StressStrainSolverExportsH
-
+#pragma once
 #define STANDALONE
 
 #ifdef STANDALONE
@@ -278,4 +276,3 @@ namespace Stress
 
 }
 
-#endif

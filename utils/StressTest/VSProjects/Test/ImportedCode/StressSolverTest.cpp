@@ -236,15 +236,10 @@ namespace SpecialSolversTest
 
 			//integrationParams._nIterations = 120;// 600;
 			//integrationParams._nSubIterations = 60;//300;
-			integrationParams._nIterations = 600;
+			integrationParams._nIterations = 150;
 			integrationParams._nSubIterations = 300;
 			integrationParams._timeStep = 0.00005f;
 
-			if (solverType == 2)
-			{
-				integrationParams._nIterations = 1;
-				integrationParams._nSubIterations = 1;
-			}
 
 			gridParams._nz = 1;
 			gridParams._ny = 3;

@@ -1,5 +1,6 @@
 #pragma once
 
+//#define NOTIMER
 
 // include OS specific timing library
 #ifdef _MSC_VER

@@ -13,10 +13,11 @@ namespace Stress
 
 /** Унаследованный код на ФОРТРАНе
 */
-class StressStrainCppIterativeSolverAVX
+class StressStrainCppIterativeSolverFMA
 	:
 		public StressStrainCppIterativeSolver
 {
+public:
 	__m256d timeStep;
 	__m256d timeStep2;
 	__m256d timeStep4;
@@ -24,10 +25,8 @@ class StressStrainCppIterativeSolverAVX
 	__m256d constantD6;
 	const int regSize = 4;
 
-public:
-
 	// создает объект с заданными параметрами
-	StressStrainCppIterativeSolverAVX
+	StressStrainCppIterativeSolverFMA
 		(
 			double* params,
 			int* links,
@@ -41,7 +40,7 @@ public:
 		);
 
 	virtual
-	~StressStrainCppIterativeSolverAVX();
+	~StressStrainCppIterativeSolverFMA();
 
 #pragma region overriden
 

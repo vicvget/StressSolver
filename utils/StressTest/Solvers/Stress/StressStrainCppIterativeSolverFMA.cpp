@@ -1,4 +1,4 @@
-#include "StressStrainCppIterativeSolverAVX.h"
+#include "StressStrainCppIterativeSolverFMA.h"
 #include "../../AdditionalModules/fmath/Matrix3x3.h"
 #include "../../AdditionalModules/fmath/Matrix3x4.h"
 
@@ -11,7 +11,7 @@ using MathHelpers::Mat3x4;
 namespace Stress
 {
 
-StressStrainCppIterativeSolverAVX::StressStrainCppIterativeSolverAVX
+StressStrainCppIterativeSolverFMA::StressStrainCppIterativeSolverFMA
 	(
 		double* params, 
 		int* links, 
@@ -40,13 +40,13 @@ StressStrainCppIterativeSolverAVX::StressStrainCppIterativeSolverAVX
 }
 
 // virtual
-StressStrainCppIterativeSolverAVX::~StressStrainCppIterativeSolverAVX()
+StressStrainCppIterativeSolverFMA::~StressStrainCppIterativeSolverFMA()
 {
 
 }
 
 // AVX-версия
-void StressStrainCppIterativeSolverAVX::SolveFull(const int nIterations)
+void StressStrainCppIterativeSolverFMA::SolveFull(const int nIterations)
 {
 	_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
 
@@ -80,9 +80,11 @@ void StressStrainCppIterativeSolverAVX::SolveFull(const int nIterations)
 
 			hDDX1 = _mm256_mul_pd(DDXtmp, timeStep);
 			_mm256_store_pd(_hDDX1 + j, hDDX1);
-			tmp = _mm256_add_pd(_mm256_mul_pd(DXtmp, timeStep2), Xtmp);
+			tmp = _mm256_fmadd_pd(DXtmp, timeStep2, Xtmp);
+			//tmp = _mm256_add_pd(_mm256_mul_pd(DXtmp, timeStep2), Xtmp);
 			_mm256_store_pd(_varX + j, tmp);
-			tmp = _mm256_add_pd(_mm256_mul_pd(hDDX1, constantD2), DXtmp);
+			tmp = _mm256_fmadd_pd(hDDX1, constantD2, DXtmp);
+			//tmp = _mm256_add_pd(_mm256_mul_pd(hDDX1, constant), DXtmp);
 			_mm256_store_pd(_varDX + j, tmp);
 		}
 		_testTimer.Stop(3);
@@ -105,9 +107,11 @@ void StressStrainCppIterativeSolverAVX::SolveFull(const int nIterations)
 
 			hDDX2 = _mm256_mul_pd(DDXtmp, timeStep);
 			_mm256_store_pd(_hDDX2 + j, hDDX2);
-			tmp = _mm256_add_pd(_mm256_mul_pd(hDDX1, timeStep4), Xtmp);
+			tmp = _mm256_fmadd_pd(hDDX1, timeStep4, Xtmp);
+			//tmp = _mm256_add_pd(_mm256_mul_pd(hDDX1, timeStep4), Xtmp);
 			_mm256_store_pd(_varX + j, tmp);
-			tmp = _mm256_add_pd(_mm256_mul_pd(hDDX2, constantD2), DXtmp);
+			tmp = _mm256_fmadd_pd(hDDX2, constantD2, DXtmp);
+			//tmp = _mm256_add_pd(_mm256_mul_pd(hDDX2, constant), DXtmp);
 			_mm256_store_pd(_varDX + j, tmp);
 		}
 		_testTimer.Stop(3);
@@ -130,8 +134,10 @@ void StressStrainCppIterativeSolverAVX::SolveFull(const int nIterations)
 
 			hDDX3 = _mm256_mul_pd(DDXtmp, timeStep);
 			_mm256_store_pd(_hDDX3 + j, hDDX3);
-			tmp = _mm256_add_pd(_mm256_mul_pd(hDDX2, constantD2), DXtmp);
-			tmp = _mm256_add_pd(_mm256_mul_pd(tmp, timeStep), Xtmp);
+			tmp = _mm256_fmadd_pd(hDDX2, constantD2, DXtmp);
+			//tmp = _mm256_add_pd(_mm256_mul_pd(hDDX2, constant), DXtmp);
+			tmp = _mm256_fmadd_pd(tmp, timeStep, Xtmp);
+			//tmp = _mm256_add_pd(_mm256_mul_pd(tmp, timeStep), Xtmp);
 			_mm256_store_pd(_varX + j, tmp);
 			_mm256_store_pd(_varDX + j, _mm256_add_pd(DXtmp, hDDX3));
 		}
@@ -156,12 +162,16 @@ void StressStrainCppIterativeSolverAVX::SolveFull(const int nIterations)
 			hDDX3 = _mm256_load_pd(_hDDX3 + j);
 
 			sDDX = _mm256_add_pd(hDDX2, hDDX3);
-			tmp = _mm256_add_pd(_mm256_mul_pd(sDDX, constantD6), DXtmp);
-			tmp = _mm256_add_pd(_mm256_mul_pd(tmp, timeStep), Xtmp);
+			tmp = _mm256_fmadd_pd(sDDX, constantD6, DXtmp);
+			//tmp = _mm256_add_pd(_mm256_mul_pd(sDDX, constant), DXtmp);
+			tmp = _mm256_fmadd_pd(tmp, timeStep, Xtmp);
+			//tmp = _mm256_add_pd(_mm256_mul_pd(tmp, timeStep), Xtmp);
 			_mm256_store_pd(_varX + j, tmp);
 			tmp = _mm256_add_pd(_mm256_add_pd(hDDX1, sDDX), sDDX);
-			tmp = _mm256_add_pd(_mm256_mul_pd(DDXtmp, timeStep), tmp);
-			tmp = _mm256_add_pd(_mm256_mul_pd(tmp, constantD6), DXtmp);
+			tmp = _mm256_fmadd_pd(DDXtmp, timeStep, tmp);
+			//tmp = _mm256_add_pd(_mm256_mul_pd(DDXtmp, timeStep), tmp);
+			tmp = _mm256_fmadd_pd(tmp, constantD6, DXtmp);
+			//tmp = _mm256_add_pd(_mm256_mul_pd(tmp, constant), DXtmp);
 			_mm256_store_pd(_varDX + j, tmp);
 		}
 		_testTimer.Stop(3);
@@ -185,7 +195,7 @@ void StressStrainCppIterativeSolverAVX::SolveFull(const int nIterations)
 }
 
 
-void StressStrainCppIterativeSolverAVX::Solve(const int nIterations)
+void StressStrainCppIterativeSolverFMA::Solve(const int nIterations)
 {
 	_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
 
@@ -206,7 +216,7 @@ void StressStrainCppIterativeSolverAVX::Solve(const int nIterations)
 }
 
 // virtual
-void StressStrainCppIterativeSolverAVX::InitialSolve()
+void StressStrainCppIterativeSolverFMA::InitialSolve()
 {
 	timeStep = _mm256_set1_pd(_timeStep);
 	timeStep2 = _mm256_set1_pd(_timeStep2);
@@ -223,7 +233,7 @@ void StressStrainCppIterativeSolverAVX::InitialSolve()
 * Расчет первой стадии метода Рунге-Кутты
 */
 // virtual
-void StressStrainCppIterativeSolverAVX::Solve1()
+void StressStrainCppIterativeSolverFMA::Solve1()
 {
 	_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
 	MeasuredRun(1, _rotationSolver->Solve1());
@@ -234,7 +244,7 @@ void StressStrainCppIterativeSolverAVX::Solve1()
 * Расчет второй стадии метода Рунге-Кутты
 */
 // virtual
-void StressStrainCppIterativeSolverAVX::Solve2()
+void StressStrainCppIterativeSolverFMA::Solve2()
 {
 	_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
 
@@ -255,9 +265,11 @@ void StressStrainCppIterativeSolverAVX::Solve2()
 
 		__m256d hDDX1 = _mm256_mul_pd(DDXtmp, timeStep);
 		_mm256_store_pd(_hDDX1 + j, hDDX1);
-		__m256d tmp = _mm256_add_pd(_mm256_mul_pd(DXtmp, timeStep2), Xtmp);
+		__m256d tmp = _mm256_fmadd_pd(DXtmp, timeStep2, Xtmp);
+		//tmp = _mm256_add_pd(_mm256_mul_pd(DXtmp, timeStep2), Xtmp);
 		_mm256_store_pd(_varX + j, tmp);
-		tmp = _mm256_add_pd(_mm256_mul_pd(hDDX1, constantD2), DXtmp);
+		tmp = _mm256_fmadd_pd(hDDX1, constantD2, DXtmp);
+		//tmp = _mm256_add_pd(_mm256_mul_pd(hDDX1, constant), DXtmp);
 		_mm256_store_pd(_varDX + j, tmp);
 	}
 	_testTimer.Stop(3);
@@ -271,7 +283,7 @@ void StressStrainCppIterativeSolverAVX::Solve2()
 * Расчет третьей стадии метода Рунге-Кутты
 */
 // virtual
-void StressStrainCppIterativeSolverAVX::Solve3()
+void StressStrainCppIterativeSolverFMA::Solve3()
 {
 	_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
 
@@ -290,9 +302,11 @@ void StressStrainCppIterativeSolverAVX::Solve3()
 		__m256d hDDX2 = _mm256_mul_pd(DDXtmp, timeStep);
 
 		_mm256_store_pd(_hDDX2 + j, hDDX2);
-		__m256d tmp = _mm256_add_pd(_mm256_mul_pd(hDDX1, timeStep4), Xtmp);
+		__m256d tmp = _mm256_fmadd_pd(hDDX1, timeStep4, Xtmp);
+		//tmp = _mm256_add_pd(_mm256_mul_pd(hDDX1, timeStep4), Xtmp);
 		_mm256_store_pd(_varX + j, tmp);
-		tmp = _mm256_add_pd(_mm256_mul_pd(hDDX2, constantD2), DXtmp);
+		tmp = _mm256_fmadd_pd(hDDX2, constantD2, DXtmp);
+		//tmp = _mm256_add_pd(_mm256_mul_pd(hDDX2, constant), DXtmp);
 		_mm256_store_pd(_varDX + j, tmp);
 	}
 	_testTimer.Stop(3);
@@ -305,7 +319,7 @@ void StressStrainCppIterativeSolverAVX::Solve3()
 * Расчет четвертой стадии метода Рунге-Кутты
 */
 // virtual
-void StressStrainCppIterativeSolverAVX::Solve4()
+void StressStrainCppIterativeSolverFMA::Solve4()
 {
 	_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
 
@@ -324,8 +338,10 @@ void StressStrainCppIterativeSolverAVX::Solve4()
 
 		__m256d hDDX3 = _mm256_mul_pd(DDXtmp, timeStep);
 		_mm256_store_pd(_hDDX3 + j, hDDX3);
-		__m256d tmp = _mm256_add_pd(_mm256_mul_pd(hDDX2, constantD2), DXtmp);
-		tmp = _mm256_add_pd(_mm256_mul_pd(tmp, timeStep), Xtmp);
+		__m256d tmp = _mm256_fmadd_pd(hDDX2, constantD2, DXtmp);
+		//tmp = _mm256_add_pd(_mm256_mul_pd(hDDX2, constant), DXtmp);
+		tmp = _mm256_fmadd_pd(tmp, timeStep, Xtmp);
+		//tmp = _mm256_add_pd(_mm256_mul_pd(tmp, timeStep), Xtmp);
 		_mm256_store_pd(_varX + j, tmp);
 		_mm256_store_pd(_varDX + j, _mm256_add_pd(DXtmp, hDDX3));
 	}
@@ -339,7 +355,7 @@ void StressStrainCppIterativeSolverAVX::Solve4()
 * Расчет пятой стадии метода Рунге-Кутты
 */
 // virtual
-void StressStrainCppIterativeSolverAVX::Solve5()
+void StressStrainCppIterativeSolverFMA::Solve5()
 {
 	_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
 
@@ -359,12 +375,16 @@ void StressStrainCppIterativeSolverAVX::Solve5()
 		__m256d hDDX3 = _mm256_load_pd(_hDDX3 + j);
 
 		__m256d sDDX = _mm256_add_pd(hDDX2, hDDX3);
-		__m256d tmp = _mm256_add_pd(_mm256_mul_pd(sDDX, constantD6), DXtmp);
-		tmp = _mm256_add_pd(_mm256_mul_pd(tmp, timeStep), Xtmp);
+		__m256d tmp = _mm256_fmadd_pd(sDDX, constantD6, DXtmp);
+		//tmp = _mm256_add_pd(_mm256_mul_pd(sDDX, constant), DXtmp);
+		tmp = _mm256_fmadd_pd(tmp, timeStep, Xtmp);
+		//tmp = _mm256_add_pd(_mm256_mul_pd(tmp, timeStep), Xtmp);
 		_mm256_store_pd(_varX + j, tmp);
 		tmp = _mm256_add_pd(_mm256_add_pd(hDDX1, sDDX), sDDX);
-		tmp = _mm256_add_pd(_mm256_mul_pd(DDXtmp, timeStep), tmp);
-		tmp = _mm256_add_pd(_mm256_mul_pd(tmp, constantD6), DXtmp);
+		tmp = _mm256_fmadd_pd(DDXtmp, timeStep, tmp);
+		//tmp = _mm256_add_pd(_mm256_mul_pd(DDXtmp, timeStep), tmp);
+		tmp = _mm256_fmadd_pd(tmp, constantD6, DXtmp);
+		//tmp = _mm256_add_pd(_mm256_mul_pd(tmp, constant), DXtmp);
 		_mm256_store_pd(_varDX + j, tmp);
 	}
 	_testTimer.Stop(3);
@@ -373,7 +393,7 @@ void StressStrainCppIterativeSolverAVX::Solve5()
 	MeasuredRun(2, CalculateForces());
 }
 
-void StressStrainCppIterativeSolverAVX::CalculateForces()
+void StressStrainCppIterativeSolverFMA::CalculateForces()
 {
 	_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
 	static int it = 0;
@@ -397,7 +417,7 @@ void StressStrainCppIterativeSolverAVX::CalculateForces()
 			if (elementId2)
 			{
 				elementId2--;
-				CalculateStrainsFMA(side, strains, velocityStrains, elementId1, elementId2);
+				CalculateStrainsAVX(side, strains, velocityStrains, elementId1, elementId2);
 
 				Vec3Ref linear_strains = MakeVec3(&strains[0]);
 				Vec3Ref angular_strains = MakeVec3(&strains[0] + vecStride);
