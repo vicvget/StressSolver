@@ -2,7 +2,7 @@
 
 #include "StressStrainCppIterativeSolver.h"
 #include "StressStrainCppIterativeSolverAVX.h"
-//#include "StressStrainCppIterativeSolverFMA.h"
+#include "StressStrainCppIterativeSolverFMA.h"
 //#include "StressStrainCppIterativeSolverSSE.h"
 //#include "StressStrainCppIterativeSolverKNC.h"
 #include "../../Fcore/Exceptions/fcExceptions.h"
@@ -58,7 +58,7 @@ namespace Stress
 				);
 			break;
 		case 1:
-			hsolver = new StressStrainCppIterativeSolver
+			hsolver = new StressStrainCppIterativeSolverAVX
 				(
 				params,
 				links,
@@ -70,6 +70,20 @@ namespace Stress
 				numThreads,
 				4
 				);
+			break;
+		case 2:
+			hsolver = new StressStrainCppIterativeSolverFMA
+			(
+				params,
+				links,
+				nLinks,
+				gridElements,
+				nElements,
+				gridStep,
+				timeStep,
+				numThreads,
+				4
+			);
 			break;
 		default:
 			std::cout << "Unsupported solver type " << std::endl;

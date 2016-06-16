@@ -791,8 +791,8 @@ size_t nodeId2					// номер узла 2
 	matA02el3 = _mm256_set1_pd(pmatA02[vecStride2]);
 
 	// matA01.TMul(matA02)
-	matA02el1 = _mm256_mul_pd(matA01row1, matA02el1);
-	matA21row1 = _mm256_fmadd_pd(matA01row2, matA02el2, matA02el1);
+	matA21row1 = _mm256_mul_pd(matA01row1, matA02el1);
+	matA21row1 = _mm256_fmadd_pd(matA01row2, matA02el2, matA21row1);
 	matA21row1 = _mm256_fmadd_pd(matA01row3, matA02el3, matA21row1);
 
 	// matA02 column 2/3
@@ -801,8 +801,8 @@ size_t nodeId2					// номер узла 2
 	matA02el3 = _mm256_set1_pd(pmatA02[vecStride2 + 1]);
 
 	// matA01.TMul(matA02)
-	matA02el1 = _mm256_mul_pd(matA01row1, matA02el1);
-	matA21row2 = _mm256_fmadd_pd(matA01row2, matA02el2, matA02el1);
+	matA21row2 = _mm256_mul_pd(matA01row1, matA02el1);
+	matA21row2 = _mm256_fmadd_pd(matA01row2, matA02el2, matA21row2);
 	matA21row2 = _mm256_fmadd_pd(matA01row3, matA02el3, matA21row2);
 
 	// matA02 column 3/3
@@ -811,8 +811,8 @@ size_t nodeId2					// номер узла 2
 	matA02el3 = _mm256_set1_pd(pmatA02[vecStride2 + 2]);
 
 	// matA01.TMul(matA02)
-	matA02el1 = _mm256_mul_pd(matA01row1, matA02el1);
-	matA21row3 = _mm256_fmadd_pd(matA01row2, matA02el2, matA02el1);
+	matA21row3 = _mm256_mul_pd(matA01row1, matA02el1);
+	matA21row3 = _mm256_fmadd_pd(matA01row2, matA02el2, matA21row3);
 	matA21row3 = _mm256_fmadd_pd(matA01row3, matA02el3, matA21row3);
 	// Матрица A_{21} сформирована
 
@@ -852,7 +852,7 @@ size_t nodeId2					// номер узла 2
 	CrossProduct(GetElementVelocityAngular(nodeId1), GetRadiusVector(side), cp1);	// [w1 x c1]
 	CrossProduct(GetElementVelocityAngular(nodeId2), GetRadiusVector(side), cp2);	// -[w2 x c2] = [w2 x c1]
 
-	__m256d cp1r = _mm256_load_pd(&cp1[0]);
+	res = _mm256_load_pd(&cp1[0]);
 	__m256d vecDV = _mm256_sub_pd(
 		_mm256_load_pd(GetElementVelocity(nodeId1)),
 		_mm256_load_pd(GetElementVelocity(nodeId2))); // V1-V2
@@ -861,23 +861,18 @@ size_t nodeId2					// номер узла 2
 	matA02el2 = _mm256_set1_pd(cp2[1]);
 	matA02el3 = _mm256_set1_pd(cp2[2]);
 
-	matA02el1 = _mm256_mul_pd(matA21row1, matA02el1);
-	matA02el2 = _mm256_mul_pd(matA21row2, matA02el2);
-	matA02el3 = _mm256_mul_pd(matA21row3, matA02el3);
-
-	__m256d mul1 = _mm256_add_pd(_mm256_add_pd(matA02el1, matA02el2), matA02el3);
+	res = _mm256_fmadd_pd(matA21row1, matA02el1, res);
+	res = _mm256_fmadd_pd(matA21row2, matA02el2, res);
+	res = _mm256_fmadd_pd(matA21row2, matA02el2, res);
 
 	matA02el1 = _mm256_set1_pd(vecDV.m256d_f64[0]);
 	matA02el2 = _mm256_set1_pd(vecDV.m256d_f64[1]);
 	matA02el3 = _mm256_set1_pd(vecDV.m256d_f64[2]);
 
-	matA02el1 = _mm256_mul_pd(matA01row1, matA02el1);
-	matA02el2 = _mm256_mul_pd(matA01row2, matA02el2);
-	matA02el3 = _mm256_mul_pd(matA01row3, matA02el3);
+	res = _mm256_fmadd_pd(matA01row1, matA02el1, res);
+	res = _mm256_fmadd_pd(matA01row2, matA02el2, res);
+	res = _mm256_fmadd_pd(matA01row3, matA02el3, res);
 
-	__m256d mul2 = _mm256_add_pd(_mm256_add_pd(matA02el1, matA02el2), matA02el3);
-
-	res = _mm256_add_pd(_mm256_add_pd(cp1r, mul1), mul2);
 
 	_mm256_store_pd(velocityStrains, res); // получено VL, линейные компоненты
 

@@ -4,6 +4,13 @@
 using std::cout;
 using std::string;
 
+#define SQR(x) ((x) * (x))
+
+#define MeasuredRun(TIMER, COMMAND) \
+	_testTimer.Start(TIMER); \
+	COMMAND##; \
+	_testTimer.Stop(TIMER);
+
 enum DataType
 {
 	DT_Shifts=0,
