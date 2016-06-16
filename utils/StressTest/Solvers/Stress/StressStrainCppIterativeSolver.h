@@ -48,7 +48,7 @@ public:
 		);
 
 	virtual	void Solve(const int nIteratons);
-	virtual void SolveFull(const int nIteratons);;
+	virtual void SolveFull(const int nIteratons);
 
 	/**
 	* Расчет первой стадии метода Рунге-Кутты

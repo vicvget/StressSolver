@@ -86,7 +86,7 @@ bool MeshDataCleaner::CleanGrid() const
 	fs::RenameFile(_gridFileName.c_str(), dirtyGridFileName.c_str());
 #endif
 
-	RLCControlWriter meshWriter(grid, boundaryConditions, meshProvider.GetFreeSolverGridParams(), boundaryNormals);
+	RLCControlWriter meshWriter(grid, boundaryConditions);// , meshProvider.GetFreeSolverGridParams(), boundaryNormals);
 
 	if (!meshWriter.DumpMeshToFile(_gridFileName.c_str()))
 	{

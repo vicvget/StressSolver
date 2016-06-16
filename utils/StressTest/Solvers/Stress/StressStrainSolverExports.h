@@ -273,8 +273,8 @@ namespace Stress
 			int type
 		);
 
-	DLL_FUNCTION
-	void SolveSystemOfLinearEquationsForStiffness();
+	//DLL_FUNCTION
+	//void SolveSystemOfLinearEquationsForStiffness();
 
 }
 

@@ -1,9 +1,10 @@
 #include "StressStrainSolverExports.h"
 
-#include "StressStrainFortranIterativeSolver.h"
 #include "StressStrainCppIterativeSolver.h"
-#include "StressStrainFortranStaticsSolver.h"
-#include "StressStrainFortranStaticSolver2.h"
+#include "StressStrainCppIterativeSolverAVX.h"
+//#include "StressStrainCppIterativeSolverFMA.h"
+//#include "StressStrainCppIterativeSolverSSE.h"
+//#include "StressStrainCppIterativeSolverKNC.h"
 #include "../../Fcore/Exceptions/fcExceptions.h"
 
 #include <memory>
@@ -40,52 +41,9 @@ namespace Stress
 		)
 	{	
 		StressStrainSolver* hsolver = NULL;
-
-		if (solverType == 0)
+		switch (solverType)
 		{
-			hsolver = new StressStrainFortranIterativeSolver
-				(
-				params,
-				links,
-				nLinks,
-				gridElements,
-				nElements,
-				gridStep,
-				timeStep,
-				numThreads,
-				3
-				);
-		}
-		else if (solverType == 1)
-		{
-			hsolver = new StressStrainFortranStaticsSolver
-				(
-				params,
-				links,
-				nLinks,
-				gridElements,
-				nElements,
-				gridStep,
-				timeStep,
-				numThreads
-				);
-		}
-		else if (solverType == 2)
-		{
-			hsolver = new StressStrainFortranStaticSolver2
-				(
-				params,
-				links,
-				nLinks,
-				gridElements,
-				nElements,
-				gridStep,
-				timeStep,
-				numThreads
-				);
-		}
-		else
-		{
+		case 0:
 			hsolver = new StressStrainCppIterativeSolver
 				(
 				params,
@@ -97,8 +55,26 @@ namespace Stress
 				timeStep,
 				numThreads,
 				4
-				);			
+				);
+			break;
+		case 1:
+			hsolver = new StressStrainCppIterativeSolver
+				(
+				params,
+				links,
+				nLinks,
+				gridElements,
+				nElements,
+				gridStep,
+				timeStep,
+				numThreads,
+				4
+				);
+			break;
+		default:
+			std::cout << "Unsupported solver type " << std::endl;
 		}
+		
 		return (void*)hsolver;
 	}
 
@@ -148,9 +124,7 @@ namespace Stress
 	{
 		if (hsolver)
 		{
-			//delete (StressStrainSolver*)hsolver;
 			StressStrainSolver* stressSolver = (StressStrainSolver*)hsolver;
-
 			delete stressSolver;
 			hsolver = NULL;
 		}
@@ -421,29 +395,29 @@ namespace Stress
 			);
 	}
 
-	DLL_FUNCTION
-	void SolveSystemOfLinearEquationsForStiffness()
-	{
-		try
-		{
-			StiffnessMatrixPackedInCSCFormat stiffnessMatrixCSC;
+	//DLL_FUNCTION
+	//void SolveSystemOfLinearEquationsForStiffness()
+	//{
+	//	try
+	//	{
+	//		StiffnessMatrixPackedInCSCFormat stiffnessMatrixCSC;
 
-			stiffnessMatrixCSC.ReadFromBinaryFile(StiffnessMatrixFileName + ".bin");
+	//		stiffnessMatrixCSC.ReadFromBinaryFile(StiffnessMatrixFileName + ".bin");
 
-			StiffnessRHSVector stiffnessRHSVector = ReadStiffnessRHSVectorFromBinaryFile(StiffnessRHSFileName + ".bin");
-			StiffnessRHSVector stiffnessResultsVector =
-				StressStrainFortranStaticSolver2::SolveSystemOfLinearEquationsForStiffness
-					(
-						stiffnessMatrixCSC,
-						stiffnessRHSVector
-					);
+	//		StiffnessRHSVector stiffnessRHSVector = ReadStiffnessRHSVectorFromBinaryFile(StiffnessRHSFileName + ".bin");
+	//		StiffnessRHSVector stiffnessResultsVector =
+	//			StressStrainFortranStaticSolver2::SolveSystemOfLinearEquationsForStiffness
+	//				(
+	//					stiffnessMatrixCSC,
+	//					stiffnessRHSVector
+	//				);
 
-			WriteStiffnessRHSVectorToTextFile("Results.txt", stiffnessResultsVector);
-		}
-		catch (const exceptions::CoreException& exception)
-		{
-			std::cout << exception.ToString() << std::endl;
-		}
-	}
+	//		WriteStiffnessRHSVectorToTextFile("Results.txt", stiffnessResultsVector);
+	//	}
+	//	catch (const exceptions::CoreException& exception)
+	//	{
+	//		std::cout << exception.ToString() << std::endl;
+	//	}
+	//}
 
 }

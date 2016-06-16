@@ -9,7 +9,7 @@
 #include "BoundaryCondition.h"
 #include "BoundaryNormal.h"
 #include "../GridProvider/RLCHeader.h"
-#include "../ProviderFrm/FrundFacade/MphParamsSet/FreeSolverGridParams.h"
+//#include "../ProviderFrm/FrundFacade/MphParamsSet/FreeSolverGridParams.h"
 #include "../../AdditionalModules/AuxiliaryModules/SmartPointers.h"
 
 #include <fstream>
@@ -67,7 +67,7 @@ public:
 	const vector<BoundaryNormal*>& GetNormals() const;
 
 	// Получить грид парамс для свободного решателя
-	FreeSolverGridParams* GetFreeSolverGridParams() const;
+//	FreeSolverGridParams* GetFreeSolverGridParams() const;
 
 	//
 	bool IsGridLoaded() const;

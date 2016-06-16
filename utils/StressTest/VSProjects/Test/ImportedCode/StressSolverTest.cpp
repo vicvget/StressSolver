@@ -259,9 +259,9 @@ namespace SpecialSolversTest
 				fileRlc,
 				solverType
 				);
-
+			if (_hsolver == NULL)
+				return;
 			SolverPerformanceCounter pc;
-
 			pc.Reset();
 			Solve
 				(
@@ -336,10 +336,10 @@ namespace SpecialSolversTest
 			Stress::ReleaseMemory((void* &)_hsolver);
 		}
 
-		void TestSolveSystemOfLinearEquationsForStiffness()
-		{
-			Stress::SolveSystemOfLinearEquationsForStiffness();
-		}
+		//void TestSolveSystemOfLinearEquationsForStiffness()
+		//{
+		//	Stress::SolveSystemOfLinearEquationsForStiffness();
+		//}
 
 
 		void FillFaceIndices(vector<int>& bcIndices, EFACE face, const GridParams& gridParams)

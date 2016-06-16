@@ -5,11 +5,13 @@
 
 #include "ResultsWriter.h"
 
-#ifdef USE_PROVIDER_FRM_OLD
-#	include "../../fcore/FrundFacade/MphParamsSet/SolverSpecialParams.h"
-#else
-#	include "../ProviderFrm/FrundFacade/MphParamsSet/SolverSpecialParams.h"
-#endif
+#define SOLVER_TYPES_NUMBER 2
+enum SolverTypes 
+{
+	ST_Thermal = 0,
+	ST_StressStrain = 1
+};
+
 #include "ResultsReader.h"
 #include "ResultsRawReader.h"
 

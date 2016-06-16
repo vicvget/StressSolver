@@ -145,33 +145,43 @@ public:
 	FTimer _testTimer;			// замеры времени
 	
 
-	void CalculateStrains
+	virtual void CalculateStrains
 		(
-			size_t side,			// 0 = -x, 1 = x, 2 = -y, 3 = y, 4 = -z, 5 = z
-			double *shiftStrains,		// выход деформаций
-			double *velocityStrains,	// выход изм. скоростей
-			int nodeId1,				// номер узла 1
-			int nodeId2					// номер узла 2
+		size_t side,				// 0 = -x, 1 = x, 2 = -y, 3 = y, 4 = -z, 5 = z
+		double *shiftStrains,		// выход деформаций
+		double *velocityStrains,	// выход изм. скоростей
+		size_t nodeId1,				// номер узла 1
+		size_t nodeId2				// номер узла 2
 		) const;
 
 	void CalculateStrainsSSE
 		(
-		size_t side,			// 0 = -x, 1 = x, 2 = -y, 3 = y, 4 = -z, 5 = z
+		size_t side,				// 0 = -x, 1 = x, 2 = -y, 3 = y, 4 = -z, 5 = z
 		double *shiftStrains,		// выход деформаций
 		double *velocityStrains,	// выход изм. скоростей
-		int nodeId1,				// номер узла 1
-		int nodeId2					// номер узла 2
+		size_t nodeId1,				// номер узла 1
+		size_t nodeId2				// номер узла 2
 		)const;
 
 	void CalculateStrainsAVX
 		(
-			size_t side,			// 0 = -x, 1 = x, 2 = -y, 3 = y, 4 = -z, 5 = z
-			double *shiftStrains,		// выход деформаций
-			double *velocityStrains,	// выход изм. скоростей
-			int nodeId1,				// номер узла 1
-			int nodeId2					// номер узла 2
-			)const;
+		size_t side,				// 0 = -x, 1 = x, 2 = -y, 3 = y, 4 = -z, 5 = z
+		double *shiftStrains,		// выход деформаций
+		double *velocityStrains,	// выход изм. скоростей
+		size_t nodeId1,				// номер узла 1
+		size_t nodeId2				// номер узла 2
+		)const;
 
+	void CalculateStrainsFMA
+		(
+		size_t side,				// 0 = -x, 1 = x, 2 = -y, 3 = y, 4 = -z, 5 = z
+		double *shiftStrains,		// выход деформаций
+		double *velocityStrains,	// выход изм. скоростей
+		size_t nodeId1,				// номер узла 1
+		size_t nodeId2				// номер узла 2
+		)const;
+
+	// построение матрицы по параметрам Ламе
 	void FindStressStrainMatrix();
 	
 	// Возвращает радиус-вектор крепления упругой связи 
