@@ -6,6 +6,7 @@
 
 #include <omp.h>
 #include "../../AdditionalModules/fmath/Matrix3x4.h"
+#include "Common.h"
 
 
 using MathHelpers::Vec3;
@@ -151,11 +152,11 @@ StressStrainCppSolver::StressStrainCppSolver
 	size_t varSize = _nVariables * sizeof(double);
 
 
-	_initX = (double*)_aligned_malloc(varSize,alignment);
-	_initDX= (double*)_aligned_malloc(varSize,alignment);
-	_hDDX1 = (double*)_aligned_malloc(varSize,alignment);
-	_hDDX2 = (double*)_aligned_malloc(varSize,alignment);
-	_hDDX3 = (double*)_aligned_malloc(varSize,alignment);
+	_initX = (double*)aligned_alloc(varSize,ALIGNMENT);
+	_initDX= (double*)aligned_alloc(varSize,ALIGNMENT);
+	_hDDX1 = (double*)aligned_alloc(varSize,ALIGNMENT);
+	_hDDX2 = (double*)aligned_alloc(varSize,ALIGNMENT);
+	_hDDX3 = (double*)aligned_alloc(varSize,ALIGNMENT);
 
 
 
@@ -183,7 +184,7 @@ StressStrainCppSolver::StressStrainCppSolver
 	//    4
 	// [2] = z-, [5] = z+
 	_linkedElements = new int[nElements * 6];
-	_radiusVectors = (double*)_aligned_malloc(vecStride * 6 * sizeof(double), alignment);
+	_radiusVectors = (double*)aligned_alloc(vecStride * 6 * sizeof(double), ALIGNMENT);
 	memset(_radiusVectors, 0, vecStride * 6 * sizeof(double));
 
 	for (int i = 0; i < 3; i++)
@@ -240,12 +241,12 @@ StressStrainCppSolver::StressStrainCppSolver
 // virtual
 StressStrainCppSolver::~StressStrainCppSolver()
 {
-	_aligned_free(_initX);
-	_aligned_free(_initDX);
-	_aligned_free(_hDDX1);
-	_aligned_free(_hDDX2);
-	_aligned_free(_hDDX3);
-	_aligned_free(_radiusVectors);
+	aligned_free(_initX);
+	aligned_free(_initDX);
+	aligned_free(_hDDX1);
+	aligned_free(_hDDX2);
+	aligned_free(_hDDX3);
+	aligned_free(_radiusVectors);
 
 	delete [] _linkedElements;
 	delete [] _elements;

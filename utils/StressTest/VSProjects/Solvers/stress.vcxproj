@@ -26,21 +26,21 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>Intel C++ Compiler XE 14.0</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>Intel C++ Compiler XE 14.0</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>Intel C++ Compiler XE 14.0</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>Intel C++ Compiler XE 14.0</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -157,6 +157,8 @@
       <PrecompiledHeader />
       <WarningLevel>Level3</WarningLevel>
       <DisableSpecificWarnings>4351;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <OpenMP>GenerateParallelCode</OpenMP>
+      <Cpp0xSupport>true</Cpp0xSupport>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(MKLROOT)\lib\intel64;$(MKLROOT)\..\compiler\lib\intel64;%(AdditionalLibraryDirectories);$(BinaryPath)</AdditionalLibraryDirectories>
@@ -169,6 +171,7 @@
     <ClCompile Include="..\..\Solvers\Stress\RotationSolver.cpp" />
     <ClCompile Include="..\..\Solvers\Stress\StressStrainCppIterativeSolver.cpp" />
     <ClCompile Include="..\..\Solvers\Stress\StressStrainCppIterativeSolverAVX.cpp" />
+    <ClCompile Include="..\..\Solvers\Stress\StressStrainCppIterativeSolverFMA.cpp" />
     <ClCompile Include="..\..\Solvers\Stress\StressStrainCppSolver.cpp" />
     <ClCompile Include="..\..\Solvers\Stress\StressStrainSolver.cpp" />
     <ClCompile Include="..\..\Solvers\stress\StressStrainSolverExports.cpp" />
@@ -176,11 +179,13 @@
   <ItemGroup>
     <ClInclude Include="..\..\Solvers\Stress\AuxiliaryStressStuff.h" />
     <ClInclude Include="..\..\Solvers\Stress\BoundaryParams.h" />
+    <ClInclude Include="..\..\Solvers\Stress\Common.h" />
     <ClInclude Include="..\..\Solvers\Stress\FTimer.h" />
     <ClInclude Include="..\..\Solvers\Stress\IStressStrainSolver.h" />
     <ClInclude Include="..\..\Solvers\Stress\RotationSolver.h" />
     <ClInclude Include="..\..\Solvers\Stress\StressStrainCppIterativeSolver.h" />
     <ClInclude Include="..\..\Solvers\Stress\StressStrainCppIterativeSolverAVX.h" />
+    <ClInclude Include="..\..\Solvers\Stress\StressStrainCppIterativeSolverFMA.h" />
     <ClInclude Include="..\..\Solvers\Stress\StressStrainCppSolver.h" />
     <ClInclude Include="..\..\Solvers\Stress\StressStrainSolver.h" />
     <ClInclude Include="..\..\Solvers\Stress\StressStrainSolverExports.h" />
@@ -188,9 +193,6 @@
   <ItemGroup>
     <ProjectReference Include="..\AdditionalModules\fmath.vcxproj">
       <Project>{b792219a-126f-409c-b039-182ae9625d1b}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\AdditionalModules\RealsComparing.vcxproj">
-      <Project>{afbc11a2-f77e-438b-b29c-c5393299b752}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

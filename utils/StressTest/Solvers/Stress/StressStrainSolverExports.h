@@ -1,4 +1,6 @@
 #pragma once
+
+#ifndef STANDALONE
 #define STANDALONE
 
 #ifdef STANDALONE

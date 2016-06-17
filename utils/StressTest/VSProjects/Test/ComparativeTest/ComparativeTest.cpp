@@ -1,8 +1,10 @@
-#include "StressStrainFortranIterativeSolver.h"
+//#include "StressStrainFortranIterativeSolver.h"
 #include "StressStrainCppIterativeSolver.h"
+#include "StressStrainCppIterativeSolverAVX.h"
 #include "../../AdditionalModules/fmath/Matrix3x4.h"
 #include "../../AdditionalModules/fmath/Matrix3x3.h"
-#include <StressStrainCppIterativeSolverAVX.h>
+
+#include <memory>
 
 #define M_PI 3.1415926535897932384626433832795
 using std::setw;

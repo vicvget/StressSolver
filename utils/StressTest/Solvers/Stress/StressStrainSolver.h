@@ -5,11 +5,14 @@ using std::cout;
 using std::string;
 
 #define SQR(x) ((x) * (x))
+#define MAX(x, y) ((x) > (y) ? x : y)
 
 #define MeasuredRun(TIMER, COMMAND) \
 	_testTimer.Start(TIMER); \
 	COMMAND##; \
 	_testTimer.Stop(TIMER);
+
+#define ALIGNMENT 64 // KNC
 
 enum DataType
 {
@@ -17,18 +20,6 @@ enum DataType
 	DT_Speeds=1,
 	DT_Accelerations=2
 };
-
-namespace stress
-{
-	#define MAX(x, y) ((x) > (y) ? x : y)
-	double DMOD(const double d1, const double d2);
-}
-
-#define MAX(x, y) ((x) > (y) ? x : y)
-double DMOD(const double d1, const double d2);
-
-const size_t alignment = 64; // AVX
-
 
 //typedef T double;
 class StressStrainSolver
