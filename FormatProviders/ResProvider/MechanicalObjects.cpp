@@ -15,5 +15,5 @@ FreedomType ConstructFreedom
 		DirectionType direction
 	)
 {
-	return static_cast<FreedomType>((motion == MotionType::Linear ? 1 : 4) + ToIntegralType(direction));
+	return static_cast<FreedomType>((motion == MotionType::Linear ? 1 : 4) + (int)direction);//ToIntegralType(direction));
 }

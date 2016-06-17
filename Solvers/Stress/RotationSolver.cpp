@@ -82,14 +82,14 @@ namespace Stress
 		const size_t matSize = nElements*_matStride*sizeof(double);
 		const size_t varSize = nElements*_vecStride*sizeof(double);
 
-		_varDR = (double*)_aligned_malloc(varSize, alignment);
-		_hDR1 = (double*)_aligned_malloc(varSize, alignment);
-		_hDR2 = (double*)_aligned_malloc(varSize, alignment);
-		_hDR3 = (double*)_aligned_malloc(varSize, alignment);
-		_varR = (double*)_aligned_malloc(varSize, alignment);
-		_initR = (double*)_aligned_malloc(varSize, alignment);
+		_varDR = (double*)_aligned_malloc(varSize, ALIGNMENT);
+		_hDR1 = (double*)_aligned_malloc(varSize, ALIGNMENT);
+		_hDR2 = (double*)_aligned_malloc(varSize, ALIGNMENT);
+		_hDR3 = (double*)_aligned_malloc(varSize, ALIGNMENT);
+		_varR = (double*)_aligned_malloc(varSize, ALIGNMENT);
+		_initR = (double*)_aligned_malloc(varSize, ALIGNMENT);
 
-		_rframeMtx = (double*)_aligned_malloc(matSize, alignment);
+		_rframeMtx = (double*)_aligned_malloc(matSize, ALIGNMENT);
 		
 		memset(_varR, 0, varSize);
 		memset(_initR, 0, varSize);

@@ -2,6 +2,7 @@
 #include <cmath>
 #include <cstdlib>
 #include <fstream>
+#include "Common.h"
 
 using std::ifstream;
 using std::ofstream;
@@ -12,7 +13,7 @@ StressStrainSolver::StressStrainSolver
 		int stride = 4
 	)
 	:
-		_dataSize(nNodes * 4),
+		_dataSize(nNodes * stride),
 		_nElements(nNodes),
 		_readIco(false),
 		_writeIco(false),
@@ -21,7 +22,7 @@ StressStrainSolver::StressStrainSolver
 		matStride(stride*3)
 {
 
-const size_t vecStride = 4;				// смещение векторов
+const size_t vecStride = stride;				// смещение векторов
 const size_t vecStride2 = vecStride * 2;
 const size_t matStride = vecStride * 3; // смещения матриц поворота (3x3, 3x4)
 
@@ -32,9 +33,10 @@ const size_t matStride = vecStride * 3; // смещения матриц поворота (3x3, 3x4)
 	size_t stressVectorSize		= sizeof(double)*nNodes * vecStride2;
 
 	// массивы для внутреннего хранения данных
-	_dataInternal		= (double*)_aligned_malloc(dataInternalSize, alignment); // поступательные и вращательные 3 - перемещения, скорости, ускорения
-	_dataRotationMtx	= (double*)_aligned_malloc(dataRotationMtxSize, alignment); // TODO: выравнивание матриц поворота
-	_stress				= (double*)_aligned_malloc(stressVectorSize, alignment);
+	//TODO: refactor to 3 arrays
+	_dataInternal		= (double*)aligned_alloc(dataInternalSize, ALIGNMENT); // поступательные и вращательные 3 - перемещения, скорости, ускорения
+	_dataRotationMtx	= (double*)aligned_alloc(dataRotationMtxSize, ALIGNMENT); // TODO: выравнивание матриц поворота
+	_stress				= (double*)aligned_alloc(stressVectorSize, ALIGNMENT);
 	
 	// обнуление массивов
 	memset(_stress, 0, stressVectorSize);
@@ -64,9 +66,9 @@ StressStrainSolver::~StressStrainSolver()
 		_data = NULL;
 	}
 
-	_aligned_free(_dataInternal);
-	_aligned_free(_dataRotationMtx);
-	_aligned_free(_stress);
+	aligned_free(_dataInternal);
+	aligned_free(_dataRotationMtx);
+	aligned_free(_stress);
 }
 
 void StressStrainSolver::InitIco ( const string& fileName,

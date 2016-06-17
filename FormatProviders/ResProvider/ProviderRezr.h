@@ -33,7 +33,7 @@ public:
 	* Деструктор
 	*/
 	virtual
-	~ProviderRezr() override;
+		~ProviderRezr();// override;
 
 
 	// Работа с файлом результатов

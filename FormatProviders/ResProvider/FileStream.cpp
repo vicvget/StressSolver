@@ -155,7 +155,8 @@ bool FileStream::Seek
 		break;
 
 	default:
-		origin = ToIntegralType(seekMode);
+		// unsupported
+		//origin = ToIntegralType(seekMode);
 	}
 	if (fseek(_file, shift, origin) == 0)
 	{

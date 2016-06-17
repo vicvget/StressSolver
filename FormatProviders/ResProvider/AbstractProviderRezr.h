@@ -76,7 +76,7 @@ public:
 	/** Деструктор
 	*/
 	virtual
-	~AbstractProviderRezr() = default;
+	~AbstractProviderRezr();
 
 
 	// Работа с файлом результатов

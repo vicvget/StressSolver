@@ -253,7 +253,7 @@ Integer OldAddresses::GetBodyAddress
 		jt = freedoms.find(freedom);
 		if (jt != freedoms.end())
 		{
-			return jt->second + ToIntegralType(value) * _ksts - 1;
+			return jt->second + (int)value * _ksts - 1;
 		}
 	}
 	return -1;
@@ -306,7 +306,7 @@ Integer OldAddresses::GetConnectionElementAddress
 		jt = freedoms.find(freedom);
 		if (jt != freedoms.end())
 		{
-			return jt->second + ToIntegralType(component) - 1;
+			return jt->second + (int)component - 1;
 		}
 	}
 

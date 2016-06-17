@@ -33,7 +33,7 @@ public:
 		);
 
 	virtual
-	~ResultsReader() override;
+		~ResultsReader();// override;
 
 	/** Открытие файла результатов
 	* @return false в случае ошибки

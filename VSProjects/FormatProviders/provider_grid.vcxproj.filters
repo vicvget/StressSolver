@@ -75,6 +75,9 @@
     <ClCompile Include="..\..\FormatProviders\GridProvider\GridSelectedArea.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\FormatProviders\GridProvider\RLCHeader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\FormatProviders\GridProvider\ArrayVertexToGridFormatter.h">
@@ -132,6 +135,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\FormatProviders\GridProvider\GridSelectedArea.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\FormatProviders\GridProvider\RLCHeader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
