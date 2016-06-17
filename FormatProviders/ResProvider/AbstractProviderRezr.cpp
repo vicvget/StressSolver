@@ -1,6 +1,6 @@
 #include "AbstractProviderRezr.h"
 
-#include "../../Fcore/Exceptions/fcExceptions.h"
+//#include "../../Fcore/Exceptions/fcExceptions.h"
 
 #include <cmath>
 #include <cstring>
@@ -127,7 +127,7 @@ RezrBodyPosition AbstractProviderRezr::GetRezrBodyPosition
 	}
 	else
 	{
-		exceptions::ThrowBodyNotFoundException(bodyNumber);
+		//exceptions::ThrowBodyNotFoundException(bodyNumber);
 	}
 
 	return rezrBodyPosition;

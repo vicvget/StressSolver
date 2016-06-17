@@ -2,6 +2,7 @@
 
 #ifndef STANDALONE
 #define STANDALONE
+#endif
 
 #ifdef STANDALONE
 #define EXTERN

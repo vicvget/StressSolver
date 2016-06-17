@@ -5,7 +5,7 @@
 #include "StressStrainCppIterativeSolverFMA.h"
 //#include "StressStrainCppIterativeSolverSSE.h"
 //#include "StressStrainCppIterativeSolverKNC.h"
-#include "../../Fcore/Exceptions/fcExceptions.h"
+//#include "../../Fcore/Exceptions/fcExceptions.h"
 
 #include <memory>
 
