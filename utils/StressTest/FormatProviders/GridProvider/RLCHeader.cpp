@@ -1,6 +1,6 @@
 #include "RLCHeader.h"
 
-#include "../../Fcore/Exceptions/fcExceptions.h"
+//#include "../../Fcore/Exceptions/fcExceptions.h"
 
 
 RLCHeader* RLCHeaderFileProvider::LoadRLCHeader(ifstream &ifs)
@@ -35,7 +35,8 @@ bool RLCHeaderFileProvider::IsNewRLCFormat(const string &rlcFileName)
 
 	if (!ifs.is_open())
 	{
-		exceptions::ThrowFileNotFound(rlcFileName);
+		throw "FileNotFound";
+		//exceptions::ThrowFileNotFound(rlcFileName);
 	}
 
 	RLCHeader* rlcHeader = LoadRLCHeader(ifs);

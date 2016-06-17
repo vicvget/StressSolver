@@ -1,6 +1,6 @@
 #include "ResultsRawReader.h"
 
-#include "../../Fcore/Exceptions/fcExceptions.h"
+//#include "../../Fcore/Exceptions/fcExceptions.h"
 #include <algorithm>
 
 ResultsRawReader::ResultsRawReader
@@ -24,7 +24,8 @@ void ResultsRawReader::Open
 	_ifs.open(filename, ifstream::binary | ifstream::in);
 	if(!_ifs.is_open())
 	{
-		exceptions::ThrowFileNotFound(filename);
+		throw "FileNotFound";
+		//exceptions::ThrowFileNotFound(filename);
 	}
 }
 

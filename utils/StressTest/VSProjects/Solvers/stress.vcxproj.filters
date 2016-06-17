@@ -17,9 +17,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\Fcore\Exceptions\fcExceptions.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Solvers\Stress\RotationSolver.cpp">
       <Filter>Source Files\CpuSolver</Filter>
     </ClCompile>

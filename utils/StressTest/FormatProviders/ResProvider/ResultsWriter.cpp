@@ -1,6 +1,6 @@
 #include "ResultsWriter.h"
 
-#include "../../Fcore/Exceptions/fcExceptions.h"
+//#include "../../Fcore/Exceptions/fcExceptions.h"
 #include <algorithm>
 
 ResultsWriter::ResultsWriter
@@ -32,7 +32,8 @@ void ResultsWriter::Open
 	_ofs.open(filename, ofstream::binary | ofstream::out | ofstream::trunc);
 	if(!_ofs.is_open())
 	{
-		exceptions::ThrowFileNotFound(filename);
+		throw "FileNotFound";
+		//exceptions::ThrowFileNotFound(filename);
 	}
 }
 
