@@ -1,5 +1,5 @@
 #include "BoundaryParams.h"
-
+#include <cstring>
 
 using std::string;
 

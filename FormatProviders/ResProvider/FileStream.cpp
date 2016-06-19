@@ -142,21 +142,21 @@ bool FileStream::Seek
 
 	switch (seekMode)
 	{
-	case SeekMode::FromCurrent:
-		origin = SEEK_CUR;
-		break;
+		case SeekMode::FromCurrent:
+			origin = SEEK_CUR;
+			break;
 
-	case SeekMode::FromBegin:
-		origin = SEEK_SET;
-		break;
+		case SeekMode::FromBegin:
+			origin = SEEK_SET;
+			break;
 
-	case SeekMode::FromEnd:
-		origin = SEEK_END;
-		break;
+		case SeekMode::FromEnd:
+			origin = SEEK_END;
+			break;
 
-	default:
-		// unsupported
-		//origin = ToIntegralType(seekMode);
+		//default:
+			// unsupported
+			//origin = ToIntegralType(seekMode);
 	}
 	if (fseek(_file, shift, origin) == 0)
 	{
@@ -166,6 +166,7 @@ bool FileStream::Seek
 	{
 		return false;
 	}
+	
 }
 
 //функции ввода-вывода
