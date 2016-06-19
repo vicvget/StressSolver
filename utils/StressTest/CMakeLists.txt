@@ -30,7 +30,7 @@ elseif(UNIX OR CMAKE_COMPILER_IS_GNUCXX) # Clang OR Gcc (Linux, Mac OS or Win32 
 	set(CMAKE_CXX_FLAGS "-std=c++11 -openmp -fPIC -mmic -Wall -Wextra -pedantic -Wno-variadic-macros -Wno-unknown-pragmas -Wno-sign-compare -Wno-switch -O3")
 endif()
 
-add_definitions(-DNOMPI -DGNUCPP -DGFORTRAN -DGNU_CPP)
+add_definitions(-DNOMPI -DGNUCPP -DGFORTRAN -DGNU_CPP -DUSE_KNC)
 
 #include_directories($(PROJECT_SOURCE_DIR)/fcore/wrappers)
 

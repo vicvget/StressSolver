@@ -18,6 +18,7 @@ ${SRC_DIR}/RotationSolver.cpp
 ${SRC_DIR}/StressStrainCppIterativeSolver.cpp
 ${SRC_DIR}/StressStrainCppIterativeSolverAVX.cpp
 ${SRC_DIR}/StressStrainCppIterativeSolverFMA.cpp
+${SRC_DIR}/StressStrainCppIterativeSolverKNC.cpp
 ${SRC_DIR}/StressStrainCppSolver.cpp
 ${SRC_DIR}/StressStrainSolver.cpp
 ${SRC_DIR}/StressStrainSolverExports.cpp

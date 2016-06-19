@@ -1,6 +1,6 @@
-#ifndef USE_KNC
+#ifdef USE_KNC
 
-#include "StressStrainCppIterativeSolverAVX.h"
+#include "StressStrainCppIterativeSolverKNC.h"
 #include "../../AdditionalModules/fmath/Matrix3x3.h"
 #include "../../AdditionalModules/fmath/Matrix3x4.h"
 
@@ -13,7 +13,7 @@ using MathHelpers::Mat3x4;
 namespace Stress
 {
 
-StressStrainCppIterativeSolverAVX::StressStrainCppIterativeSolverAVX
+StressStrainCppIterativeSolverKNC::StressStrainCppIterativeSolverKNC
 	(
 		double* params, 
 		int* links, 
@@ -42,13 +42,13 @@ StressStrainCppIterativeSolverAVX::StressStrainCppIterativeSolverAVX
 }
 
 // virtual
-StressStrainCppIterativeSolverAVX::~StressStrainCppIterativeSolverAVX()
+StressStrainCppIterativeSolverKNC::~StressStrainCppIterativeSolverKNC()
 {
 
 }
 
 // AVX-версия
-void StressStrainCppIterativeSolverAVX::SolveFull(const int nIterations)
+void StressStrainCppIterativeSolverKNC::SolveFull(const int nIterations)
 {
 	_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
 
@@ -56,8 +56,8 @@ void StressStrainCppIterativeSolverAVX::SolveFull(const int nIterations)
 	_iterationNumber = 0;
 	_testTimer.Start(0);
 
-	__m256d Xtmp, DXtmp, DDXtmp, tmp;
-	__m256d hDDX1, hDDX2, hDDX3, sDDX;
+	__m512d Xtmp, DXtmp, DDXtmp, tmp;
+	__m512d hDDX1, hDDX2, hDDX3, sDDX;
 
 	while (_iterationNumber != nIterations && _rotationSolver->IsValid())
 	{
@@ -76,16 +76,16 @@ void StressStrainCppIterativeSolverAVX::SolveFull(const int nIterations)
 			//_varX[j] += _varDX[j] * _timeStep2;
 			//_varDX[j] += _hDDX1[j] * 0.5;
 
-			Xtmp = _mm256_load_pd(_varX + j);
-			DXtmp = _mm256_load_pd(_varDX + j);
-			DDXtmp = _mm256_load_pd(_varDDX + j);
+			Xtmp = _mm512_load_pd(_varX + j);
+			DXtmp = _mm512_load_pd(_varDX + j);
+			DDXtmp = _mm512_load_pd(_varDDX + j);
 
-			hDDX1 = _mm256_mul_pd(DDXtmp, timeStep);
-			_mm256_store_pd(_hDDX1 + j, hDDX1);
-			tmp = _mm256_add_pd(_mm256_mul_pd(DXtmp, timeStep2), Xtmp);
-			_mm256_store_pd(_varX + j, tmp);
-			tmp = _mm256_add_pd(_mm256_mul_pd(hDDX1, constantD2), DXtmp);
-			_mm256_store_pd(_varDX + j, tmp);
+			hDDX1 = _mm512_mul_pd(DDXtmp, timeStep);
+			_mm512_store_pd(_hDDX1 + j, hDDX1);
+			tmp = _mm512_add_pd(_mm512_mul_pd(DXtmp, timeStep2), Xtmp);
+			_mm512_store_pd(_varX + j, tmp);
+			tmp = _mm512_add_pd(_mm512_mul_pd(hDDX1, constantD2), DXtmp);
+			_mm512_store_pd(_varDX + j, tmp);
 		}
 		_testTimer.Stop(3);
 
@@ -100,17 +100,17 @@ void StressStrainCppIterativeSolverAVX::SolveFull(const int nIterations)
 			//_varX[j] += _hDDX1[j] * _timeStep4;
 			//_varDX[j] = _initDX[j] + _hDDX2[j] * 0.5;
 
-			Xtmp = _mm256_load_pd(_varX + j);
-			DXtmp = _mm256_load_pd(_initDX + j);
-			DDXtmp = _mm256_load_pd(_varDDX + j);
-			hDDX1 = _mm256_load_pd(_hDDX1 + j);
+			Xtmp = _mm512_load_pd(_varX + j);
+			DXtmp = _mm512_load_pd(_initDX + j);
+			DDXtmp = _mm512_load_pd(_varDDX + j);
+			hDDX1 = _mm512_load_pd(_hDDX1 + j);
 
-			hDDX2 = _mm256_mul_pd(DDXtmp, timeStep);
-			_mm256_store_pd(_hDDX2 + j, hDDX2);
-			tmp = _mm256_add_pd(_mm256_mul_pd(hDDX1, timeStep4), Xtmp);
-			_mm256_store_pd(_varX + j, tmp);
-			tmp = _mm256_add_pd(_mm256_mul_pd(hDDX2, constantD2), DXtmp);
-			_mm256_store_pd(_varDX + j, tmp);
+			hDDX2 = _mm512_mul_pd(DDXtmp, timeStep);
+			_mm512_store_pd(_hDDX2 + j, hDDX2);
+			tmp = _mm512_add_pd(_mm512_mul_pd(hDDX1, timeStep4), Xtmp);
+			_mm512_store_pd(_varX + j, tmp);
+			tmp = _mm512_add_pd(_mm512_mul_pd(hDDX2, constantD2), DXtmp);
+			_mm512_store_pd(_varDX + j, tmp);
 		}
 		_testTimer.Stop(3);
 
@@ -125,17 +125,17 @@ void StressStrainCppIterativeSolverAVX::SolveFull(const int nIterations)
 			//_varX[j] = _initX[j] + (_initDX[j] + _hDDX2[j] * 0.5) * _timeStep;
 			//_varDX[j] = _initDX[j] + _hDDX3[j];
 
-			Xtmp = _mm256_load_pd(_initX + j);
-			DXtmp = _mm256_load_pd(_initDX + j);
-			DDXtmp = _mm256_load_pd(_varDDX + j);
-			hDDX2 = _mm256_load_pd(_hDDX2 + j);
+			Xtmp = _mm512_load_pd(_initX + j);
+			DXtmp = _mm512_load_pd(_initDX + j);
+			DDXtmp = _mm512_load_pd(_varDDX + j);
+			hDDX2 = _mm512_load_pd(_hDDX2 + j);
 
-			hDDX3 = _mm256_mul_pd(DDXtmp, timeStep);
-			_mm256_store_pd(_hDDX3 + j, hDDX3);
-			tmp = _mm256_add_pd(_mm256_mul_pd(hDDX2, constantD2), DXtmp);
-			tmp = _mm256_add_pd(_mm256_mul_pd(tmp, timeStep), Xtmp);
-			_mm256_store_pd(_varX + j, tmp);
-			_mm256_store_pd(_varDX + j, _mm256_add_pd(DXtmp, hDDX3));
+			hDDX3 = _mm512_mul_pd(DDXtmp, timeStep);
+			_mm512_store_pd(_hDDX3 + j, hDDX3);
+			tmp = _mm512_add_pd(_mm512_mul_pd(hDDX2, constantD2), DXtmp);
+			tmp = _mm512_add_pd(_mm512_mul_pd(tmp, timeStep), Xtmp);
+			_mm512_store_pd(_varX + j, tmp);
+			_mm512_store_pd(_varDX + j, _mm512_add_pd(DXtmp, hDDX3));
 		}
 		_testTimer.Stop(3);
 
@@ -150,21 +150,21 @@ void StressStrainCppIterativeSolverAVX::SolveFull(const int nIterations)
 			//_varX[j] = _initX[j] + (_initDX[j] + sDDX / 6.0) * _timeStep;
 			//_varDX[j] = _initDX[j] + (_hDDX1[j] + sDDX + sDDX + _varDDX[j] * _timeStep) / 6.0;
 
-			Xtmp = _mm256_load_pd(_initX + j);
-			DXtmp = _mm256_load_pd(_initDX + j);
-			DDXtmp = _mm256_load_pd(_varDDX + j);
-			hDDX1 = _mm256_load_pd(_hDDX1 + j);
-			hDDX2 = _mm256_load_pd(_hDDX2 + j);
-			hDDX3 = _mm256_load_pd(_hDDX3 + j);
+			Xtmp = _mm512_load_pd(_initX + j);
+			DXtmp = _mm512_load_pd(_initDX + j);
+			DDXtmp = _mm512_load_pd(_varDDX + j);
+			hDDX1 = _mm512_load_pd(_hDDX1 + j);
+			hDDX2 = _mm512_load_pd(_hDDX2 + j);
+			hDDX3 = _mm512_load_pd(_hDDX3 + j);
 
-			sDDX = _mm256_add_pd(hDDX2, hDDX3);
-			tmp = _mm256_add_pd(_mm256_mul_pd(sDDX, constantD6), DXtmp);
-			tmp = _mm256_add_pd(_mm256_mul_pd(tmp, timeStep), Xtmp);
-			_mm256_store_pd(_varX + j, tmp);
-			tmp = _mm256_add_pd(_mm256_add_pd(hDDX1, sDDX), sDDX);
-			tmp = _mm256_add_pd(_mm256_mul_pd(DDXtmp, timeStep), tmp);
-			tmp = _mm256_add_pd(_mm256_mul_pd(tmp, constantD6), DXtmp);
-			_mm256_store_pd(_varDX + j, tmp);
+			sDDX = _mm512_add_pd(hDDX2, hDDX3);
+			tmp = _mm512_add_pd(_mm512_mul_pd(sDDX, constantD6), DXtmp);
+			tmp = _mm512_add_pd(_mm512_mul_pd(tmp, timeStep), Xtmp);
+			_mm512_store_pd(_varX + j, tmp);
+			tmp = _mm512_add_pd(_mm512_add_pd(hDDX1, sDDX), sDDX);
+			tmp = _mm512_add_pd(_mm512_mul_pd(DDXtmp, timeStep), tmp);
+			tmp = _mm512_add_pd(_mm512_mul_pd(tmp, constantD6), DXtmp);
+			_mm512_store_pd(_varDX + j, tmp);
 		}
 		_testTimer.Stop(3);
 
@@ -187,7 +187,7 @@ void StressStrainCppIterativeSolverAVX::SolveFull(const int nIterations)
 }
 
 
-void StressStrainCppIterativeSolverAVX::Solve(const int nIterations)
+void StressStrainCppIterativeSolverKNC::Solve(const int nIterations)
 {
 	_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
 
@@ -208,13 +208,13 @@ void StressStrainCppIterativeSolverAVX::Solve(const int nIterations)
 }
 
 // virtual
-void StressStrainCppIterativeSolverAVX::InitialSolve()
+void StressStrainCppIterativeSolverKNC::InitialSolve()
 {
-	timeStep = _mm256_set1_pd(_timeStep);
-	timeStep2 = _mm256_set1_pd(_timeStep2);
-	timeStep4 = _mm256_set1_pd(_timeStep4);
-	constantD2 = _mm256_set1_pd(0.5);
-	constantD6 = _mm256_set1_pd(1 / 6.0);
+	timeStep = _mm512_set1_pd(_timeStep);
+	timeStep2 = _mm512_set1_pd(_timeStep2);
+	timeStep4 = _mm512_set1_pd(_timeStep4);
+	constantD2 = _mm512_set1_pd(0.5);
+	constantD6 = _mm512_set1_pd(1 / 6.0);
 
 	MeasuredRun(1, _rotationSolver->InitialSolve());
 	MeasuredRun(2, CalculateForces());
@@ -225,7 +225,7 @@ void StressStrainCppIterativeSolverAVX::InitialSolve()
 * Расчет первой стадии метода Рунге-Кутты
 */
 // virtual
-void StressStrainCppIterativeSolverAVX::Solve1()
+void StressStrainCppIterativeSolverKNC::Solve1()
 {
 	_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
 	MeasuredRun(1, _rotationSolver->Solve1());
@@ -236,7 +236,7 @@ void StressStrainCppIterativeSolverAVX::Solve1()
 * Расчет второй стадии метода Рунге-Кутты
 */
 // virtual
-void StressStrainCppIterativeSolverAVX::Solve2()
+void StressStrainCppIterativeSolverKNC::Solve2()
 {
 	_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
 
@@ -251,16 +251,16 @@ void StressStrainCppIterativeSolverAVX::Solve2()
 		//_varX[j] += _varDX[j] * _timeStep2;
 		//_varDX[j] += _hDDX1[j] * 0.5;
 
-		__m256d Xtmp = _mm256_load_pd(_varX + j);
-		__m256d DXtmp = _mm256_load_pd(_varDX + j);
-		__m256d DDXtmp = _mm256_load_pd(_varDDX + j);
+		__m512d Xtmp = _mm512_load_pd(_varX + j);
+		__m512d DXtmp = _mm512_load_pd(_varDX + j);
+		__m512d DDXtmp = _mm512_load_pd(_varDDX + j);
 
-		__m256d hDDX1 = _mm256_mul_pd(DDXtmp, timeStep);
-		_mm256_store_pd(_hDDX1 + j, hDDX1);
-		__m256d tmp = _mm256_add_pd(_mm256_mul_pd(DXtmp, timeStep2), Xtmp);
-		_mm256_store_pd(_varX + j, tmp);
-		tmp = _mm256_add_pd(_mm256_mul_pd(hDDX1, constantD2), DXtmp);
-		_mm256_store_pd(_varDX + j, tmp);
+		__m512d hDDX1 = _mm512_mul_pd(DDXtmp, timeStep);
+		_mm512_store_pd(_hDDX1 + j, hDDX1);
+		__m512d tmp = _mm512_add_pd(_mm512_mul_pd(DXtmp, timeStep2), Xtmp);
+		_mm512_store_pd(_varX + j, tmp);
+		tmp = _mm512_add_pd(_mm512_mul_pd(hDDX1, constantD2), DXtmp);
+		_mm512_store_pd(_varDX + j, tmp);
 	}
 	_testTimer.Stop(3);
 
@@ -273,7 +273,7 @@ void StressStrainCppIterativeSolverAVX::Solve2()
 * Расчет третьей стадии метода Рунге-Кутты
 */
 // virtual
-void StressStrainCppIterativeSolverAVX::Solve3()
+void StressStrainCppIterativeSolverKNC::Solve3()
 {
 	_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
 
@@ -285,17 +285,17 @@ void StressStrainCppIterativeSolverAVX::Solve3()
 		//_varX[j] += _hDDX1[j] * _timeStep4;
 		//_varDX[j] = _initDX[j] + _hDDX2[j] * 0.5;
 
-		__m256d Xtmp = _mm256_load_pd(_varX + j);
-		__m256d DXtmp = _mm256_load_pd(_initDX + j);
-		__m256d DDXtmp = _mm256_load_pd(_varDDX + j);
-		__m256d hDDX1 = _mm256_load_pd(_hDDX1 + j);
-		__m256d hDDX2 = _mm256_mul_pd(DDXtmp, timeStep);
+		__m512d Xtmp = _mm512_load_pd(_varX + j);
+		__m512d DXtmp = _mm512_load_pd(_initDX + j);
+		__m512d DDXtmp = _mm512_load_pd(_varDDX + j);
+		__m512d hDDX1 = _mm512_load_pd(_hDDX1 + j);
+		__m512d hDDX2 = _mm512_mul_pd(DDXtmp, timeStep);
 
-		_mm256_store_pd(_hDDX2 + j, hDDX2);
-		__m256d tmp = _mm256_add_pd(_mm256_mul_pd(hDDX1, timeStep4), Xtmp);
-		_mm256_store_pd(_varX + j, tmp);
-		tmp = _mm256_add_pd(_mm256_mul_pd(hDDX2, constantD2), DXtmp);
-		_mm256_store_pd(_varDX + j, tmp);
+		_mm512_store_pd(_hDDX2 + j, hDDX2);
+		__m512d tmp = _mm512_add_pd(_mm512_mul_pd(hDDX1, timeStep4), Xtmp);
+		_mm512_store_pd(_varX + j, tmp);
+		tmp = _mm512_add_pd(_mm512_mul_pd(hDDX2, constantD2), DXtmp);
+		_mm512_store_pd(_varDX + j, tmp);
 	}
 	_testTimer.Stop(3);
 
@@ -307,7 +307,7 @@ void StressStrainCppIterativeSolverAVX::Solve3()
 * Расчет четвертой стадии метода Рунге-Кутты
 */
 // virtual
-void StressStrainCppIterativeSolverAVX::Solve4()
+void StressStrainCppIterativeSolverKNC::Solve4()
 {
 	_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
 
@@ -319,17 +319,16 @@ void StressStrainCppIterativeSolverAVX::Solve4()
 		//_varX[j] = _initX[j] + (_initDX[j] + _hDDX2[j] * 0.5) * _timeStep;
 		//_varDX[j] = _initDX[j] + _hDDX3[j];
 
-		__m256d Xtmp = _mm256_load_pd(_initX + j);
-		__m256d DXtmp = _mm256_load_pd(_initDX + j);
-		__m256d DDXtmp = _mm256_load_pd(_varDDX + j);
-		__m256d hDDX2 = _mm256_load_pd(_hDDX2 + j);
-
-		__m256d hDDX3 = _mm256_mul_pd(DDXtmp, timeStep);
-		_mm256_store_pd(_hDDX3 + j, hDDX3);
-		__m256d tmp = _mm256_add_pd(_mm256_mul_pd(hDDX2, constantD2), DXtmp);
-		tmp = _mm256_add_pd(_mm256_mul_pd(tmp, timeStep), Xtmp);
-		_mm256_store_pd(_varX + j, tmp);
-		_mm256_store_pd(_varDX + j, _mm256_add_pd(DXtmp, hDDX3));
+		__m512d Xtmp = _mm512_load_pd(_initX + j);
+		__m512d DXtmp = _mm512_load_pd(_initDX + j);
+		__m512d DDXtmp = _mm512_load_pd(_varDDX + j);
+		__m512d hDDX2 = _mm512_load_pd(_hDDX2 + j);
+		__m512d hDDX3 = _mm512_mul_pd(DDXtmp, timeStep);
+		_mm512_store_pd(_hDDX3 + j, hDDX3);
+		__m512d tmp = _mm512_add_pd(_mm512_mul_pd(hDDX2, constantD2), DXtmp);
+		tmp = _mm512_add_pd(_mm512_mul_pd(tmp, timeStep), Xtmp);
+		_mm512_store_pd(_varX + j, tmp);
+		_mm512_store_pd(_varDX + j, _mm512_add_pd(DXtmp, hDDX3));
 	}
 	_testTimer.Stop(3);
 
@@ -341,7 +340,7 @@ void StressStrainCppIterativeSolverAVX::Solve4()
 * Расчет пятой стадии метода Рунге-Кутты
 */
 // virtual
-void StressStrainCppIterativeSolverAVX::Solve5()
+void StressStrainCppIterativeSolverKNC::Solve5()
 {
 	_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
 
@@ -353,21 +352,20 @@ void StressStrainCppIterativeSolverAVX::Solve5()
 		//_varX[j] = _initX[j] + (_initDX[j] + sDDX / 6.0) * _timeStep;
 		//_varDX[j] = _initDX[j] + (_hDDX1[j] + sDDX + sDDX + _varDDX[j] * _timeStep) / 6.0;
 
-		__m256d Xtmp = _mm256_load_pd(_initX + j);
-		__m256d DXtmp = _mm256_load_pd(_initDX + j);
-		__m256d DDXtmp = _mm256_load_pd(_varDDX + j);
-		__m256d hDDX1 = _mm256_load_pd(_hDDX1 + j);
-		__m256d hDDX2 = _mm256_load_pd(_hDDX2 + j);
-		__m256d hDDX3 = _mm256_load_pd(_hDDX3 + j);
-
-		__m256d sDDX = _mm256_add_pd(hDDX2, hDDX3);
-		__m256d tmp = _mm256_add_pd(_mm256_mul_pd(sDDX, constantD6), DXtmp);
-		tmp = _mm256_add_pd(_mm256_mul_pd(tmp, timeStep), Xtmp);
-		_mm256_store_pd(_varX + j, tmp);
-		tmp = _mm256_add_pd(_mm256_add_pd(hDDX1, sDDX), sDDX);
-		tmp = _mm256_add_pd(_mm256_mul_pd(DDXtmp, timeStep), tmp);
-		tmp = _mm256_add_pd(_mm256_mul_pd(tmp, constantD6), DXtmp);
-		_mm256_store_pd(_varDX + j, tmp);
+		__m512d Xtmp = _mm512_load_pd(_initX + j);
+		__m512d DXtmp = _mm512_load_pd(_initDX + j);
+		__m512d DDXtmp = _mm512_load_pd(_varDDX + j);
+		__m512d hDDX1 = _mm512_load_pd(_hDDX1 + j);
+		__m512d hDDX2 = _mm512_load_pd(_hDDX2 + j);
+		__m512d hDDX3 = _mm512_load_pd(_hDDX3 + j);
+		__m512d sDDX = _mm512_add_pd(hDDX2, hDDX3);
+		__m512d tmp = _mm512_add_pd(_mm512_mul_pd(sDDX, constantD6), DXtmp);
+		tmp = _mm512_add_pd(_mm512_mul_pd(tmp, timeStep), Xtmp);
+		_mm512_store_pd(_varX + j, tmp);
+		tmp = _mm512_add_pd(_mm512_add_pd(hDDX1, sDDX), sDDX);
+		tmp = _mm512_add_pd(_mm512_mul_pd(DDXtmp, timeStep), tmp);
+		tmp = _mm512_add_pd(_mm512_mul_pd(tmp, constantD6), DXtmp);
+		_mm512_store_pd(_varDX + j, tmp);
 	}
 	_testTimer.Stop(3);
 
@@ -375,13 +373,15 @@ void StressStrainCppIterativeSolverAVX::Solve5()
 	MeasuredRun(2, CalculateForces());
 }
 
-void StressStrainCppIterativeSolverAVX::CalculateForces()
+void StressStrainCppIterativeSolverKNC::CalculateForces()
 {
 	_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
 	static int it = 0;
 
-	__declspec(align(32)) double strains[8], velocityStrains[8];
-
+	//__declspec(align(64)) double strains[8];
+	//__declspec(align(64)) double velocityStrains[8];
+	double velocityStrains[8] __attribute__((aligned(64)));
+	double strains[8] __attribute__((aligned(64)));
 	for (size_t elementId1 = 0; elementId1 < _nElements; elementId1++)
 	{
 		
@@ -399,7 +399,7 @@ void StressStrainCppIterativeSolverAVX::CalculateForces()
 			if (elementId2)
 			{
 				elementId2--;
-				CalculateStrainsFMA(side, strains, velocityStrains, elementId1, elementId2);
+				CalculateStrainsKNC(side, strains, velocityStrains, elementId1, elementId2);
 
 				Vec3Ref linear_strains = MakeVec3(&strains[0]);
 				Vec3Ref angular_strains = MakeVec3(&strains[0] + vecStride);

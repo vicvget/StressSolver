@@ -1,10 +1,13 @@
 #include "StressStrainSolverExports.h"
-
 #include "StressStrainCppIterativeSolver.h"
+
+#ifdef USE_KNC
+#include "StressStrainCppIterativeSolverKNC.h"
+#else
 #include "StressStrainCppIterativeSolverAVX.h"
 #include "StressStrainCppIterativeSolverFMA.h"
+#endif
 //#include "StressStrainCppIterativeSolverSSE.h"
-//#include "StressStrainCppIterativeSolverKNC.h"
 //#include "../../Fcore/Exceptions/fcExceptions.h"
 
 #include <memory>
@@ -57,6 +60,7 @@ namespace Stress
 				4
 				);
 			break;
+#ifndef USE_KNC
 		case 1:
 			hsolver = new StressStrainCppIterativeSolverAVX
 				(
@@ -85,6 +89,22 @@ namespace Stress
 				4
 			);
 			break;
+#else
+		case 3:
+			hsolver = new StressStrainCppIterativeSolverKNC
+			(
+				params,
+				links,
+				nLinks,
+				gridElements,
+				nElements,
+				gridStep,
+				timeStep,
+				numThreads,
+				4
+			);
+			break;
+#endif
 		default:
 			std::cout << "Unsupported solver type " << std::endl;
 		}

@@ -1,6 +1,8 @@
-//#include "StressStrainFortranIterativeSolver.h"
 #include "../Solvers/Stress/StressStrainCppIterativeSolver.h"
+#ifndef USE_KNC
 #include "../Solvers/Stress/StressStrainCppIterativeSolverAVX.h"
+#include "../Solvers/Stress/StressStrainCppIterativeSolverFMA.h"
+#endif // !USE_KNC
 #include "../AdditionalModules/fmath/Matrix3x4.h"
 #include "../AdditionalModules/fmath/Matrix3x3.h"
 
@@ -74,21 +76,6 @@ bool ComparativeTest()
 		cpp_stride
 		);
 
-	// create solver to compare
-	std::shared_ptr<Stress::StressStrainCppIterativeSolverAVX> forSolver =
-		std::make_shared <Stress::StressStrainCppIterativeSolverAVX >
-		(
-		params,
-		links,
-		nLinks,
-		nodes,
-		nElements,
-		gridStep,
-		timeStep,
-		nThreads,
-		for_stride
-		);
-
 
 	// make random matrices
 	double UE[3];
@@ -99,7 +86,6 @@ bool ComparativeTest()
 			UE[j] = ((double)rand()) / RAND_MAX * 2 * M_PI;
 		}
 		MakeRotationMatrix(UE, cppSolver->GetRotationMatrix(i), cpp_stride);
-		MakeRotationMatrix(UE, forSolver->GetRotationMatrix(i), for_stride, true);
 	}
 
 	// make random velocities and speeds
@@ -113,19 +99,16 @@ bool ComparativeTest()
 			*(cppSolver->GetElementShiftAngular(i) + j) = u;
 			*(cppSolver->GetElementVelocity(i) + j) = v;
 			*(cppSolver->GetElementVelocityAngular(i) + j) = w;
-			*(forSolver->GetElementShiftAngular(i) + j) = u;
-			*(forSolver->GetElementVelocity(i) + j) = v;
-			*(forSolver->GetElementVelocityAngular(i) + j) = w;
 		}
 
 	}
 
 	// output arrays
-	__declspec(align(32)) double SL[8] = { 0 }, VL[8] = { 0 };
-	__declspec(align(32)) double SL2[8] = { 0 }, VL2[8] = { 0 };
-	__declspec(align(32)) double SL3[8] = { 0 }, VL3[8] = { 0 };
-	__declspec(align(32)) double SL4[8] = { 0 }, VL4[8] = { 0 };
-	__declspec(align(32)) double SL5[8] = { 0 }, VL5[8] = { 0 };
+	__declspec(align(64)) double SL[8] = { 0 }, VL[8] = { 0 };
+	__declspec(align(64)) double SL2[8] = { 0 }, VL2[8] = { 0 };
+	__declspec(align(64)) double SL3[8] = { 0 }, VL3[8] = { 0 };
+	__declspec(align(64)) double SL4[8] = { 0 }, VL4[8] = { 0 };
+	__declspec(align(64)) double SL5[8] = { 0 }, VL5[8] = { 0 };
 
 	double cVec1[] = { -gridStep * 0.5, 0, 0 };
 	double cVec2[] = { gridStep * 0.5, 0, 0 };
@@ -144,7 +127,7 @@ bool ComparativeTest()
 		1	// номер узла 2
 		);
 
-
+#ifndef USE_KNC
 	cppSolver->CalculateStrainsAVX
 		(
 		0,	// 0 = -x, 1 = x, 2 = -y, 3 = y, 4 = -z, 5 = z
@@ -171,6 +154,16 @@ bool ComparativeTest()
 		0,	// номер узла 1
 		1	// номер узла 2
 		);
+#else
+	cppSolver->CalculateStrainsKNC
+	(
+		0,	// 0 = -x, 1 = x, 2 = -y, 3 = y, 4 = -z, 5 = z
+		&SL5[0],		// выход деформаций 
+		&VL5[0],		// выход деформаций
+		0,	// номер узла 1
+		1	// номер узла 2
+	);
+#endif
 
 	const int width = 9;
 	std::cout << "SL cpp " << setw(width) << "avx " << setw(width) << "sse" << setw(width) << "fma" << setw(width) << "knc\n";

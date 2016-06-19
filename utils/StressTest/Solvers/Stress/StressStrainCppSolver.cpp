@@ -416,7 +416,181 @@ void CrossProduct
 	res[2] = v1[0] * v2[1] - v1[1] * v2[0];
 }
 
+#ifdef USE_KNC
 
+inline __m512d _mm512_loadu_pd(const double* a)
+{
+	__m512d v_temp = _mm512_setzero_pd();
+	v_temp = _mm512_loadunpacklo_pd(v_temp, &a[0]);
+	v_temp = _mm512_loadunpackhi_pd(v_temp, &a[8]);
+
+	return v_temp;
+}
+
+void StressStrainCppSolver::CalculateStrainsKNC
+(
+	size_t side,			// 0 = -x, 1 = x, 2 = -y, 3 = y, 4 = -z, 5 = z
+	double *shiftStrains,		// выход деформаций
+	double *velocityStrains,	// выход изм. скоростей
+	size_t nodeId1,				// номер узла 1
+	size_t nodeId2					// номер узла 2
+) const
+{
+
+	// Start AVX code
+	double* pmatA01 = GetRotationMatrix(nodeId1);
+	double* pmatA02 = GetRotationMatrix(nodeId2);
+
+	__m512d matA01row1;
+	__m512d matA01row2;
+	__m512d matA01row3;
+	// vecStride must be 4
+	if (nodeId1 % 2)
+	{
+		matA01row1 = _mm512_loadu_pd(pmatA01);
+		matA01row2 = _mm512_loadu_pd(pmatA01 + vecStride);
+		matA01row3 = _mm512_loadu_pd(pmatA01 + vecStride2);
+	}
+	else
+	{
+		matA01row1 = _mm512_loadu_pd(pmatA01);
+		matA01row2 = _mm512_loadu_pd(pmatA01 + vecStride);
+		matA01row3 = _mm512_loadu_pd(pmatA01 + vecStride2);
+	}
+	__m512d matA02el1;
+	__m512d matA02el2;
+	__m512d matA02el3;
+
+	__m512d matA21row1;
+	__m512d matA21row2;
+	__m512d matA21row3;
+
+	// matA02 column 1/3
+	matA02el1 = _mm512_set1_pd(pmatA02[0]);
+	matA02el2 = _mm512_set1_pd(pmatA02[vecStride]);
+	matA02el3 = _mm512_set1_pd(pmatA02[vecStride2]);
+
+	// matA01.TMul(matA02)
+	matA02el1 = _mm512_mul_pd(matA01row1, matA02el1);
+	matA02el2 = _mm512_mul_pd(matA01row2, matA02el2);
+	matA02el3 = _mm512_mul_pd(matA01row3, matA02el3);
+
+	matA21row1 = _mm512_add_pd(matA02el1, _mm512_add_pd(matA02el2, matA02el3));
+
+	// matA02 column 2/3
+	matA02el1 = _mm512_set1_pd(pmatA02[1]);
+	matA02el2 = _mm512_set1_pd(pmatA02[vecStride + 1]);
+	matA02el3 = _mm512_set1_pd(pmatA02[vecStride2 + 1]);
+
+	// matA01.TMul(matA02)
+	matA02el1 = _mm512_mul_pd(matA01row1, matA02el1);
+	matA02el2 = _mm512_mul_pd(matA01row2, matA02el2);
+	matA02el3 = _mm512_mul_pd(matA01row3, matA02el3);
+
+	matA21row2 = _mm512_add_pd(matA02el1, _mm512_add_pd(matA02el2, matA02el3));
+
+	// matA02 column 3/3
+	matA02el1 = _mm512_set1_pd(pmatA02[2]);
+	matA02el2 = _mm512_set1_pd(pmatA02[vecStride + 2]);
+	matA02el3 = _mm512_set1_pd(pmatA02[vecStride2 + 2]);
+
+	// matA01.TMul(matA02)
+	matA02el1 = _mm512_mul_pd(matA01row1, matA02el1);
+	matA02el2 = _mm512_mul_pd(matA01row2, matA02el2);
+	matA02el3 = _mm512_mul_pd(matA01row3, matA02el3);
+
+	matA21row3 = _mm512_add_pd(matA02el1, _mm512_add_pd(matA02el2, matA02el3));
+	// Матрица A_{21} сформирована
+
+	double* vecC1 = GetRadiusVector(side);
+	__m512d ivecC1 = _mm512_load_pd(vecC1);
+	__m512d vecDP = _mm512_sub_pd(
+		_mm512_load_pd(GetElementShift(nodeId1)),
+		_mm512_load_pd(GetElementShift(nodeId2))); // P1-P2
+
+	//__declspec(align(64)) double tmp[8]
+	double tmp[8]  __attribute__((aligned(64)));
+	_mm512_store_pd(tmp, ivecC1);
+
+	matA02el1 = _mm512_set1_pd(vecC1[0]);
+	matA02el2 = _mm512_set1_pd(vecC1[1]);
+	matA02el3 = _mm512_set1_pd(vecC1[2]);
+
+	matA02el1 = _mm512_mul_pd(matA21row1, matA02el1);
+	matA02el2 = _mm512_mul_pd(matA21row2, matA02el2);
+	matA02el3 = _mm512_mul_pd(matA21row3, matA02el3);
+
+	__m512d mul1 = _mm512_add_pd(_mm512_add_pd(matA02el1, matA02el2), matA02el3);
+
+	_mm512_store_pd(tmp, vecDP);
+	matA02el1 = _mm512_set1_pd(tmp[0]);
+	matA02el2 = _mm512_set1_pd(tmp[1]);
+	matA02el3 = _mm512_set1_pd(tmp[2]);
+
+	matA02el1 = _mm512_mul_pd(matA01row1, matA02el1);
+	matA02el2 = _mm512_mul_pd(matA01row2, matA02el2);
+	matA02el3 = _mm512_mul_pd(matA01row3, matA02el3);
+
+	__m512d mul2 = _mm512_add_pd(_mm512_add_pd(matA02el1, matA02el2), matA02el3);
+	__m512d res = _mm512_add_pd(_mm512_add_pd(ivecC1, mul1), mul2);
+
+	_mm512_store_pd(shiftStrains, res); // получено SL, линейные компоненты
+
+	// Расчет VL
+	// переводим вектор разницы линейных скоростей точек связи С2-С1 в СК1
+	// Vec3 VecT1 = matA01.Tmul(vecV1 - vecV2) + vecW1.Cross(vecC1) - matA12*(vecW2.Cross(vecC2));
+	// vecC2 = -vecC1
+	// vecC2.Cross(vecW1) = -vecC1.Cross(vecW1)
+
+	//__declspec(align(64)) double cp1[8];
+	//__declspec(align(64)) double cp2[8];
+
+	double cp1[8] __attribute__((aligned(64)));
+	double cp2[8] __attribute__((aligned(64)));
+	CrossProduct(GetElementVelocityAngular(nodeId1), GetRadiusVector(side), cp1);	// [w1 x c1]
+	CrossProduct(GetElementVelocityAngular(nodeId2), GetRadiusVector(side), cp2);	// -[w2 x c2] = [w2 x c1]
+
+	__m512d cp1r = _mm512_load_pd(&cp1[0]);
+	__m512d vecDV = _mm512_sub_pd(
+		_mm512_load_pd(GetElementVelocity(nodeId1)),
+		_mm512_load_pd(GetElementVelocity(nodeId2))); // V1-V2
+
+	matA02el1 = _mm512_set1_pd(cp2[0]);
+	matA02el2 = _mm512_set1_pd(cp2[1]);
+	matA02el3 = _mm512_set1_pd(cp2[2]);
+
+	matA02el1 = _mm512_mul_pd(matA21row1, matA02el1);
+	matA02el2 = _mm512_mul_pd(matA21row2, matA02el2);
+	matA02el3 = _mm512_mul_pd(matA21row3, matA02el3);
+
+	mul1 = _mm512_add_pd(_mm512_add_pd(matA02el1, matA02el2), matA02el3);
+
+	_mm512_store_pd(tmp, vecDV);
+	matA02el1 = _mm512_set1_pd(tmp[0]);
+	matA02el2 = _mm512_set1_pd(tmp[1]);
+	matA02el3 = _mm512_set1_pd(tmp[2]);
+
+	matA02el1 = _mm512_mul_pd(matA01row1, matA02el1);
+	matA02el2 = _mm512_mul_pd(matA01row2, matA02el2);
+	matA02el3 = _mm512_mul_pd(matA01row3, matA02el3);
+
+	mul2 = _mm512_add_pd(_mm512_add_pd(matA02el1, matA02el2), matA02el3);
+
+	res = _mm512_add_pd(_mm512_add_pd(cp1r, mul1), mul2);
+
+	_mm512_store_pd(velocityStrains, res); // получено VL, линейные компоненты
+
+	double* sp1 = GetElementShiftAngular(nodeId1);
+	double* sp2 = GetElementShiftAngular(nodeId2);
+	double* vp1 = GetElementVelocityAngular(nodeId1);
+	double* vp2 = GetElementVelocityAngular(nodeId2);
+	for (size_t i = 0; i < 3; i++)
+	{
+		shiftStrains[i + vecStride] = sp1[i] - sp2[i];
+		velocityStrains[i + vecStride] = vp1[i] - vp2[i];
+	}
+}
+#else
 void StressStrainCppSolver::CalculateStrainsSSE
 (
 	size_t side,				// 0 = -x, 1 = x, 2 = -y, 3 = y, 4 = -z, 5 = z
@@ -893,7 +1067,7 @@ size_t nodeId2					// номер узла 2
 	x2 = _mm256_load_pd(GetElementVelocityAngular(nodeId2));
 	_mm256_store_pd(velocityStrains + vecStride, _mm256_sub_pd(x1, x2));
 }
-
+#endif
 
 void StressStrainCppSolver::CalculateStrains
 	(
