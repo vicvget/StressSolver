@@ -1,6 +1,7 @@
 #include "StressStrainSolver.h"
 #include <cmath>
 #include <cstdlib>
+#include <cstring>
 #include <fstream>
 #include "Common.h"
 

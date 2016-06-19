@@ -46,7 +46,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -152,6 +152,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -173,21 +174,21 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="BlenderExporter.cpp" />
-    <ClCompile Include="ComparativeTest\ComparativeTest.cpp">
-      <EnableEnhancedInstructionSet Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NoExtensions</EnableEnhancedInstructionSet>
-    </ClCompile>
-    <ClCompile Include="ImportedCode\CommonSolvers.cpp" />
-    <ClCompile Include="ImportedCode\CommonSolversTest.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="ImportedCode\PerformanceCounter.cpp" />
-    <ClCompile Include="ImportedCode\SpecialSolversTest.cpp" />
-    <ClCompile Include="ImportedCode\StressSolver.cpp" />
-    <ClCompile Include="ImportedCode\StressSolverTest.cpp" />
+    <ClInclude Include="..\..\Test\BlenderExporter.h" />
+    <ClInclude Include="..\..\Test\CommonSolvers.h" />
+    <ClInclude Include="..\..\Test\CommonSolversTest.h" />
+    <ClInclude Include="..\..\Test\ComparativeTest.h" />
+    <ClInclude Include="..\..\Test\StressSolver.h" />
+    <ClInclude Include="..\..\Test\StressSolverTest.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="BlenderExporter.h" />
-    <ClInclude Include="ComparativeTest\ComparativeTest.h" />
+    <ClCompile Include="..\..\Test\BlenderExporter.cpp" />
+    <ClCompile Include="..\..\Test\CommonSolvers.cpp" />
+    <ClCompile Include="..\..\Test\CommonSolversTest.cpp" />
+    <ClCompile Include="..\..\Test\ComparativeTest.cpp" />
+    <ClCompile Include="..\..\Test\main.cpp" />
+    <ClCompile Include="..\..\Test\StressSolver.cpp" />
+    <ClCompile Include="..\..\Test\StressSolverTest.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

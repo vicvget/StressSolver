@@ -1,5 +1,18 @@
 #include "ProviderMpr.h"
 
+#include<memory>
+
+#ifndef _MSC_VER
+namespace std
+{
+
+template<typename T, typename ... Args> 
+std::unique_ptr<T> make_unique(Args&&... args)
+{
+	return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
+}
+}
+#endif // ! _MS
 
 void ProviderMpr::InitWriter(const string& mprFileName,
 						const MultiphysicsResultsHeader* mprHeader)

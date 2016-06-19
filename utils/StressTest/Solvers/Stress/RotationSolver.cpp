@@ -1,4 +1,7 @@
+#include <cstring>
+
 #include "RotationSolver.h"
+#include "Common.h"
 
 #include "../../AdditionalModules/fmath/Vector3.h"
 #include "../../AdditionalModules/fmath/Matrix3x3.h"
@@ -82,14 +85,14 @@ namespace Stress
 		const size_t matSize = nElements*_matStride*sizeof(double);
 		const size_t varSize = nElements*_vecStride*sizeof(double);
 
-		_varDR = (double*)_aligned_malloc(varSize, ALIGNMENT);
-		_hDR1 = (double*)_aligned_malloc(varSize, ALIGNMENT);
-		_hDR2 = (double*)_aligned_malloc(varSize, ALIGNMENT);
-		_hDR3 = (double*)_aligned_malloc(varSize, ALIGNMENT);
-		_varR = (double*)_aligned_malloc(varSize, ALIGNMENT);
-		_initR = (double*)_aligned_malloc(varSize, ALIGNMENT);
+		_varDR = (double*)aligned_alloc(varSize, ALIGNMENT);
+		_hDR1 = (double*)aligned_alloc(varSize, ALIGNMENT);
+		_hDR2 = (double*)aligned_alloc(varSize, ALIGNMENT);
+		_hDR3 = (double*)aligned_alloc(varSize, ALIGNMENT);
+		_varR = (double*)aligned_alloc(varSize, ALIGNMENT);
+		_initR = (double*)aligned_alloc(varSize, ALIGNMENT);
 
-		_rframeMtx = (double*)_aligned_malloc(matSize, ALIGNMENT);
+		_rframeMtx = (double*)aligned_alloc(matSize, ALIGNMENT);
 		
 		memset(_varR, 0, varSize);
 		memset(_initR, 0, varSize);
@@ -104,13 +107,13 @@ namespace Stress
 
 	RotationSolver::~RotationSolver()
 	{
-		_aligned_free(_varR);
-		_aligned_free(_initR);
-		_aligned_free(_varDR);
-		_aligned_free(_hDR1);
-		_aligned_free(_hDR2);
-		_aligned_free(_hDR3);
-		_aligned_free(_rframeMtx);
+		aligned_free(_varR);
+		aligned_free(_initR);
+		aligned_free(_varDR);
+		aligned_free(_hDR1);
+		aligned_free(_hDR2);
+		aligned_free(_hDR3);
+		aligned_free(_rframeMtx);
 	}
 
 	void RotationSolver::MakeZeroVectors(size_t elementId) const

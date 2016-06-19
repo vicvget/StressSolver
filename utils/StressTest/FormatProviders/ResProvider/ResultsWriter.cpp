@@ -21,7 +21,7 @@ void ResultsWriter::AllocateFloatBuffer
 		size_t bufferSize
 	)
 {
-	_buf = std::make_unique<float[]>(bufferSize);
+	_buf = std::unique_ptr<float[]>(new float[bufferSize]);
 }
 
 void ResultsWriter::Open
@@ -78,7 +78,7 @@ void ResultsWriter::WriteBufferToFloat
 		size_t bufferSize
 	)
 {
-	auto tmp = std::make_unique<float[]>(bufferSize);
+	auto tmp = std::unique_ptr<float[]>(new float[bufferSize]);
 	float* pbuf = _buf == nullptr ? tmp.get() : _buf.get();
 	WriteFloatBuffer(buffer, pbuf, bufferSize);
 }

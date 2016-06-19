@@ -1,13 +1,12 @@
 #include "StressStrainCppSolver.h"
-
-#include "CsrSymmetricMatrix.h"
 #include "../../AdditionalModules/fmath/Vector3.h"
 #include "../../AdditionalModules/fmath/Matrix3x3.h"
-
-#include <omp.h>
 #include "../../AdditionalModules/fmath/Matrix3x4.h"
 #include "Common.h"
 
+#include <cstring>
+#include <immintrin.h>
+#include <omp.h>
 
 using MathHelpers::Vec3;
 using MathHelpers::Vec3Ref;
@@ -94,8 +93,10 @@ StressStrainCppSolver::StressStrainCppSolver
 		_stiffScale(params[3])
 
 {
-	_numThreads = (numThreads > 0) ? numThreads : omp_get_max_threads();
 
+	//_numThreads = (numThreads > 0) ? numThreads : omp_get_max_threads();
+
+	_numThreads = (numThreads > 0) ? numThreads : 1;
 	_nVariables = nElements * vecStride2;
 
 	// масштабный коэффициент
@@ -680,24 +681,26 @@ void StressStrainCppSolver::CalculateStrainsAVX
 	matA21row3 = _mm256_add_pd(matA02el1, _mm256_add_pd(matA02el2, matA02el3));
 	// Матрица A_{21} сформирована
 
-	__m256d ivecC1 = _mm256_load_pd(GetRadiusVector(side));
+	double* rv = GetRadiusVector(side);
+	__m256d ivecC1 = _mm256_load_pd(rv);
 	__m256d vecDP = _mm256_sub_pd(
 		_mm256_load_pd(GetElementShift(nodeId1)),
 		_mm256_load_pd(GetElementShift(nodeId2))); // P1-P2
 
-	matA02el1 = _mm256_set1_pd(ivecC1.m256d_f64[0]);
-	matA02el2 = _mm256_set1_pd(ivecC1.m256d_f64[1]);
-	matA02el3 = _mm256_set1_pd(ivecC1.m256d_f64[2]);
+	matA02el1 = _mm256_set1_pd(rv[0]);
+	matA02el2 = _mm256_set1_pd(rv[1]);
+	matA02el3 = _mm256_set1_pd(rv[2]);
 
 	matA02el1 = _mm256_mul_pd(matA21row1, matA02el1);
 	matA02el2 = _mm256_mul_pd(matA21row2, matA02el2);
 	matA02el3 = _mm256_mul_pd(matA21row3, matA02el3);
 
 	__m256d mul1 = _mm256_add_pd(_mm256_add_pd(matA02el1, matA02el2), matA02el3);
-
-	matA02el1 = _mm256_set1_pd(vecDP.m256d_f64[0]);
-	matA02el2 = _mm256_set1_pd(vecDP.m256d_f64[1]);
-	matA02el3 = _mm256_set1_pd(vecDP.m256d_f64[2]);
+	__declspec(align(32)) double tmp[4];
+	_mm256_store_pd(tmp, vecDP);
+	matA02el1 = _mm256_set1_pd(tmp[0]);
+	matA02el2 = _mm256_set1_pd(tmp[1]);
+	matA02el3 = _mm256_set1_pd(tmp[2]);
 
 	matA02el1 = _mm256_mul_pd(matA01row1, matA02el1);
 	matA02el2 = _mm256_mul_pd(matA01row2, matA02el2);
@@ -736,9 +739,10 @@ void StressStrainCppSolver::CalculateStrainsAVX
 
 	mul1 = _mm256_add_pd(_mm256_add_pd(matA02el1, matA02el2), matA02el3);
 
-	matA02el1 = _mm256_set1_pd(vecDV.m256d_f64[0]);
-	matA02el2 = _mm256_set1_pd(vecDV.m256d_f64[1]);
-	matA02el3 = _mm256_set1_pd(vecDV.m256d_f64[2]);
+	_mm256_store_pd(tmp, vecDV);
+	matA02el1 = _mm256_set1_pd(tmp[0]);
+	matA02el2 = _mm256_set1_pd(tmp[1]);
+	matA02el3 = _mm256_set1_pd(tmp[2]);
 
 	matA02el1 = _mm256_mul_pd(matA01row1, matA02el1);
 	matA02el2 = _mm256_mul_pd(matA01row2, matA02el2);
@@ -817,23 +821,26 @@ size_t nodeId2					// номер узла 2
 	matA21row3 = _mm256_fmadd_pd(matA01row3, matA02el3, matA21row3);
 	// Матрица A_{21} сформирована
 
-	__m256d ivecC1 = _mm256_load_pd(GetRadiusVector(side));
+	double*  vc1 = GetRadiusVector(side);
+	__m256d ivecC1 = _mm256_load_pd(vc1);
 	__m256d vecDP = _mm256_sub_pd(
 		_mm256_load_pd(GetElementShift(nodeId1)),
 		_mm256_load_pd(GetElementShift(nodeId2))); // P1-P2
 
-	matA02el1 = _mm256_set1_pd(ivecC1.m256d_f64[0]);
-	matA02el2 = _mm256_set1_pd(ivecC1.m256d_f64[1]);
-	matA02el3 = _mm256_set1_pd(ivecC1.m256d_f64[2]);
+	matA02el1 = _mm256_set1_pd(vc1[0]);
+	matA02el2 = _mm256_set1_pd(vc1[1]);
+	matA02el3 = _mm256_set1_pd(vc1[2]);
 
 	__m256d 
 	res = _mm256_fmadd_pd(matA21row1, matA02el1, ivecC1);
 	res = _mm256_fmadd_pd(matA21row2, matA02el2, res);
 	res = _mm256_fmadd_pd(matA21row2, matA02el2, res);
 
-	matA02el1 = _mm256_set1_pd(vecDP.m256d_f64[0]);
-	matA02el2 = _mm256_set1_pd(vecDP.m256d_f64[1]);
-	matA02el3 = _mm256_set1_pd(vecDP.m256d_f64[2]);
+	__declspec(align(32)) double tmp[4];
+	_mm256_store_pd(tmp, vecDP);
+	matA02el1 = _mm256_set1_pd(tmp[0]);
+	matA02el2 = _mm256_set1_pd(tmp[1]);
+	matA02el3 = _mm256_set1_pd(tmp[2]);
 
 	res = _mm256_fmadd_pd(matA01row1, matA02el1, res);
 	res = _mm256_fmadd_pd(matA01row2, matA02el2, res);
@@ -866,9 +873,10 @@ size_t nodeId2					// номер узла 2
 	res = _mm256_fmadd_pd(matA21row2, matA02el2, res);
 	res = _mm256_fmadd_pd(matA21row2, matA02el2, res);
 
-	matA02el1 = _mm256_set1_pd(vecDV.m256d_f64[0]);
-	matA02el2 = _mm256_set1_pd(vecDV.m256d_f64[1]);
-	matA02el3 = _mm256_set1_pd(vecDV.m256d_f64[2]);
+	_mm256_store_pd(tmp, vecDV);
+	matA02el1 = _mm256_set1_pd(tmp[0]);
+	matA02el2 = _mm256_set1_pd(tmp[1]);
+	matA02el3 = _mm256_set1_pd(tmp[2]);
 
 	res = _mm256_fmadd_pd(matA01row1, matA02el1, res);
 	res = _mm256_fmadd_pd(matA01row2, matA02el2, res);

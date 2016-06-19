@@ -7,6 +7,8 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include <cstring>
+#include <immintrin.h>
 
 
 using std::string;

@@ -3,9 +3,10 @@
 #include "StressStrainSolver.h"
 #include "BoundaryParams.h"
 #include "RotationSolver.h"
+#include "FTimer.h"
 
 #include <vector>
-#include "FTimer.h"
+#include <string>
 
 using std::string;
 using std::vector;

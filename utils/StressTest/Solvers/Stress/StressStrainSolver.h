@@ -9,7 +9,7 @@ using std::string;
 
 #define MeasuredRun(TIMER, COMMAND) \
 	_testTimer.Start(TIMER); \
-	COMMAND##; \
+	COMMAND; \
 	_testTimer.Stop(TIMER);
 
 #define ALIGNMENT 64 // KNC
