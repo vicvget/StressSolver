@@ -1,3 +1,5 @@
+#ifndef USE_KNC
+
 #include "StressStrainCppIterativeSolverFMA.h"
 #include "../../AdditionalModules/fmath/Matrix3x3.h"
 #include "../../AdditionalModules/fmath/Matrix3x4.h"
@@ -487,3 +489,5 @@ void StressStrainCppIterativeSolverFMA::CalculateForces()
 	ApplyMass();	 // вычисляет ускорения делением сил на массы и моментов на моменты инерции
 }
 }
+
+#endif

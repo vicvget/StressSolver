@@ -155,6 +155,7 @@ public:
 		size_t nodeId2				// номер узла 2
 		) const;
 
+#ifndef USE_KNC
 	void CalculateStrainsSSE
 		(
 		size_t side,				// 0 = -x, 1 = x, 2 = -y, 3 = y, 4 = -z, 5 = z
@@ -181,6 +182,16 @@ public:
 		size_t nodeId1,				// номер узла 1
 		size_t nodeId2				// номер узла 2
 		)const;
+#else
+	void CalculateStrainsKNC
+	(
+		size_t side,				// 0 = -x, 1 = x, 2 = -y, 3 = y, 4 = -z, 5 = z
+		double *shiftStrains,		// выход деформаций
+		double *velocityStrains,	// выход изм. скоростей
+		size_t nodeId1,				// номер узла 1
+		size_t nodeId2				// номер узла 2
+	)const;
+#endif
 
 	// построение матрицы по параметрам Ламе
 	void FindStressStrainMatrix();

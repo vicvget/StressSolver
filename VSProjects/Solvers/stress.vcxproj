@@ -171,6 +171,7 @@
     <ClCompile Include="..\..\Solvers\Stress\StressStrainCppIterativeSolver.cpp" />
     <ClCompile Include="..\..\Solvers\Stress\StressStrainCppIterativeSolverAVX.cpp" />
     <ClCompile Include="..\..\Solvers\Stress\StressStrainCppIterativeSolverFMA.cpp" />
+    <ClCompile Include="..\..\Solvers\Stress\StressStrainCppIterativeSolverKNC.cpp" />
     <ClCompile Include="..\..\Solvers\Stress\StressStrainCppSolver.cpp" />
     <ClCompile Include="..\..\Solvers\Stress\StressStrainSolver.cpp" />
     <ClCompile Include="..\..\Solvers\stress\StressStrainSolverExports.cpp" />
@@ -185,6 +186,7 @@
     <ClInclude Include="..\..\Solvers\Stress\StressStrainCppIterativeSolver.h" />
     <ClInclude Include="..\..\Solvers\Stress\StressStrainCppIterativeSolverAVX.h" />
     <ClInclude Include="..\..\Solvers\Stress\StressStrainCppIterativeSolverFMA.h" />
+    <ClInclude Include="..\..\Solvers\Stress\StressStrainCppIterativeSolverKNC.h" />
     <ClInclude Include="..\..\Solvers\Stress\StressStrainCppSolver.h" />
     <ClInclude Include="..\..\Solvers\Stress\StressStrainSolver.h" />
     <ClInclude Include="..\..\Solvers\Stress\StressStrainSolverExports.h" />

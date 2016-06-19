@@ -10,7 +10,7 @@ int main()
 
 	// Solver  test
 	using namespace SpecialSolversTest;
-	StressStrainStuff::Test1x3x10(0);
+	StressStrainStuff::Test3x1x1(3);
 
 	return 0;
 }

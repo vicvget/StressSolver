@@ -41,6 +41,9 @@
     <ClCompile Include="..\..\Solvers\Stress\StressStrainCppIterativeSolverFMA.cpp">
       <Filter>Source Files\CpuSolver</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Solvers\Stress\StressStrainCppIterativeSolverKNC.cpp">
+      <Filter>Source Files\CpuSolver</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Solvers\Stress\FTimer.h">
@@ -78,6 +81,9 @@
     </ClInclude>
     <ClInclude Include="..\..\Solvers\Stress\Common.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Solvers\Stress\StressStrainCppIterativeSolverKNC.h">
+      <Filter>Header Files\CpuSolver</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
