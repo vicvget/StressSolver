@@ -18,11 +18,11 @@ class StressStrainCppIterativeSolverKNC
 	:
 		public StressStrainCppIterativeSolver
 {
-	__m512d timeStep;
-	__m512d timeStep2;
-	__m512d timeStep4;
-	__m512d constantD2;
-	__m512d constantD6;
+	//__m512d timeStep;
+	//__m512d timeStep2;
+	//__m512d timeStep4;
+	//__m512d constantD2;
+	//__m512d constantD6;
 	const int regSize = 8;
 
 public:

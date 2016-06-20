@@ -9,6 +9,10 @@
 #include <iostream>
 
 
+#define NO_BLENDER
+#define NO_CHARTS
+#define NO_WRITE_RESULTS
+
 namespace Stress{
 	class StressStrainCppIterativeSolver;
 }
@@ -78,7 +82,7 @@ namespace SpecialSolvers
 			int iteration = 0;
 			static const double scaleResults = 1.0;
 
-#ifndef NOBLENDER
+#ifndef NO_BLENDER
 			BlenderExporter exporter;			
 			Stress::StressStrainCppIterativeSolver* ssSolver = static_cast<Stress::StressStrainCppIterativeSolver*>(hSolver);
 			exporter.Init("blender.py", gridParams.NodesCount(), ssSolver->vecStride, ssSolver->GetElementShift(0), gridParams._gridStep);
@@ -86,33 +90,37 @@ namespace SpecialSolvers
 			exporter.WriteBody();
 #endif
 
+#ifndef NO_WRITE_RESULTS
 			Stress::UpdateBuffer(hSolver, scaleResults);
 			float* data = Stress::GetMemoryPointer(hSolver);
 			int dataSize = Stress::GetMemorySize(hSolver);
 			writer.WriteFrame(data, dataSize, iteration * integrationParams._timeStep * integrationParams._nSubIterations);
-			int cP = 0;
+#endif
+			int progress = 0;
 
+#ifndef NO_CHARTS
 			ofstream dofs("charts.txt");
 //			dofs << "t x y z rx ry rz vx vy vz wx wy wz ax ay az ex ey ez dx dy dz drx dry drz fx fy fz frx fry frz\n";
 			dofs << "t x y z rx ry rz ax ay az ex ey ez\n";
+#endif
+			std::cout << "Initial solve" << std::endl << std::flush;
+
 			Stress::InitialSolve(hSolver);
+			std::cout << "Initial solve completed" << std::endl << std::flush;
 			for (int i = 0; i < integrationParams._nIterations; i++)
 			{
 				Stress::Solve(hSolver, integrationParams._nSubIterations);
 #ifndef NO_WRITE_RESULTS
-				//				if (i % 100 == 0)
 				{
 					Stress::UpdateBuffer(hSolver, scaleResults);
-					//float y = Stress::GetData(hSolver, nx - 1, 0, 0);
-					//float stress = Stress::GetStressData(hSolver, nx - 1);
-					//file << x << " " << y << " " << stress << std::endl;
-#ifndef NOBLENDER
+#ifndef NO_BLENDER
 					exporter.AddFrame(ssSolver->GetElementShift(0), ssSolver->GetDataRotaionMtx());
 #endif
 					double currentTime = (1+iteration) * integrationParams._timeStep * integrationParams._nSubIterations;
 					writer.WriteFrame(data, dataSize, (float)currentTime);
 
-					int elementId = 2;
+#ifndef NO_CHARTS
+					int elementId = 2; // element Id for charts
 					dofs << std::setprecision(5) << currentTime << ' ' << std::setprecision(15)
 						<< ssSolver->GetElementShift(elementId)[0] << ' '
 						<< ssSolver->GetElementShift(elementId)[1] << ' '
@@ -144,15 +152,15 @@ namespace SpecialSolvers
 						//<< ssSolver->df[9] << ' '
 						//<< ssSolver->df[10] << ' '
 						//<< ssSolver->df[11]
-						<< std::endl;
-					
+						<< std::endl;					
 				}
+#endif // NO_CHARTS
+#endif // NO_WRITE_RESULTS
 
-#endif
-				if (i*100. / integrationParams._nIterations > cP)
+				if (i*100. / integrationParams._nIterations > progress)
 				{
-					std::cout << cP << '%' << std::endl;
-					cP++;
+					std::cout << progress << '%' << std::endl << std::flush;
+					progress++;
 				}
 				//if(curForceIteration<forceIterations)
 				//{
@@ -171,7 +179,7 @@ namespace SpecialSolvers
 				//}
 				iteration++;
 			}
-#ifndef NOBLENDER
+#ifndef NO_BLENDER
 			exporter.WriteFooter();
 #endif
 		}	

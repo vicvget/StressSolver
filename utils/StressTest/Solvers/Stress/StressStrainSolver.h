@@ -261,6 +261,7 @@ public:
 	float*	_data;				// неизвестные для сброса в файл (x,y,z,p)
 	double* _dataInternal;		// неизвестные для расчета (X,DX,DDX)
 	double* _dataRotationMtx;	// матрицы поворота для расчета
+	double* _buffer;			// массив для KNC
 
 	double* _elements;			// исходные координаты элементов
 
