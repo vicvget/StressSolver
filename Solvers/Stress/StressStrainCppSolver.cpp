@@ -448,15 +448,16 @@ void StressStrainCppSolver::CalculateStrainsKNC
 	if (nodeId1 % 2)
 	{
 		matA01row1 = _mm512_loadu_pd(pmatA01);
-		matA01row2 = _mm512_loadu_pd(pmatA01 + vecStride);
+		matA01row2 = _mm512_load_pd(pmatA01 + vecStride);
 		matA01row3 = _mm512_loadu_pd(pmatA01 + vecStride2);
 	}
 	else
 	{
-		matA01row1 = _mm512_loadu_pd(pmatA01);
+		matA01row1 = _mm512_load_pd(pmatA01);
 		matA01row2 = _mm512_loadu_pd(pmatA01 + vecStride);
-		matA01row3 = _mm512_loadu_pd(pmatA01 + vecStride2);
+		matA01row3 = _mm512_load_pd(pmatA01 + vecStride2);
 	}
+	//std::cout << "Loaded matrix rows" << std::endl << std::flush;
 	__m512d matA02el1;
 	__m512d matA02el2;
 	__m512d matA02el3;
@@ -469,6 +470,7 @@ void StressStrainCppSolver::CalculateStrainsKNC
 	matA02el1 = _mm512_set1_pd(pmatA02[0]);
 	matA02el2 = _mm512_set1_pd(pmatA02[vecStride]);
 	matA02el3 = _mm512_set1_pd(pmatA02[vecStride2]);
+	//std::cout << "Loaded matrix col elements" << std::endl << std::flush;
 
 	// matA01.TMul(matA02)
 	matA02el1 = _mm512_mul_pd(matA01row1, matA02el1);
@@ -476,6 +478,8 @@ void StressStrainCppSolver::CalculateStrainsKNC
 	matA02el3 = _mm512_mul_pd(matA01row3, matA02el3);
 
 	matA21row1 = _mm512_add_pd(matA02el1, _mm512_add_pd(matA02el2, matA02el3));
+
+	//std::cout << "Multiply add" << std::endl << std::flush;
 
 	// matA02 column 2/3
 	matA02el1 = _mm512_set1_pd(pmatA02[1]);
@@ -502,15 +506,21 @@ void StressStrainCppSolver::CalculateStrainsKNC
 	matA21row3 = _mm512_add_pd(matA02el1, _mm512_add_pd(matA02el2, matA02el3));
 	// Матрица A_{21} сформирована
 
+	//std::cout << "Multiply add completed" << std::endl << std::flush;
+
 	double* vecC1 = GetRadiusVector(side);
-	__m512d ivecC1 = _mm512_load_pd(vecC1);
+	__m512d ivecC1 = _mm512_loadu_pd(vecC1);
 	__m512d vecDP = _mm512_sub_pd(
 		_mm512_load_pd(GetElementShift(nodeId1)),
 		_mm512_load_pd(GetElementShift(nodeId2))); // P1-P2
+	//std::cout << "Radius vector loaded" << std::endl << std::flush;
+
 
 	//__declspec(align(64)) double tmp[8]
-	double tmp[8]  __attribute__((aligned(64)));
+	//double tmp[8]  __attribute__((aligned(64)));
+	double* tmp = _buffer;
 	_mm512_store_pd(tmp, ivecC1);
+	//std::cout << "Stored to tmp" << std::endl << std::flush;
 
 	matA02el1 = _mm512_set1_pd(vecC1[0]);
 	matA02el2 = _mm512_set1_pd(vecC1[1]);
@@ -545,8 +555,10 @@ void StressStrainCppSolver::CalculateStrainsKNC
 	//__declspec(align(64)) double cp1[8];
 	//__declspec(align(64)) double cp2[8];
 
-	double cp1[8] __attribute__((aligned(64)));
-	double cp2[8] __attribute__((aligned(64)));
+	//double cp1[8] __attribute__((aligned(64)));
+	//double cp2[8] __attribute__((aligned(64)));
+	double* cp1 = _buffer+8;
+	double* cp2 = _buffer+16;
 	CrossProduct(GetElementVelocityAngular(nodeId1), GetRadiusVector(side), cp1);	// [w1 x c1]
 	CrossProduct(GetElementVelocityAngular(nodeId2), GetRadiusVector(side), cp2);	// -[w2 x c2] = [w2 x c1]
 

@@ -59,6 +59,25 @@ void StressStrainCppIterativeSolverKNC::SolveFull(const int nIterations)
 	__m512d Xtmp, DXtmp, DDXtmp, tmp;
 	__m512d hDDX1, hDDX2, hDDX3, sDDX;
 
+	//__declspec(align(64)) double buffer[8];
+	//buffer[0] = _timeStep;
+	//buffer[1] = _timeStep2;
+	//buffer[2] = _timeStep4;
+	//buffer[3] = 0.5;
+	//buffer[4] = 1 / 6.0;
+
+	//__m512d timeStep = _mm512_extload_pd(&buffer[0],_MM_UPCONV_PD_NONE,_MM_BROADCAST_1X8,0);
+	//__m512d timeStep2 = _mm512_extload_pd(&buffer[1],_MM_UPCONV_PD_NONE,_MM_BROADCAST_1X8,0);
+	//__m512d timeStep4 = _mm512_extload_pd(&buffer[2],_MM_UPCONV_PD_NONE,_MM_BROADCAST_1X8,0);
+	//__m512d constantD2 = _mm512_extload_pd(&buffer[3],_MM_UPCONV_PD_NONE,_MM_BROADCAST_1X8,0);
+	//__m512d constantD6 = _mm512_extload_pd(&buffer[4],_MM_UPCONV_PD_NONE,_MM_BROADCAST_1X8,0);
+
+	__m512d timeStep = _mm512_set1_pd(_buffer[8*3+0]);
+	__m512d timeStep2 = _mm512_set1_pd(_buffer[8*3+1]);
+	__m512d timeStep4 = _mm512_set1_pd(_buffer[8*3+2]);
+	__m512d constantD2 = _mm512_set1_pd(_buffer[8*3+3]);
+	__m512d constantD6 = _mm512_set1_pd(_buffer[8*3+4]);
+
 	while (_iterationNumber != nIterations && _rotationSolver->IsValid())
 	{
 		_iterationNumber++;
@@ -190,10 +209,12 @@ void StressStrainCppIterativeSolverKNC::SolveFull(const int nIterations)
 void StressStrainCppIterativeSolverKNC::Solve(const int nIterations)
 {
 	_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
-
-	FTimer test_timer;
+	//SolveFull(nIterations);
+	//return;
+	//FTimer test_timer;
 	_iterationNumber = 0;
 	_testTimer.Start(0);
+	//std::cout << "Solve routine entered" << std::endl;
 	while (_iterationNumber != nIterations && _rotationSolver->IsValid())
 	{
 		_iterationNumber++;
@@ -201,23 +222,34 @@ void StressStrainCppIterativeSolverKNC::Solve(const int nIterations)
 		
 		//Solve1() used only in initialization
 		Solve2();
+		//std::cout << "Solve2 routine completed" << std::endl;
 		Solve3();
+		//std::cout << "Solve3 routine completed" << std::endl;
 		Solve4();
+		//std::cout << "Solve4 routine completed" << std::endl;
 		Solve5();
+		//std::cout << "Solve5 routine completed" << std::endl;
 	}
 }
 
 // virtual
 void StressStrainCppIterativeSolverKNC::InitialSolve()
 {
-	timeStep = _mm512_set1_pd(_timeStep);
-	timeStep2 = _mm512_set1_pd(_timeStep2);
-	timeStep4 = _mm512_set1_pd(_timeStep4);
-	constantD2 = _mm512_set1_pd(0.5);
-	constantD6 = _mm512_set1_pd(1 / 6.0);
+	*(_buffer+8*3+0) = _timeStep;
+	*(_buffer+8*3+1) = _timeStep2;
+	*(_buffer+8*3+2) = _timeStep4;
+	*(_buffer+8*3+3) = 0.5;
+	*(_buffer+8*3+4) = 1/6.0;
+	//timeStep = _mm512_set1_pd(_buffer[8*3+0]);
+	//timeStep2 = _mm512_set1_pd(_buffer[8*3+1]);
+	//timeStep4 = _mm512_set1_pd(_buffer[8*3+2]);
+	//constantD2 = _mm512_set1_pd(_buffer[8*3+3]);
+	//constantD6 = _mm512_set1_pd(_buffer[8*3+4]);
 
 	MeasuredRun(1, _rotationSolver->InitialSolve());
+	std::cout << "ISolve completed" << std::endl << std::flush;
 	MeasuredRun(2, CalculateForces());
+	std::cout << "CForces completed" << std::endl << std::flush;
 }
 
 
@@ -239,6 +271,11 @@ void StressStrainCppIterativeSolverKNC::Solve1()
 void StressStrainCppIterativeSolverKNC::Solve2()
 {
 	_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
+	__m512d timeStep = _mm512_set1_pd(_timeStep);
+	__m512d timeStep2 = _mm512_set1_pd(_timeStep2);
+	__m512d timeStep4 = _mm512_set1_pd(_timeStep4);
+	__m512d constantD2 = _mm512_set1_pd(0.5);
+	__m512d constantD6 = _mm512_set1_pd(1 / 6.0);
 
 	memcpy(_initX, _varX, sizeof(double)*_nVariables);
 	memcpy(_initDX, _varDX, sizeof(double)*_nVariables);
@@ -277,6 +314,12 @@ void StressStrainCppIterativeSolverKNC::Solve3()
 {
 	_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
 
+	__m512d timeStep = _mm512_set1_pd(_timeStep);
+	__m512d timeStep2 = _mm512_set1_pd(_timeStep2);
+	__m512d timeStep4 = _mm512_set1_pd(_timeStep4);
+	__m512d constantD2 = _mm512_set1_pd(0.5);
+	__m512d constantD6 = _mm512_set1_pd(1 / 6.0);
+
 	_testTimer.Start(3);
 #pragma omp parallel for num_threads(_numThreads)
 	for (int j = 0; j < _nVariables; j += regSize)
@@ -311,6 +354,12 @@ void StressStrainCppIterativeSolverKNC::Solve4()
 {
 	_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
 
+	__m512d timeStep = _mm512_set1_pd(_timeStep);
+	__m512d timeStep2 = _mm512_set1_pd(_timeStep2);
+	__m512d timeStep4 = _mm512_set1_pd(_timeStep4);
+	__m512d constantD2 = _mm512_set1_pd(0.5);
+	__m512d constantD6 = _mm512_set1_pd(1 / 6.0);
+
 	_testTimer.Start(3);
 #pragma omp parallel for num_threads(_numThreads)
 	for (int j = 0; j < _nVariables; j += regSize)
@@ -343,6 +392,12 @@ void StressStrainCppIterativeSolverKNC::Solve4()
 void StressStrainCppIterativeSolverKNC::Solve5()
 {
 	_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
+
+	__m512d timeStep = _mm512_set1_pd(_timeStep);
+	__m512d timeStep2 = _mm512_set1_pd(_timeStep2);
+	__m512d timeStep4 = _mm512_set1_pd(_timeStep4);
+	__m512d constantD2 = _mm512_set1_pd(0.5);
+	__m512d constantD6 = _mm512_set1_pd(1 / 6.0);
 
 	_testTimer.Start(3);
 #pragma omp parallel for num_threads(_numThreads)

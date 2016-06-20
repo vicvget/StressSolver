@@ -1,4 +1,4 @@
-# CMake project file for avmodel lib
+# CMake project file
 cmake_minimum_required(VERSION 2.6) 
 set (PROJECT GridProvider) 
  

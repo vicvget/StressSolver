@@ -117,7 +117,23 @@ bool ComparativeTest()
 //	forSolver->linksh(cVec1, cVec2, SL3, VL3, A, C, 0, 1, nElements);
 //	forSolver->linksh2(cVec1, cVec2, SL4, VL4, A, C, 0, 1, nElements);
 //	forSolver->linksh3(cVec1, cVec2, SL5, VL5, A, C, 0, 1, nElements);
-
+	std::cout << "CalculateStrains" << std::endl;
+	cppSolver->CalculateStrains
+		(
+		0,	// 0 = -x, 1 = x, 2 = -y, 3 = y, 4 = -z, 5 = z
+		&SL[0],		// выход деформаций
+		&VL[0],		// выход изм. скоростей
+		1,	// номер узла 1
+		2	// номер узла 2
+		);
+	cppSolver->CalculateStrains
+		(
+		0,	// 0 = -x, 1 = x, 2 = -y, 3 = y, 4 = -z, 5 = z
+		&SL[0],		// выход деформаций
+		&VL[0],		// выход изм. скоростей
+		1,	// номер узла 1
+		3	// номер узла 2
+		);
 	cppSolver->CalculateStrains
 		(
 		0,	// 0 = -x, 1 = x, 2 = -y, 3 = y, 4 = -z, 5 = z
@@ -155,6 +171,23 @@ bool ComparativeTest()
 		1	// номер узла 2
 		);
 #else
+	std::cout << "CalculateStrainsKNC" << std::endl;
+	cppSolver->CalculateStrainsKNC
+		(
+		0,	// 0 = -x, 1 = x, 2 = -y, 3 = y, 4 = -z, 5 = z
+		&SL5[0],		// выход деформаций 
+		&VL5[0],		// выход деформаций
+		1,	// номер узла 1
+		2	// номер узла 2
+		);
+	cppSolver->CalculateStrainsKNC
+		(
+		0,	// 0 = -x, 1 = x, 2 = -y, 3 = y, 4 = -z, 5 = z
+		&SL5[0],		// выход деформаций 
+		&VL5[0],		// выход деформаций
+		1,	// номер узла 1
+		3	// номер узла 2
+		);
 	cppSolver->CalculateStrainsKNC
 	(
 		0,	// 0 = -x, 1 = x, 2 = -y, 3 = y, 4 = -z, 5 = z
@@ -163,6 +196,7 @@ bool ComparativeTest()
 		0,	// номер узла 1
 		1	// номер узла 2
 	);
+
 #endif
 
 	const int width = 9;
