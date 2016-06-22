@@ -9,8 +9,8 @@ int main()
 
 
 	// Solver  test
-	using namespace SpecialSolversTest;
-	StressStrainStuff::Test3x1x1(3);
+	//using namespace SpecialSolversTest;
+	//StressStrainStuff::Test3x1x1(3);
 
 	return 0;
 }

@@ -76,6 +76,20 @@ bool ComparativeTest()
 		cpp_stride
 		);
 
+	// create tested solver
+	std::shared_ptr<Stress::StressStrainCppIterativeSolver> cppSolverUa =
+		std::make_shared < Stress::StressStrainCppIterativeSolver >
+		(
+		params,
+		links,
+		nLinks,
+		nodes,
+		nElements,
+		gridStep,
+		timeStep,
+		nThreads,
+		3
+		);
 
 	// make random matrices
 	double UE[3];
@@ -86,6 +100,7 @@ bool ComparativeTest()
 			UE[j] = ((double)rand()) / RAND_MAX * 2 * M_PI;
 		}
 		MakeRotationMatrix(UE, cppSolver->GetRotationMatrix(i), cpp_stride);
+		MakeRotationMatrix(UE, cppSolverUa->GetRotationMatrix(i), 3);
 	}
 
 	// make random velocities and speeds
@@ -99,6 +114,9 @@ bool ComparativeTest()
 			*(cppSolver->GetElementShiftAngular(i) + j) = u;
 			*(cppSolver->GetElementVelocity(i) + j) = v;
 			*(cppSolver->GetElementVelocityAngular(i) + j) = w;
+			*(cppSolverUa->GetElementShiftAngular(i) + j) = u;
+			*(cppSolverUa->GetElementVelocity(i) + j) = v;
+			*(cppSolverUa->GetElementVelocityAngular(i) + j) = w;
 		}
 
 	}
@@ -109,6 +127,7 @@ bool ComparativeTest()
 	__declspec(align(64)) double SL3[8] = { 0 }, VL3[8] = { 0 };
 	__declspec(align(64)) double SL4[8] = { 0 }, VL4[8] = { 0 };
 	__declspec(align(64)) double SL5[8] = { 0 }, VL5[8] = { 0 };
+	__declspec(align(64)) double SL6[8] = { 0 }, VL6[8] = { 0 };
 
 	double cVec1[] = { -gridStep * 0.5, 0, 0 };
 	double cVec2[] = { gridStep * 0.5, 0, 0 };
@@ -117,6 +136,17 @@ bool ComparativeTest()
 //	forSolver->linksh(cVec1, cVec2, SL3, VL3, A, C, 0, 1, nElements);
 //	forSolver->linksh2(cVec1, cVec2, SL4, VL4, A, C, 0, 1, nElements);
 //	forSolver->linksh3(cVec1, cVec2, SL5, VL5, A, C, 0, 1, nElements);
+
+	cppSolverUa->CalculateStrainsUa
+		(
+		0,	// 0 = -x, 1 = x, 2 = -y, 3 = y, 4 = -z, 5 = z
+		&SL6[0],		// выход деформаций
+		&VL6[0],		// выход изм. скоростей
+		1,	// номер узла 1
+		2	// номер узла 2
+		);
+
+
 	std::cout << "CalculateStrains" << std::endl;
 	cppSolver->CalculateStrains
 		(
@@ -126,50 +156,50 @@ bool ComparativeTest()
 		1,	// номер узла 1
 		2	// номер узла 2
 		);
-	cppSolver->CalculateStrains
-		(
-		0,	// 0 = -x, 1 = x, 2 = -y, 3 = y, 4 = -z, 5 = z
-		&SL[0],		// выход деформаций
-		&VL[0],		// выход изм. скоростей
-		1,	// номер узла 1
-		3	// номер узла 2
-		);
-	cppSolver->CalculateStrains
-		(
-		0,	// 0 = -x, 1 = x, 2 = -y, 3 = y, 4 = -z, 5 = z
-		&SL[0],		// выход деформаций
-		&VL[0],		// выход изм. скоростей
-		0,	// номер узла 1
-		1	// номер узла 2
-		);
+	//cppSolver->CalculateStrains
+	//	(
+	//	0,	// 0 = -x, 1 = x, 2 = -y, 3 = y, 4 = -z, 5 = z
+	//	&SL[0],		// выход деформаций
+	//	&VL[0],		// выход изм. скоростей
+	//	1,	// номер узла 1
+	//	3	// номер узла 2
+	//	);
+	//cppSolver->CalculateStrains
+	//	(
+	//	0,	// 0 = -x, 1 = x, 2 = -y, 3 = y, 4 = -z, 5 = z
+	//	&SL[0],		// выход деформаций
+	//	&VL[0],		// выход изм. скоростей
+	//	0,	// номер узла 1
+	//	1	// номер узла 2
+	//	);
 
 #ifndef USE_KNC
-	cppSolver->CalculateStrainsAVX
-		(
-		0,	// 0 = -x, 1 = x, 2 = -y, 3 = y, 4 = -z, 5 = z
-		&SL2[0],		// выход деформаций 
-		&VL2[0],		// выход деформаций
-		0,	// номер узла 1
-		1	// номер узла 2
-		);
+	//cppSolver->CalculateStrainsAVX
+	//	(
+	//	0,	// 0 = -x, 1 = x, 2 = -y, 3 = y, 4 = -z, 5 = z
+	//	&SL2[0],		// выход деформаций 
+	//	&VL2[0],		// выход деформаций
+	//	0,	// номер узла 1
+	//	1	// номер узла 2
+	//	);
 
-	cppSolver->CalculateStrainsSSE
-		(
-		0,	// 0 = -x, 1 = x, 2 = -y, 3 = y, 4 = -z, 5 = z
-		&SL3[0],		// выход деформаций 
-		&VL3[0],		// выход деформаций
-		0,	// номер узла 1
-		1	// номер узла 2
-		);
+	//cppSolver->CalculateStrainsSSE
+	//	(
+	//	0,	// 0 = -x, 1 = x, 2 = -y, 3 = y, 4 = -z, 5 = z
+	//	&SL3[0],		// выход деформаций 
+	//	&VL3[0],		// выход деформаций
+	//	0,	// номер узла 1
+	//	1	// номер узла 2
+	//	);
 
-	cppSolver->CalculateStrainsFMA
-		(
-		0,	// 0 = -x, 1 = x, 2 = -y, 3 = y, 4 = -z, 5 = z
-		&SL4[0],		// выход деформаций 
-		&VL4[0],		// выход деформаций
-		0,	// номер узла 1
-		1	// номер узла 2
-		);
+	//cppSolver->CalculateStrainsFMA
+	//	(
+	//	0,	// 0 = -x, 1 = x, 2 = -y, 3 = y, 4 = -z, 5 = z
+	//	&SL4[0],		// выход деформаций 
+	//	&VL4[0],		// выход деформаций
+	//	0,	// номер узла 1
+	//	1	// номер узла 2
+	//	);
 #else
 	std::cout << "CalculateStrainsKNC" << std::endl;
 	cppSolver->CalculateStrainsKNC
@@ -200,7 +230,14 @@ bool ComparativeTest()
 #endif
 
 	const int width = 9;
-	std::cout << "SL cpp " << setw(width) << "avx " << setw(width) << "sse" << setw(width) << "fma" << setw(width) << "knc\n";
+	std::cout  << "SL " << 
+		"cpp " << setw(width) << 
+		"avx " << setw(width) << 
+		"sse"  << setw(width) << 
+		"fma"  << setw(width) << 
+		"knc"  << setw(width) << 
+		"ua"   << std::endl;
+	
 	for (int i = 0; i < 8; i++)
 	{
 		std::cout << setw(width) << SL[i] << " "
@@ -208,6 +245,7 @@ bool ComparativeTest()
 			<< setw(width) << SL3[i] << " "
 			<< setw(width) << SL4[i] << " "
 			<< setw(width) << SL5[i] << " "
+			<< setw(width) << SL6[i] << " "
 			<< std::endl;
 	}
 	std::cout << "VL\n";
@@ -218,6 +256,7 @@ bool ComparativeTest()
 			<< setw(width) << VL3[i] << " "
 			<< setw(width) << VL4[i] << " "
 			<< setw(width) << VL5[i] << " "
+			<< setw(width) << VL6[i] << " "
 			<< std::endl;
 	}
 

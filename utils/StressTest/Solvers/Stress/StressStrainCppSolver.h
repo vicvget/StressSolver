@@ -155,6 +155,15 @@ public:
 		size_t nodeId2				// номер узла 2
 		) const;
 
+	virtual void CalculateStrainsUa
+		(
+		size_t side,				// 0 = -x, 1 = x, 2 = -y, 3 = y, 4 = -z, 5 = z
+		double *shiftStrains,		// выход деформаций
+		double *velocityStrains,	// выход изм. скоростей
+		size_t nodeId1,				// номер узла 1
+		size_t nodeId2				// номер узла 2
+		) const;
+
 #ifndef USE_KNC
 	void CalculateStrainsSSE
 		(

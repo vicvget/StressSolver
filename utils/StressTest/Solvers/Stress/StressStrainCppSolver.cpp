@@ -1110,6 +1110,17 @@ void StressStrainCppSolver::CalculateStrains
 	Vec3Ref vecW1 = MakeVec3(GetElementVelocityAngular(nodeId1));
 	Vec3Ref vecW2 = MakeVec3(GetElementVelocityAngular(nodeId2));
 
+	//PrintVector(vecC1, "vecC1");
+	//PrintVector(vecP1, "vecP1");
+	//PrintVector(vecP2, "vecP2");
+	//PrintVector(vecR1, "vecR1");
+	//PrintVector(vecR2, "vecR2");
+	//PrintVector(vecV1, "vecV1");
+	//PrintVector(vecV2, "vecV2");
+	//PrintMatrix(matA01, "matA01");
+	//PrintMatrix(matA02, "matA02");
+	//PrintMatrix(matA21, "matA21");
+
 	// переводим вектор линии точек связи С2-С1 в СК1
 	Vec3 vecT0 = 
 		vecC1 
@@ -1129,6 +1140,68 @@ void StressStrainCppSolver::CalculateStrains
 	(vecR1 - vecR2).Export(shiftStrains + vecStride);
 	(vecW1 - vecW2).Export(velocityStrains + vecStride);
 }
+
+
+void StressStrainCppSolver::CalculateStrainsUa
+(
+size_t side,			// 0 = -x, 1 = x, 2 = -y, 3 = y, 4 = -z, 5 = z
+double *shiftStrains,		// выход деформаций
+double *velocityStrains,	// выход изм. скоростей
+size_t nodeId1,				// номер узла 1
+size_t nodeId2					// номер узла 2
+) const
+{
+	MathHelpers::Mat3 matA01(GetRotationMatrix(nodeId1));
+	MathHelpers::Mat3 matA02(GetRotationMatrix(nodeId2));
+
+	//matA01 = matA01.Tr();
+	//matA02 = matA02.Tr();
+	//Mat3 matA12 = matA01.Tmul(matA02);
+	MathHelpers::Mat3 matA21 = matA02.Tmul(matA01);
+
+	Vec3 vecC1 = MakeVec3(GetRadiusVector(side));
+	Vec3 vecC2 = -vecC1;
+
+	Vec3Ref vecP1 = MakeVec3(GetElementShift(nodeId1));
+	Vec3Ref vecP2 = MakeVec3(GetElementShift(nodeId2));
+	Vec3Ref vecR1 = MakeVec3(GetElementShiftAngular(nodeId1));
+	Vec3Ref vecR2 = MakeVec3(GetElementShiftAngular(nodeId2));
+	Vec3Ref vecV1 = MakeVec3(GetElementVelocity(nodeId1));
+	Vec3Ref vecV2 = MakeVec3(GetElementVelocity(nodeId2));
+	Vec3Ref vecW1 = MakeVec3(GetElementVelocityAngular(nodeId1));
+	Vec3Ref vecW2 = MakeVec3(GetElementVelocityAngular(nodeId2));
+	
+	//PrintVector(vecC1,"vecC1");
+	//PrintVector(vecP1, "vecP1");
+	//PrintVector(vecP2,"vecP2");
+	//PrintVector(vecR1,"vecR1");
+	//PrintVector(vecR2,"vecR2");
+	//PrintVector(vecV1, "vecV1");
+	//PrintVector(vecV2,"vecV2");
+	//PrintMatrix(matA01, "matA01");
+	//PrintMatrix(matA02, "matA02");
+	//PrintMatrix(matA21, "matA21");
+
+	// переводим вектор линии точек связи С2-С1 в СК1
+	Vec3 vecT0 =
+		vecC1
+		- matA21.Tmul(vecC2)
+		- matA01.Tmul(vecP2 - vecP1);
+
+	vecT0.Export(shiftStrains);
+
+	// переводим вектор разницы линейных скоростей точек связи С2-С1 в СК1
+	Vec3 VecT1 = matA01.Tmul(vecV1 - vecV2)
+		+ vecW1.Cross(vecC1)
+		- matA21.Tmul(vecW2.Cross(vecC2));
+
+	VecT1.Export(velocityStrains);
+
+	// для угловых степеней свободы - просто берутся разница углов и угловых скоростей
+	(vecR1 - vecR2).Export(shiftStrains + vecStride);
+	(vecW1 - vecW2).Export(velocityStrains + vecStride);
+}
+
 
 void StressStrainCppSolver::FindStressStrainMatrix()
 {
