@@ -105,6 +105,20 @@ namespace Stress
 			);
 			break;
 #endif
+		case 4:
+			hsolver = new StressStrainCppIterativeSolver
+				(
+				params,
+				links,
+				nLinks,
+				gridElements,
+				nElements,
+				gridStep,
+				timeStep,
+				numThreads,
+				3
+				);
+			break;
 		default:
 			std::cout << "Unsupported solver type " << std::endl;
 		}

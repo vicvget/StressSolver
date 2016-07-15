@@ -39,6 +39,7 @@ StressStrainCppIterativeSolverAVX::StressStrainCppIterativeSolverAVX
 				stride
 			)
 {
+	std::cout << "AVX SOLVER" << std::endl << std::flush;
 }
 
 // virtual
@@ -51,6 +52,19 @@ StressStrainCppIterativeSolverAVX::~StressStrainCppIterativeSolverAVX()
 void StressStrainCppIterativeSolverAVX::SolveFull(const int nIterations)
 {
 	_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
+
+	__m256d timeStep;
+	__m256d timeStep2;
+	__m256d timeStep4;
+	__m256d constantD2;
+	__m256d constantD6;
+
+	timeStep = _mm256_set1_pd(_timeStep);
+	timeStep2 = _mm256_set1_pd(_timeStep2);
+	timeStep4 = _mm256_set1_pd(_timeStep4);
+	constantD2 = _mm256_set1_pd(0.5);
+	constantD6 = _mm256_set1_pd(1 / 6.0);
+
 
 	FTimer test_timer;
 	_iterationNumber = 0;
@@ -210,12 +224,6 @@ void StressStrainCppIterativeSolverAVX::Solve(const int nIterations)
 // virtual
 void StressStrainCppIterativeSolverAVX::InitialSolve()
 {
-	timeStep = _mm256_set1_pd(_timeStep);
-	timeStep2 = _mm256_set1_pd(_timeStep2);
-	timeStep4 = _mm256_set1_pd(_timeStep4);
-	constantD2 = _mm256_set1_pd(0.5);
-	constantD6 = _mm256_set1_pd(1 / 6.0);
-
 	MeasuredRun(1, _rotationSolver->InitialSolve());
 	MeasuredRun(2, CalculateForces());
 }
@@ -239,6 +247,15 @@ void StressStrainCppIterativeSolverAVX::Solve1()
 void StressStrainCppIterativeSolverAVX::Solve2()
 {
 	_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
+
+	__m256d timeStep;
+	__m256d timeStep2;
+	__m256d constantD2;
+
+	timeStep = _mm256_set1_pd(_timeStep);
+	timeStep2 = _mm256_set1_pd(_timeStep2);
+	constantD2 = _mm256_set1_pd(0.5);
+
 
 	memcpy(_initX, _varX, sizeof(double)*_nVariables);
 	memcpy(_initDX, _varDX, sizeof(double)*_nVariables);
@@ -277,6 +294,14 @@ void StressStrainCppIterativeSolverAVX::Solve3()
 {
 	_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
 
+	__m256d timeStep;
+	__m256d timeStep4;
+	__m256d constantD2;
+
+	timeStep = _mm256_set1_pd(_timeStep);
+	timeStep4 = _mm256_set1_pd(_timeStep4);
+	constantD2 = _mm256_set1_pd(0.5);
+
 	_testTimer.Start(3);
 #pragma omp parallel for num_threads(_numThreads)
 	for (int j = 0; j < _nVariables; j += regSize)
@@ -311,6 +336,12 @@ void StressStrainCppIterativeSolverAVX::Solve4()
 {
 	_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
 
+	__m256d timeStep;
+	__m256d constantD2;
+
+	timeStep = _mm256_set1_pd(_timeStep);
+	constantD2 = _mm256_set1_pd(0.5);
+
 	_testTimer.Start(3);
 #pragma omp parallel for num_threads(_numThreads)
 	for (int j = 0; j < _nVariables; j += regSize)
@@ -344,6 +375,12 @@ void StressStrainCppIterativeSolverAVX::Solve4()
 void StressStrainCppIterativeSolverAVX::Solve5()
 {
 	_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
+
+	__m256d timeStep;
+	__m256d constantD6;
+
+	timeStep = _mm256_set1_pd(_timeStep);
+	constantD6 = _mm256_set1_pd(1 / 6.0);
 
 	_testTimer.Start(3);
 #pragma omp parallel for num_threads(_numThreads)
@@ -399,7 +436,7 @@ void StressStrainCppIterativeSolverAVX::CalculateForces()
 			if (elementId2)
 			{
 				elementId2--;
-				CalculateStrainsFMA(side, strains, velocityStrains, elementId1, elementId2);
+				CalculateStrainsAVX(side, strains, velocityStrains, elementId1, elementId2);
 
 				Vec3Ref linear_strains = MakeVec3(&strains[0]);
 				Vec3Ref angular_strains = MakeVec3(&strains[0] + vecStride);

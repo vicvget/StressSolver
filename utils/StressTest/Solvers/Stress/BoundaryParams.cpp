@@ -148,7 +148,7 @@ void BoundaryParams::ApplyForceBoundary
 double* data
 )	const
 {
-	for (int j = 0; j < _nodesCount; j++)
+ 	for (int j = 0; j < _nodesCount; j++)
 	{
 		for (int i = 0; i < 3; i++)
 		{

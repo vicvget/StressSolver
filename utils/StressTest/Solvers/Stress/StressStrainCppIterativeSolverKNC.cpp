@@ -39,6 +39,7 @@ StressStrainCppIterativeSolverKNC::StressStrainCppIterativeSolverKNC
 				stride
 			)
 {
+	std::cout << "KNC SOLVER" << std::endl << std::flush;
 }
 
 // virtual

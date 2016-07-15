@@ -9,9 +9,9 @@
 #include <iostream>
 
 
-#define NO_BLENDER
-#define NO_CHARTS
-#define NO_WRITE_RESULTS
+//#define NO_BLENDER
+//#define NO_CHARTS
+//#define NO_WRITE_RESULTS
 
 namespace Stress{
 	class StressStrainCppIterativeSolver;
