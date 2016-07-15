@@ -47,6 +47,7 @@ StressStrainCppIterativeSolver::StressStrainCppIterativeSolver
 			),
 		_iterationNumber(0)
 {
+	std::cout << "NORMAL SOLVER" << std::endl << std::flush;
 }
 
 // virtual

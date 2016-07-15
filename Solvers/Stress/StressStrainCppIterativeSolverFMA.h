@@ -18,11 +18,6 @@ class StressStrainCppIterativeSolverFMA
 		public StressStrainCppIterativeSolver
 {
 public:
-	__m256d timeStep;
-	__m256d timeStep2;
-	__m256d timeStep4;
-	__m256d constantD2;
-	__m256d constantD6;
 	const int regSize = 4;
 
 	// создает объект с заданными параметрами

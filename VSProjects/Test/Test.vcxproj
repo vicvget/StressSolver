@@ -152,7 +152,6 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -189,6 +188,12 @@
     <ClCompile Include="..\..\Test\main.cpp" />
     <ClCompile Include="..\..\Test\StressSolver.cpp" />
     <ClCompile Include="..\..\Test\StressSolverTest.cpp" />
+    <ClCompile Include="..\..\Test\Test1x1x3.cpp" />
+    <ClCompile Include="..\..\Test\Test1x2x10.cpp" />
+    <ClCompile Include="..\..\Test\Test1x3x10.cpp" />
+    <ClCompile Include="..\..\Test\Test2x1x10.cpp" />
+    <ClCompile Include="..\..\Test\Test2x2x5.cpp" />
+    <ClCompile Include="..\..\Test\Test3x3x10.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

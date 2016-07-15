@@ -13,15 +13,10 @@ namespace Stress
 
 /** Унаследованный код на ФОРТРАНе
 */
-class StressStrainCppIterativeSolverAVX
+__declspec(align(32)) class StressStrainCppIterativeSolverAVX
 	:
 		public StressStrainCppIterativeSolver
 {
-	__m256d timeStep;
-	__m256d timeStep2;
-	__m256d timeStep4;
-	__m256d constantD2;
-	__m256d constantD6;
 	const int regSize = 4;
 
 public:

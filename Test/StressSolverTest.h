@@ -76,10 +76,21 @@ namespace SpecialSolversTest
 			size_t nodeId,
 			EDOF dof);
 
+		void OverrideStiffness(
+			SolverHandler hStressSolver,
+			double elasticFactorLinear,
+			double elasticFactorAngular,
+			double dampingFactorLinear,
+			double dampingFactorAngular,
+			double stiffnessScale);
+
 		void Test();
-		void Test3x1x1(int solverType = 0);
+		void Test1x1x3(int solverType = 0);
 		void Test1x3x10(int solverType = 0);
+		void Test1x2x10(int solverType = 0);
+		void Test2x1x10(int solverType = 0);
 		void Test3x3x10(int solverType = 0);
+		void Test2x2x5(int solverType = 0);
 		void TestSolveSystemOfLinearEquationsForStiffness();
 
 	}
