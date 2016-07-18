@@ -232,8 +232,6 @@ StressStrainCppSolver::StressStrainCppSolver
 		for (int j = 0; j < 3; j++)
 		{
 			_dataInternal[i * 2 * vecStride + j] = nodes[i * 3 + j];
-			if (i == 2 && j == 0)
-				_dataInternal[i * 2 * vecStride + j] += 0.01;
 		}
 	}
 	_testTimer.Allocate(10);

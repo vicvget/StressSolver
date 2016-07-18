@@ -25,6 +25,24 @@ void BlenderExporter::Close()
 		_ofs.close();
 }
 
+void BlenderExporter::Init()
+{
+	Init("blender.py", _solver->_nElements, _solver->vecStride, _solver->GetElementShift(0), _solver->_gridStep);
+	WriteHeader();
+	WriteBody();
+}
+
+void BlenderExporter::WriteFrame()
+{
+	AddFrame(_solver->GetElementShift(0), _solver->GetDataRotaionMtx());
+}
+
+void BlenderExporter::Finalize()
+{
+	WriteFooter();
+	Close();
+}
+
 void BlenderExporter::AddFrame(double* coordinates, double* rotationMatrices)
 {
 	_frame++;

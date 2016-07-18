@@ -2,10 +2,11 @@
 
 #include <fstream>
 #include <sstream>
+#include "BaseExporter.h"
 
 using namespace std;
 
-class BlenderExporter
+class BlenderExporter: public BaseExporter
 {
 private:
 	ofstream _ofs;
@@ -18,6 +19,7 @@ private:
 	double* _coordinates;
 
 public:
+	BlenderExporter(Stress::StressStrainCppIterativeSolver* solver) : BaseExporter(solver) {};
 	~BlenderExporter();
 
 	bool Init(
@@ -32,6 +34,12 @@ public:
 	void AddFrame(double* coordinates, double* rotationMatrices);
 	void WriteFooter();
 	void Close();
+
+#pragma region overriden
+	virtual void Init();
+	virtual void WriteFrame();
+	virtual void Finalize();
+#pragma endregion overriden
 
 private:
 	string GenerateFrameForElement(size_t elementId, double* shift, double* rotationMatrix) const;

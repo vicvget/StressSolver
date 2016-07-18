@@ -174,14 +174,17 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Test\BlenderExporter.h" />
+    <ClInclude Include="..\..\Test\ChartsExporter.h" />
     <ClInclude Include="..\..\Test\CommonSolvers.h" />
     <ClInclude Include="..\..\Test\CommonSolversTest.h" />
     <ClInclude Include="..\..\Test\ComparativeTest.h" />
+    <ClInclude Include="..\..\Test\BaseExporter.h" />
     <ClInclude Include="..\..\Test\StressSolver.h" />
     <ClInclude Include="..\..\Test\StressSolverTest.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Test\BlenderExporter.cpp" />
+    <ClCompile Include="..\..\Test\ChartsExporter.cpp" />
     <ClCompile Include="..\..\Test\CommonSolvers.cpp" />
     <ClCompile Include="..\..\Test\CommonSolversTest.cpp" />
     <ClCompile Include="..\..\Test\ComparativeTest.cpp" />

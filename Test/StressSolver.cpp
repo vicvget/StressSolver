@@ -83,8 +83,8 @@ namespace SpecialSolvers
 			static const double scaleResults = 1.0;
 
 #ifndef NO_BLENDER
-			BlenderExporter exporter;			
 			Stress::StressStrainCppIterativeSolver* ssSolver = static_cast<Stress::StressStrainCppIterativeSolver*>(hSolver);
+			BlenderExporter exporter(ssSolver);
 			exporter.Init("blender.py", gridParams.NodesCount(), ssSolver->vecStride, ssSolver->GetElementShift(0), gridParams._gridStep);
 			exporter.WriteHeader();
 			exporter.WriteBody();
