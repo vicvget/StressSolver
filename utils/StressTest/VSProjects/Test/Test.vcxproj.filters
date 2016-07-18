@@ -12,11 +12,14 @@
     <Filter Include="Source Files\StressSolverTests">
       <UniqueIdentifier>{30372889-b8b5-4010-8201-5707102ce18f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Exporters">
+      <UniqueIdentifier>{09c0c15b-5765-453d-9914-4c5f6a210404}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Exporters">
+      <UniqueIdentifier>{067e8c64-2075-415b-8a4b-dc0229e91360}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\Test\BlenderExporter.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Test\CommonSolvers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -32,11 +35,17 @@
     <ClInclude Include="..\..\Test\StressSolverTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Test\BlenderExporter.h">
+      <Filter>Header Files\Exporters</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Test\ChartsExporter.h">
+      <Filter>Header Files\Exporters</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Test\BaseExporter.h">
+      <Filter>Header Files\Exporters</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\Test\BlenderExporter.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Test\CommonSolvers.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -72,6 +81,12 @@
     </ClCompile>
     <ClCompile Include="..\..\Test\Test2x1x10.cpp">
       <Filter>Source Files\StressSolverTests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Test\BlenderExporter.cpp">
+      <Filter>Source Files\Exporters</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Test\ChartsExporter.cpp">
+      <Filter>Source Files\Exporters</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
