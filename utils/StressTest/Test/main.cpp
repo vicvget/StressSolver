@@ -1,6 +1,7 @@
 #include <iostream>
 #include "ComparativeTest.h"
 #include "StressSolverTest.h"
+#include "TestFactory.h"
 
 int main()
 {
@@ -15,8 +16,9 @@ int main()
 	//StressStrainStuff::Test1x3x10(0);
 	//StressStrainStuff::Test1x1x3(4);
 	//StressStrainStuff::Test1x1x3(3);
-	StressStrainStuff::Test3x3x10(0);
+	//StressStrainStuff::Test3x3x10(0);
 	//StressStrainStuff::Test1x1x3(4);
+	SpecialSolversTest::StressStrainStuff::Test1x1x3(0, SpecialSolversTest::StressStrainStuff::ECode::xlr);
 
 	return 0;
 }

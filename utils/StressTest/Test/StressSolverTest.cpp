@@ -22,7 +22,7 @@ namespace SpecialSolversTest
 			const GridParams& gridParams,
 			const SpecialParams& specialParams,
 			const IntegrationParams& integrationParams,
-			const string& fileRlc,
+			const string& solverUid,
 			EFACE sealedFace,
 			EFACE forcedFace,
 			double force,
@@ -32,7 +32,7 @@ namespace SpecialSolversTest
 			double* nodes = nullptr;
 			int* links = nullptr;
 			int nLinks;
-
+			string fileRlc = solverUid + ".rlc";
 			CreateTestGrid
 				(
 				nodes,
@@ -49,6 +49,7 @@ namespace SpecialSolversTest
 			specialParams.GetParams(params);
 			SolverHandler _hsolver = Stress::Init
 				(
+				solverUid,
 				params,
 				links,
 				nLinks,
@@ -59,7 +60,7 @@ namespace SpecialSolversTest
 				0,
 				0,
 				false,
-				solverType // -1 = ÑPP // 0 - fortr // 2 = static2
+				solverType
 				);
 
 			if (nodes != nullptr)
@@ -74,9 +75,9 @@ namespace SpecialSolversTest
 			return _hsolver;
 		}
 
-		SolverHandler MakeSolver(const GridParams& gridParams, const SpecialParams& specialParams, const IntegrationParams& integrationParams, const std::string& fileRlc, const int solverType)
+		SolverHandler MakeSolver(const GridParams& gridParams, const SpecialParams& specialParams, const IntegrationParams& integrationParams, const std::string& solverUid, const int solverType)
 		{
-			return MakeSolver(gridParams, specialParams, integrationParams, fileRlc, face_left, face_right, 10, dof_y, solverType);
+			return MakeSolver(gridParams, specialParams, integrationParams, solverUid, face_left, face_right, 10, dof_y, solverType);
 		}
 
 		//void OverrideStiffness(SolverHandler solver_handler, int i, int i1, int i2, int i3, int i4);

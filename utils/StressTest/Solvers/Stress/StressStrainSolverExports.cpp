@@ -7,14 +7,10 @@
 #include "StressStrainCppIterativeSolverAVX.h"
 #include "StressStrainCppIterativeSolverFMA.h"
 #endif
-//#include "StressStrainCppIterativeSolverSSE.h"
-//#include "../../Fcore/Exceptions/fcExceptions.h"
 
 #include <memory>
-
-
-//StressStrainSolver* _hsolver = NULL;
-
+#include <string>
+using std::string;
 
 namespace Stress
 {
@@ -30,6 +26,7 @@ namespace Stress
 	DLL_FUNCTION
 		void* Init
 		(
+		const string& solverUid,
 		double* params,
 		int* links,
 		int nLinks,
@@ -122,7 +119,8 @@ namespace Stress
 		default:
 			std::cout << "Unsupported solver type " << std::endl;
 		}
-		
+		if (hsolver)
+			hsolver->SetUid(solverUid);
 		return (void*)hsolver;
 	}
 

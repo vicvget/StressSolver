@@ -17,7 +17,7 @@ namespace SpecialSolvers
 
 	float IntegrationParams::TotalTime() const
 	{
-		return _nIterations * _timeStep;
+		return _nIterations * _nSubIterations * _timeStep;
 	}
 
 

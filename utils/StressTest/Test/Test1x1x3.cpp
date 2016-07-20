@@ -1,12 +1,12 @@
 #include "CommonSolversTest.h"
 #include "StressSolverTest.h"
 
-#include "../Solvers/Stress/StressStrainCppSolver.h"
 #include "../Solvers/Stress/StressStrainSolverExports.h"
 #include "../Solvers/Stress/FTimer.h"
 
 #include <sstream>
 #include <vector>
+#include "TestFactory.h"
 
 
 using std::string;
@@ -19,98 +19,34 @@ namespace SpecialSolversTest
 	namespace StressStrainStuff
 	{
 
-		/** Stress solver testing for grid 3x3x10
+		/** Stress solver testing for grid
 		* @param solverType - type of solver
-		* solverType = 0 - default, fortran translated solver
-		* solverType = 1 - static old
-		* solverType = 2 - static 2 solver (mkl)
-		* solverType = other - cpp, rewritten solver
+		* solverType = 0 - default CPP
+		* solverType = 1 - AVX
+		* solverType = 2 - FMA
+		* solverType = 3 - KNC
+		* solverType = 4 - Unaligned
 		*/
-		void Test1x1x3(int solverType)
+		void Test1x1x3(int solverType, ECode code)
 		{
-			stringstream str;
-			str << "test_stress_type_" << solverType;
-
-			string fileRlc = str.str() + ".rlc";
-			string fileResult = str.str() + ".mpr";
-
-			SpecialParams specialParams;
-			IntegrationParams integrationParams;
-			GridParams gridParams;
-			specialParams._E = 100;
-			specialParams._density = 1000;
-			specialParams._dampingRatio = 1;
-			specialParams._scaleFactor = 1;// 1e8;
-
-			//integrationParams._nIterations = 500;
-
-			integrationParams._nIterations = 100;
-			integrationParams._nSubIterations = 1000;
-			integrationParams._timeStep = 0.00001f;
-
-			if (solverType == 2)
-			{
-				integrationParams._nIterations = 1;
-				integrationParams._nSubIterations = 1;
-			}
-
-			enum ECode
-			{
-				xlr,
-				xrl,
-				yfb,
-				ybf,
-				ztb,
-				zbt
-			};
-
-			SolverHandler _hsolver;
-			ECode code = xlr;
-			switch (code)
-			{
-			case xlr:
-				gridParams._nx = 10;
-				gridParams._ny = 1;
-				gridParams._nz = 1;
-				gridParams._gridStep = 0.1;
-
-				_hsolver = MakeSolver
-					(
-					gridParams,
-					specialParams,
-					integrationParams,
-					fileRlc,
-					face_left,
-					face_right,
-					10,
-					dof_y,
-					solverType
-					);
-				break;
-			case ztb:
-				gridParams._nx = 1;
-				gridParams._ny = 1;
-				gridParams._nz = 3;
-				gridParams._gridStep = 0.1;
-
-				_hsolver = MakeSolver
-					(
-					gridParams,
-					specialParams,
-					integrationParams,
-					fileRlc,
-					face_top,
-					face_bottom,
-					1,
-					dof_x,
-					solverType
-					);
-				break;
-			}
-			PerformanceCounter pc;
-			pc.Start();
+			TestFactory factory;
+			SolverHandler _hsolver = factory
+				.E(100.f)
+				.Density(1000.f)
+				.Damping(1.f)
+				.ScaleFactor(1.f)
+				.IterationsCount(100)
+				.SubIterationsCount(1000)
+				.TimeStep(0.00001f)
+				.GridStep(0.1f)
+				.Force(10)
+				.SolverType(solverType)
+				.Dims(3, 1, 1, code)
+				.Build();
+	
 			if (_hsolver != nullptr)
 			{
+				// “ест дл€ сравнени€ с эталонной моделью
 				OverrideStiffness(_hsolver,
 					1000.,
 					10.,
@@ -118,16 +54,17 @@ namespace SpecialSolversTest
 					10.,
 					1.);
 
+				PerformanceCounter pc;
+				pc.Start();
 				Solve
 					(
 					_hsolver,
-					fileResult,
-					gridParams,
-					integrationParams
+					factory.IntegrationParams()
 					);
 				pc.Print("Solving time: ", true);
+
+				Stress::ReleaseMemory((void* &)_hsolver);
 			}
-			Stress::ReleaseMemory((void* &)_hsolver);
 		}
 	}
 }

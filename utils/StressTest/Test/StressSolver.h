@@ -42,8 +42,8 @@ namespace SpecialSolvers
 		void Solve
 			(
 				SolverHandler hStressSolver,
-				const std::string& fileResults,
-				const GridParams& gridParams,
+				//const std::string& fileResults,
+				//const GridParams& gridParams,
 				const IntegrationParams& integrationParams
 			);
 
