@@ -18,6 +18,9 @@
     <Filter Include="Header Files\Exporters">
       <UniqueIdentifier>{067e8c64-2075-415b-8a4b-dc0229e91360}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\StressSolverTests">
+      <UniqueIdentifier>{f13cbbea-aec6-4af4-ab27-4675d83184a4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Test\CommonSolvers.h">
@@ -44,6 +47,12 @@
     <ClInclude Include="..\..\Test\BaseExporter.h">
       <Filter>Header Files\Exporters</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Test\TestFactory.h">
+      <Filter>Header Files\StressSolverTests</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Test\MprExporter.h">
+      <Filter>Header Files\Exporters</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Test\CommonSolvers.cpp">
@@ -64,28 +73,19 @@
     <ClCompile Include="..\..\Test\StressSolverTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Test\Test3x3x10.cpp">
-      <Filter>Source Files\StressSolverTests</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Test\Test1x3x10.cpp">
-      <Filter>Source Files\StressSolverTests</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Test\Test1x1x3.cpp">
-      <Filter>Source Files\StressSolverTests</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Test\Test2x2x5.cpp">
-      <Filter>Source Files\StressSolverTests</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Test\Test1x2x10.cpp">
-      <Filter>Source Files\StressSolverTests</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Test\Test2x1x10.cpp">
       <Filter>Source Files\StressSolverTests</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Test\BlenderExporter.cpp">
       <Filter>Source Files\Exporters</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Test\ChartsExporter.cpp">
+      <Filter>Source Files\Exporters</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Test\TestFactory.cpp">
+      <Filter>Source Files\StressSolverTests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Test\MprExporter.cpp">
       <Filter>Source Files\Exporters</Filter>
     </ClCompile>
   </ItemGroup>

@@ -28,6 +28,7 @@ namespace SpecialSolversTest
 
 	namespace StressStrainStuff
 	{
+		enum ECode;
 
 		using namespace SpecialSolvers;
 		using namespace SpecialSolvers::StressStrainStuff;
@@ -37,7 +38,7 @@ namespace SpecialSolversTest
 			const GridParams& gridParams,
 			const SpecialParams& specialParams,
 			const IntegrationParams& integrationParams,
-			const std::string& fileRlc,
+			const std::string& solverUid,
 			EFACE sealedFace,
 			EFACE forcedFace,
 			double force,
@@ -49,7 +50,7 @@ namespace SpecialSolversTest
 			const GridParams& gridParams,
 			const SpecialParams& specialParams,
 			const IntegrationParams& integrationParams,
-			const std::string& fileRlc,
+			const std::string& solverUid,
 			const int solverType
 		);
 
@@ -85,6 +86,7 @@ namespace SpecialSolversTest
 			double stiffnessScale);
 
 		void Test();
+		void Test1x1x3(int solverType, ECode code);
 		void Test1x1x3(int solverType = 0);
 		void Test1x3x10(int solverType = 0);
 		void Test1x2x10(int solverType = 0);

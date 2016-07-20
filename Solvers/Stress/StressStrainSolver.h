@@ -281,5 +281,8 @@ public:
 	virtual double* GetElementVelocityAngular		(size_t elementId) const;
 	virtual double* GetElementAccelerationAngular	(size_t elementId) const;
 	virtual double* GetRotationMatrix				(size_t elementId) const;
+
+	string _uid;
+	virtual void SetUid(const string& uid);
 };
 

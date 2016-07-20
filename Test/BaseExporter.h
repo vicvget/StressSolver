@@ -15,7 +15,7 @@ public:
 	bool State() { return _state; }
 
 
-	virtual void Init() {};
-	virtual void WriteFrame(float time) {};
-	virtual void Finalize() {};	
+	virtual void Init() = 0;
+	virtual void WriteFrame(float time) = 0;
+	virtual void Finalize() = 0;	
 };

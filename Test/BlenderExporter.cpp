@@ -32,7 +32,7 @@ void BlenderExporter::Init()
 	WriteBody();
 }
 
-void BlenderExporter::WriteFrame()
+void BlenderExporter::WriteFrame(float time)
 {
 	AddFrame(_solver->GetElementShift(0), _solver->GetDataRotaionMtx());
 }

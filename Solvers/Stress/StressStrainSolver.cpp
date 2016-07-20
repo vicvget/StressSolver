@@ -233,3 +233,8 @@ double* StressStrainSolver::GetRotationMatrix(size_t elementId) const
 {
 	return _dataRotationMtx + (elementId * matStride);
 }
+
+void StressStrainSolver::SetUid(const string& uid)
+{
+	_uid = uid;
+}

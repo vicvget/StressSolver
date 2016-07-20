@@ -20,6 +20,7 @@
 #else
 #define DLL_FUNCTION
 #endif
+#include <string>
 
 
 namespace Stress
@@ -37,6 +38,7 @@ namespace Stress
 	DLL_FUNCTION
 	void* Init
 		(
+			const std::string& solverUid,
 			double* params,
 			int* links,
 			int nLinks,

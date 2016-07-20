@@ -24,6 +24,7 @@
 
 #include <vector>
 #include <iomanip>
+#include <iostream>
 
 class PerformanceCounter
 {

@@ -37,7 +37,7 @@ public:
 
 #pragma region overriden
 	virtual void Init();
-	virtual void WriteFrame();
+	virtual void WriteFrame(float time);
 	virtual void Finalize();
 #pragma endregion overriden
 

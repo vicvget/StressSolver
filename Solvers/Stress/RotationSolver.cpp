@@ -176,16 +176,16 @@ namespace Stress
 	//	}
 	 
 	//	// проверка сингулярности
-	//	for (size_t elementId = 0; elementId < _nElements; elementId++)
+	//	for (size_t _elementId = 0; _elementId < _nElements; _elementId++)
 	//	{
-	//		double* elementMtx = GetRotationMtx(elementId);
-	//		double* rframeMtx = GetRframeMtx(elementId);
-	//		if (IsSingularityAngle(elementId))
+	//		double* elementMtx = GetRotationMtx(_elementId);
+	//		double* rframeMtx = GetRframeMtx(_elementId);
+	//		if (IsSingularityAngle(_elementId))
 	//		{
-	//			MakeZeroVectors(elementId);
+	//			MakeZeroVectors(_elementId);
 	//			memcpy(rframeMtx, elementMtx, _matStride*sizeof(double));
 	//		}
-	//		UpdateMtx(elementId);
+	//		UpdateMtx(_elementId);
 	//	}
 	//}
 
