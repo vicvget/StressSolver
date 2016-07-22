@@ -2,7 +2,7 @@
 
 void ChartsExporter::Init()
 {
-	_ofs.open("charts.txt");
+	_ofs.open(_solver->_uid + "_charts.txt");
 	if (_ofs.is_open() && _solver != nullptr)
 	{
 		SetInitialized();

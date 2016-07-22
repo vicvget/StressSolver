@@ -75,6 +75,59 @@ namespace SpecialSolversTest
 			return _hsolver;
 		}
 
+		SolverHandler MakePlateSolver(
+			const GridParams& gridParams,
+			const SpecialParams& specialParams,
+			const IntegrationParams& integrationParams,
+			const string& solverUid,
+			double force,
+			EDOF dof,
+			const int solverType)
+		{
+			double* nodes = nullptr;
+			int* links = nullptr;
+			int nLinks;
+			string fileRlc = solverUid + ".rlc";
+			CreateTestGrid
+				(
+				nodes,
+				links,
+				nLinks,
+				gridParams._nx,
+				gridParams._ny,
+				gridParams._nz,
+				gridParams._gridStep,
+				fileRlc
+				);
+
+			double params[5];
+			specialParams.GetParams(params);
+			SolverHandler _hsolver = Stress::Init
+				(
+				solverUid,
+				params,
+				links,
+				nLinks,
+				nodes,
+				gridParams.NodesCount(),
+				gridParams._gridStep,
+				integrationParams._timeStep,
+				0,
+				0,
+				false,
+				solverType
+				);
+
+			if (nodes != nullptr)
+				delete[] nodes;
+			if (links != nullptr)
+				delete[] links;
+			size_t size = dof == dof_x ? gridParams._ny : gridParams._nx;
+			SetSealedForcePlateBc(_hsolver, size, force, dof);
+			return _hsolver;
+		}
+
+
 		SolverHandler MakeSolver(const GridParams& gridParams, const SpecialParams& specialParams, const IntegrationParams& integrationParams, const std::string& solverUid, const int solverType)
 		{
 			return MakeSolver(gridParams, specialParams, integrationParams, solverUid, face_left, face_right, 10, dof_y, solverType);
@@ -209,6 +262,29 @@ namespace SpecialSolversTest
 				);
 		}
 
+		void AddSealedPlateBoundary(
+			SolverHandler hStressSolver,
+			size_t side)
+		{
+			double bcParams[6] = { -1, -1, -1, -1, -1, -1 };
+			vector<int> bcIndices;
+			bcIndices.push_back(1);
+			bcIndices.push_back(side);
+			bcIndices.push_back(side*side);
+			bcIndices.push_back(side*(side - 1)+1);
+
+			Stress::AddBoundary
+				(
+				hStressSolver,
+				&bcIndices[0],
+				static_cast<int>(bcIndices.size()),
+				4,
+				bcParams
+				);
+		}
+
+
+
 
 		void SetSealedForceBc(
 			SolverHandler hStressSolver,
@@ -221,6 +297,17 @@ namespace SpecialSolversTest
 			AddSealedBoundary(hStressSolver, faceSealed, gridParams);
 			AddForceBoundary(hStressSolver, force, dof, faceForced, gridParams);
 		}
+
+		void SetSealedForcePlateBc(
+			SolverHandler hStressSolver,
+			size_t side,
+			double force,
+			EDOF dof)
+		{
+			AddSealedPlateBoundary(hStressSolver, side);
+			AddElementForceBoundary(hStressSolver, force, dof, side*(side / 2) + side / 2);
+		}
+
 
 		// добавляет 2 силы и одну заделку
 		void SetSealedForceForceBc(

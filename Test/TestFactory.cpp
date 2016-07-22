@@ -89,7 +89,7 @@ SpecialSolversTest::StressStrainStuff::TestFactory& SpecialSolversTest::StressSt
 	return *this;
 }
 
-SpecialSolvers::StressStrainStuff::SolverHandler SpecialSolversTest::StressStrainStuff::TestFactory::Build()
+SpecialSolvers::StressStrainStuff::SolverHandler SpecialSolversTest::StressStrainStuff::TestFactory::BuildBeam()
 {
 	stringstream str;
 	str << "test_stress_type_" << solverType << '_' << ECodeToString(code);
@@ -107,6 +107,23 @@ SpecialSolvers::StressStrainStuff::SolverHandler SpecialSolversTest::StressStrai
 	);
 }
 
+SpecialSolvers::StressStrainStuff::SolverHandler SpecialSolversTest::StressStrainStuff::TestFactory::BuildPlate()
+{
+	stringstream str;
+	str << "test_stress_type_" << solverType << '_' << ECodeToString(code);
+	Uid(str.str());
+	return MakePlateSolver(
+		_gridParams,
+		_specialParams,
+		_integrationParams,
+		solverUid,
+		force,
+		forceDof,
+		solverType
+		);
+}
+
+
 SpecialSolversTest::StressStrainStuff::TestFactory& SpecialSolversTest::StressStrainStuff::TestFactory::Dims(size_t length, size_t sectionWidth, size_t sectionHeight, ECode code)
 {
 	this->code = code;
@@ -121,6 +138,8 @@ SpecialSolversTest::StressStrainStuff::TestFactory& SpecialSolversTest::StressSt
 		_gridParams._ny = sectionWidth;
 		_gridParams._nz = sectionHeight;
 		forceDof = dof_y;
+		// TODO: убрать костыль
+		if (_gridParams._nx == 1) forceDof = dof_x;
 		break;
 	case yfb:
 		faceForced = SpecialSolversTest::face_front;

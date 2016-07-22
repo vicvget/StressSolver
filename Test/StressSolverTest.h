@@ -45,6 +45,15 @@ namespace SpecialSolversTest
 			EDOF dof,
 			const int solverType);
 
+		SolverHandler MakePlateSolver(
+			const GridParams& gridParams,
+			const SpecialParams& specialParams,
+			const IntegrationParams& integrationParams,
+			const std::string& solverUid,
+			double force,
+			EDOF dof,
+			const int solverType);
+
 		SolverHandler MakeSolver
 		(
 			const GridParams& gridParams,
@@ -85,14 +94,25 @@ namespace SpecialSolversTest
 			double dampingFactorAngular,
 			double stiffnessScale);
 
+		void SetSealedForcePlateBc(
+			SolverHandler hStressSolver,
+			size_t side,
+			double force,
+			EDOF dof);
+
+
 		void Test();
 		void Test1x1x3(int solverType, ECode code);
-		void Test1x1x3(int solverType = 0);
-		void Test1x3x10(int solverType = 0);
-		void Test1x2x10(int solverType = 0);
-		void Test2x1x10(int solverType = 0);
-		void Test3x3x10(int solverType = 0);
-		void Test2x2x5(int solverType = 0);
+		void Test10x1x3(int solverType, ECode code);
+		void Test10x3x1(int solverType, ECode code);
+		void Test10x3x3(int solverType, ECode code);
+		void Test1x10x10(int solverType, ECode code);
+		void Test1x11x11(int solverType, ECode code);
+
+		void Test1x2x10(int solverType, ECode code);
+		void Test2x1x10(int solverType, ECode code);
+		void Test3x3x10(int solverType, ECode code);
+		void Test2x2x5(int solverType,  ECode code);
 		void TestSolveSystemOfLinearEquationsForStiffness();
 
 	}
