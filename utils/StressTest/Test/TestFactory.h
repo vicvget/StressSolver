@@ -39,6 +39,9 @@ namespace SpecialSolversTest
 			IntegrationParams IntegrationParams();
 			SpecialParams SpecialParams();
 
+			SolverHandler BuildBeam();
+			SolverHandler BuildPlate();
+
 #pragma region setters
 			TestFactory& E(float val);
 
@@ -62,7 +65,6 @@ namespace SpecialSolversTest
 
 			TestFactory& SolverType(int val);
 
-			SolverHandler Build();
 #pragma endregion
 
 			EDOF forceDof;

@@ -27,7 +27,7 @@ void BlenderExporter::Close()
 
 void BlenderExporter::Init()
 {
-	Init("blender.py", _solver->_nElements, _solver->vecStride, _solver->GetElementShift(0), _solver->_gridStep);
+	Init(_solver->_uid + ".py", _solver->_nElements, _solver->vecStride, _solver->GetElementShift(0), _solver->_gridStep);
 	WriteHeader();
 	WriteBody();
 }

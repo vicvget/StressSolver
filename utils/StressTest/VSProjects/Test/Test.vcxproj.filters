@@ -88,5 +88,20 @@
     <ClCompile Include="..\..\Test\MprExporter.cpp">
       <Filter>Source Files\Exporters</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Test\Test10x1x3.cpp">
+      <Filter>Source Files\StressSolverTests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Test\Test10x3x1.cpp">
+      <Filter>Source Files\StressSolverTests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Test\Test10x3x3.cpp">
+      <Filter>Source Files\StressSolverTests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Test\Test1x10x10.cpp">
+      <Filter>Source Files\StressSolverTests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Test\Test1x11x11.cpp">
+      <Filter>Source Files\StressSolverTests</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
