@@ -83,7 +83,7 @@ void StressStrainCppIterativeSolverAVX::SolveFull(const int nIterations)
 		memcpy(_initDX, _varDX, sizeof(double)*_nVariables);
 
 		_testTimer.Start(3);
-		#pragma omp parallel for num_threads(_numThreads)
+		#pragma omp parallel for// num_threads(_numThreads)
 		for (int j = 0; j < _nVariables; j += regSize)
 		{
 			//_hDDX1[j] = _varDDX[j] * _timeStep;
@@ -107,7 +107,7 @@ void StressStrainCppIterativeSolverAVX::SolveFull(const int nIterations)
 		MeasuredRun(2, CalculateForces());
 
 		_testTimer.Start(3);
-#pragma omp parallel for num_threads(_numThreads)
+#pragma omp parallel for// num_threads(_numThreads)
 		for (int j = 0; j < _nVariables; j += regSize)
 		{
 			//_hDDX2[j] = _varDDX[j] * _timeStep;
@@ -132,7 +132,7 @@ void StressStrainCppIterativeSolverAVX::SolveFull(const int nIterations)
 		MeasuredRun(2, CalculateForces());
 
 		_testTimer.Start(3);
-#pragma omp parallel for num_threads(_numThreads)
+#pragma omp parallel for// num_threads(_numThreads)
 		for (int j = 0; j < _nVariables; j += regSize)
 		{
 			//_hDDX3[j] = _varDDX[j] * _timeStep;
@@ -157,7 +157,7 @@ void StressStrainCppIterativeSolverAVX::SolveFull(const int nIterations)
 		MeasuredRun(2, CalculateForces());
 
 		_testTimer.Start(3);
-#pragma omp parallel for num_threads(_numThreads)
+#pragma omp parallel for// num_threads(_numThreads)
 		for (int j = 0; j < _nVariables; j += regSize)
 		{
 			//float sDDX = _hDDX2[j] + _hDDX3[j];
@@ -261,7 +261,7 @@ void StressStrainCppIterativeSolverAVX::Solve2()
 	memcpy(_initDX, _varDX, sizeof(double)*_nVariables);
 
 	_testTimer.Start(3);
-#pragma omp parallel for num_threads(_numThreads)
+#pragma omp parallel for// num_threads(_numThreads)
 	for (int j = 0; j < _nVariables; j += regSize)
 	{
 		//_hDDX1[j] = _varDDX[j] * _timeStep;
@@ -303,7 +303,7 @@ void StressStrainCppIterativeSolverAVX::Solve3()
 	constantD2 = _mm256_set1_pd(0.5);
 
 	_testTimer.Start(3);
-#pragma omp parallel for num_threads(_numThreads)
+#pragma omp parallel for// num_threads(_numThreads)
 	for (int j = 0; j < _nVariables; j += regSize)
 	{
 		//_hDDX2[j] = _varDDX[j] * _timeStep;
@@ -343,7 +343,7 @@ void StressStrainCppIterativeSolverAVX::Solve4()
 	constantD2 = _mm256_set1_pd(0.5);
 
 	_testTimer.Start(3);
-#pragma omp parallel for num_threads(_numThreads)
+#pragma omp parallel for// num_threads(_numThreads)
 	for (int j = 0; j < _nVariables; j += regSize)
 	{
 		//_hDDX3[j] = _varDDX[j] * _timeStep;
@@ -383,7 +383,7 @@ void StressStrainCppIterativeSolverAVX::Solve5()
 	constantD6 = _mm256_set1_pd(1 / 6.0);
 
 	_testTimer.Start(3);
-#pragma omp parallel for num_threads(_numThreads)
+#pragma omp parallel for// num_threads(_numThreads)
 	for (int j = 0; j < _nVariables; j += regSize)
 	{
 		//float sDDX = _hDDX2[j] + _hDDX3[j];
@@ -419,7 +419,8 @@ void StressStrainCppIterativeSolverAVX::CalculateForces()
 
 	__declspec(align(32)) double strains[8], velocityStrains[8];
 
-	for (size_t elementId1 = 0; elementId1 < _nElements; elementId1++)
+#pragma omp for private (strains,velocityStrains) //num_threads(_numThreads)
+	for (int elementId1 = 0; elementId1 < _nElements; elementId1++)
 	{
 		
 		double* accelerationVector = GetElementAcceleration(elementId1);

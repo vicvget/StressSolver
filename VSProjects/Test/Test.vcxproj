@@ -152,6 +152,8 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>
+      <OpenMPSupport>true</OpenMPSupport>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -179,6 +181,7 @@
     <ClInclude Include="..\..\Test\CommonSolversTest.h" />
     <ClInclude Include="..\..\Test\ComparativeTest.h" />
     <ClInclude Include="..\..\Test\BaseExporter.h" />
+    <ClInclude Include="..\..\Test\DummyExporter.h" />
     <ClInclude Include="..\..\Test\MprExporter.h" />
     <ClInclude Include="..\..\Test\StressSolver.h" />
     <ClInclude Include="..\..\Test\StressSolverTest.h" />
@@ -190,6 +193,7 @@
     <ClCompile Include="..\..\Test\CommonSolvers.cpp" />
     <ClCompile Include="..\..\Test\CommonSolversTest.cpp" />
     <ClCompile Include="..\..\Test\ComparativeTest.cpp" />
+    <ClCompile Include="..\..\Test\DummyExporter.cpp" />
     <ClCompile Include="..\..\Test\main.cpp" />
     <ClCompile Include="..\..\Test\MprExporter.cpp" />
     <ClCompile Include="..\..\Test\StressSolver.cpp" />

@@ -7,6 +7,7 @@
 
 #include <sstream>
 #include <vector>
+#include <omp.h>
 
 
 using std::string;
@@ -102,6 +103,8 @@ namespace SpecialSolversTest
 
 			double params[5];
 			specialParams.GetParams(params);
+			int numThreads = omp_get_max_threads();
+
 			SolverHandler _hsolver = Stress::Init
 				(
 				solverUid,
@@ -113,7 +116,7 @@ namespace SpecialSolversTest
 				gridParams._gridStep,
 				integrationParams._timeStep,
 				0,
-				0,
+				numThreads,
 				false,
 				solverType
 				);
@@ -231,7 +234,7 @@ namespace SpecialSolversTest
 			vector<int> bcIndices;			
 			bcIndices.push_back((int)nodeId);
 
-
+			//std::cout << "Force applied to node " << nodeId << std::endl;
 			Stress::AddBoundary
 				(
 				hStressSolver,
@@ -305,7 +308,7 @@ namespace SpecialSolversTest
 			EDOF dof)
 		{
 			AddSealedPlateBoundary(hStressSolver, side);
-			AddElementForceBoundary(hStressSolver, force, dof, side*(side / 2) + side / 2);
+			AddElementForceBoundary(hStressSolver, force, dof, side*(side / 2) + side / 2 + 1);
 		}
 
 
