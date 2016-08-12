@@ -92,7 +92,7 @@ SpecialSolversTest::StressStrainStuff::TestFactory& SpecialSolversTest::StressSt
 SpecialSolvers::StressStrainStuff::SolverHandler SpecialSolversTest::StressStrainStuff::TestFactory::BuildBeam()
 {
 	stringstream str;
-	str << "test_stress_type_" << solverType << '_' << ECodeToString(code);
+	str << "beam_stress_type_" << solverType << '_' << _gridParams._nx << 'x' << _gridParams._ny << 'x' << _gridParams._nz << '_' << ECodeToString(code);
 	Uid(str.str());
 	return MakeSolver(
 		_gridParams,
@@ -110,7 +110,7 @@ SpecialSolvers::StressStrainStuff::SolverHandler SpecialSolversTest::StressStrai
 SpecialSolvers::StressStrainStuff::SolverHandler SpecialSolversTest::StressStrainStuff::TestFactory::BuildPlate()
 {
 	stringstream str;
-	str << "test_stress_type_" << solverType << '_' << ECodeToString(code);
+	str << "plate_stress_type_" << solverType << '_' << _gridParams._nx << 'x' << _gridParams._ny << 'x' << _gridParams._nz << '_' << ECodeToString(code);
 	Uid(str.str());
 	return MakePlateSolver(
 		_gridParams,

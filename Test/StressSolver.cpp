@@ -91,6 +91,7 @@ namespace SpecialSolvers
 			for (int i = 0; i < integrationParams._nIterations; i++)
 			{
 				Stress::Solve(hSolver, integrationParams._nSubIterations);
+				Stress::UpdateBuffer(hSolver);
 				double time = (1 + iteration) * integrationParams._timeStep * integrationParams._nSubIterations;
 
 				mprExporter->WriteFrame(time);

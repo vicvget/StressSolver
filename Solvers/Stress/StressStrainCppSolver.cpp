@@ -109,7 +109,7 @@ StressStrainCppSolver::StressStrainCppSolver
 	_cellInertia = _cellMass * _gridStep * _gridStep / 6;
 
 
-	double _elasticModulus = params[0];	// модуль упругости
+	_elasticModulus = params[0];	// модуль упругости
 	double elasticModulusScaled = _elasticModulus / _stiffScale; // отмасштабированный модуль упругости
 
 	const double poissonFactor = 0.;

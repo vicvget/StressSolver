@@ -294,7 +294,7 @@ void StressStrainCppIterativeSolver::GetStressesByVonMises
 			relativeShiftsSigned[dof] /= _gridStep;
 			relativeShiftsSigned[dof+3] = GetElementStressAngular(elementId)[dof];
 		}
-		
+
 		double summsq = 0;
 
 		for (int i = 0; i < 6; i++)
@@ -357,8 +357,8 @@ void StressStrainCppIterativeSolver::CalculateForces()
 
 				for (size_t component = 0; component < 3; component++)
 				{
-					GetElementStress(elementId1)[component] += strains[component];
-					GetElementStress(elementId1)[component + vecStride] += strains[component + vecStride];
+					GetElementStress(elementId1)[component] += linear_strains[component];
+					GetElementStressAngular(elementId1)[component] += angular_strains[component];
 				}
 
 				// сила и момент из полученных деформаций

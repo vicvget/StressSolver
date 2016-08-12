@@ -276,7 +276,7 @@ namespace SpecialSolversTest
 			Stress::AddBoundary
 				(
 				hStressSolver,
-				&bcIndices[0],
+				&bcIndices[0], 
 				static_cast<int>(bcIndices.size()),
 				4,
 				bcParams
