@@ -69,7 +69,6 @@ void StressStrainCppIterativeSolver::Solve(const int nIterations)
 	{
 		_iterationNumber++;
 		_nIteration++;
-		
 		//Solve1() used only in initialization
 		Solve2();
 		Solve3();
@@ -134,7 +133,7 @@ void StressStrainCppIterativeSolver::Solve3()
 	_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
 
 	// RK4 step 2
-	#pragma omp parallel for num_threads(_numThreads)
+#pragma omp parallel for num_threads(_numThreads)
 	for (int j = 0; j < _nVariables; j++)
 	{      
 		_hDDX2[j] = _varDDX[j] * _timeStep;
@@ -156,7 +155,7 @@ void StressStrainCppIterativeSolver::Solve4()
 //	_time = _timeTmp + _timeStep;
 
 	// RK4 step 3
-	#pragma omp parallel for num_threads(_numThreads)
+#pragma omp parallel for num_threads(_numThreads)
 	for (int j = 0; j < _nVariables; j++)
 	{      
 		_hDDX3[j] = _varDDX[j] * _timeStep;
@@ -176,6 +175,7 @@ void StressStrainCppIterativeSolver::Solve5()
 {
 	_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
 
+#pragma omp parallel for num_threads(_numThreads)
 	for (int j = 0; j < _nVariables; j++)
 	{  
 		double sDDX = _hDDX2[j]+_hDDX3[j];
@@ -285,7 +285,8 @@ void StressStrainCppIterativeSolver::GetStressesByVonMises
 
 	double sigma[6];
 	
-	for (size_t elementId = 0; elementId < _nElements; elementId++)
+#pragma omp parallel for private(relativeShiftsSigned, sigma) num_threads(_numThreads)
+	for (int elementId = 0; elementId < _nElements; elementId++)
 	{
 		
 		for (size_t dof = 0; dof < 3; dof++)
@@ -331,7 +332,8 @@ void StressStrainCppIterativeSolver::CalculateForces()
 
 	__declspec(align(32)) double strains[8], velocityStrains[8];
 
-	for (size_t elementId1 = 0; elementId1 < _nElements; elementId1++)
+#pragma omp parallel for private (strains, velocityStrains) num_threads(_numThreads)
+	for (int elementId1 = 0; elementId1 < _nElements; elementId1++)
 	{
 		
 		double* accelerationVector = GetElementAcceleration(elementId1);
@@ -454,7 +456,9 @@ void StressStrainCppIterativeSolver::ApplyMass()
 	//_control87(~_EM_ZERODIVIDE, _MCW_EM);
 #endif
 
-	double* accelerations = GetElementAcceleration(0); // debug
+	//double* accelerations = GetElementAcceleration(0); // debug
+	//std::cout << "Num threads = " << _numThreads << std::endl;
+#pragma omp parallel for num_threads(_numThreads)
 	for (int elementId = 0; elementId < _nElements; elementId++)
 	{
 		MakeVec3(GetElementAcceleration(elementId)) /= _cellMass;

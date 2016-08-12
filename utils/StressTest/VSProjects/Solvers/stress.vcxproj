@@ -153,14 +153,13 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;STANDALONE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
-      <FloatingPointModel>Fast</FloatingPointModel>
-      <FloatingPointExceptions>false</FloatingPointExceptions>
-      <OpenMPSupport>false</OpenMPSupport>
+      <OpenMPSupport>true</OpenMPSupport>
       <PrecompiledHeader />
       <WarningLevel>Level3</WarningLevel>
       <DisableSpecificWarnings>4351;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <OpenMP>GenerateParallelCode</OpenMP>
       <Cpp0xSupport>true</Cpp0xSupport>
+      <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(MKLROOT)\lib\intel64;$(MKLROOT)\..\compiler\lib\intel64;%(AdditionalLibraryDirectories);$(BinaryPath)</AdditionalLibraryDirectories>

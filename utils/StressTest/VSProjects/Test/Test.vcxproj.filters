@@ -53,6 +53,9 @@
     <ClInclude Include="..\..\Test\MprExporter.h">
       <Filter>Header Files\Exporters</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Test\DummyExporter.h">
+      <Filter>Header Files\Exporters</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Test\CommonSolvers.cpp">
@@ -102,6 +105,9 @@
     </ClCompile>
     <ClCompile Include="..\..\Test\Test1x11x11.cpp">
       <Filter>Source Files\StressSolverTests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Test\DummyExporter.cpp">
+      <Filter>Source Files\Exporters</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

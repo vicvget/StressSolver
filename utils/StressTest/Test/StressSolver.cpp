@@ -9,6 +9,7 @@
 #include <iostream>
 #include "MprExporter.h"
 #include "ChartsExporter.h"
+#include "DummyExporter.h"
 
 
 //#define NO_BLENDER
@@ -74,8 +75,12 @@ namespace SpecialSolvers
 			Stress::StressStrainCppIterativeSolver* ssSolver = static_cast<Stress::StressStrainCppIterativeSolver*>(hSolver);
 
 			std::shared_ptr<BaseExporter> mprExporter = std::make_shared<MprExporter>(ssSolver, integrationParams);
-			std::shared_ptr<BaseExporter> blenderExporter = std::make_shared<BlenderExporter>(ssSolver);
-			std::shared_ptr<BaseExporter> chartsExporter = std::make_shared<ChartsExporter>(ssSolver);
+			//std::shared_ptr<BaseExporter> blenderExporter = std::make_shared<BlenderExporter>(ssSolver);
+			//std::shared_ptr<BaseExporter> chartsExporter = std::make_shared<ChartsExporter>(ssSolver);
+
+			std::shared_ptr<BaseExporter> blenderExporter = std::make_shared<DummyExporter>(ssSolver);
+			std::shared_ptr<BaseExporter> chartsExporter = std::make_shared<DummyExporter>(ssSolver);
+
 
 			int iteration = 0;
 
