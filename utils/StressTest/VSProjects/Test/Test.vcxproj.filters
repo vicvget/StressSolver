@@ -109,5 +109,8 @@
     <ClCompile Include="..\..\Test\DummyExporter.cpp">
       <Filter>Source Files\Exporters</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Test\Test1x51x51.cpp">
+      <Filter>Source Files\StressSolverTests</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
