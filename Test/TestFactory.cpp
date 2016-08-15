@@ -139,7 +139,7 @@ SpecialSolversTest::StressStrainStuff::TestFactory& SpecialSolversTest::StressSt
 		_gridParams._nz = sectionHeight;
 		forceDof = dof_y;
 		// TODO: убрать костыль
-		if (_gridParams._nx == 1) forceDof = dof_x;
+		//if (_gridParams._nx == 1) forceDof = dof_x;
 		break;
 	case yfb:
 		faceForced = SpecialSolversTest::face_front;
@@ -161,8 +161,25 @@ SpecialSolversTest::StressStrainStuff::TestFactory& SpecialSolversTest::StressSt
 		_gridParams._nz = length;
 		forceDof = dof_x;
 		break;
+	case xlrx:
+		faceForced = SpecialSolversTest::face_left;
+		faceSealed = SpecialSolversTest::face_right;
+		std::swap(faceForced, faceSealed);
+		_gridParams._nx = length;
+		_gridParams._ny = sectionWidth;
+		_gridParams._nz = sectionHeight;
+		forceDof = dof_x;
+		// TODO: убрать костыль
+		//if (_gridParams._nx == 1) forceDof = dof_x;
+		break;
 	default:
 		break;
 	}
+	return *this;
+}
+
+SpecialSolversTest::StressStrainStuff::TestFactory& SpecialSolversTest::StressStrainStuff::TestFactory::ForceDof(EDOF dof)
+{
+	forceDof = dof;
 	return *this;
 }

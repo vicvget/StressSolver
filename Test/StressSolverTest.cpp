@@ -126,7 +126,8 @@ namespace SpecialSolversTest
 			if (links != nullptr)
 				delete[] links;
 			size_t size = dof == dof_x ? gridParams._ny : gridParams._nx;
-			SetSealedForcePlateBc(_hsolver, size, force, dof);
+			SetSealedFullForcePlateBc(_hsolver, size, force, dof);
+			//SetSealedForcePlateBc(_hsolver, size, force, dof);
 			return _hsolver;
 		}
 
@@ -286,6 +287,32 @@ namespace SpecialSolversTest
 				);
 		}
 
+		void AddSealedFullPlateBoundary(
+			SolverHandler hStressSolver,
+			size_t side)
+		{
+			double bcParams[6] = { -1, -1, -1, -1, -1, -1 };
+			vector<int> bcIndices;
+			for (int i = 1; i <= side; i++)
+			{
+				bcIndices.push_back(i);
+				bcIndices.push_back(side*side-i+1);
+			}
+			for (int i = 1; i < side; i++)
+			{
+				bcIndices.push_back(side*i+1);
+				bcIndices.push_back(side*i+side);
+			}
+
+			Stress::AddBoundary
+				(
+				hStressSolver,
+				&bcIndices[0],
+				static_cast<int>(bcIndices.size()),
+				4,
+				bcParams
+				);
+		}
 
 
 
@@ -308,6 +335,16 @@ namespace SpecialSolversTest
 			EDOF dof)
 		{
 			AddSealedPlateBoundary(hStressSolver, side);
+			AddElementForceBoundary(hStressSolver, force, dof, side*(side / 2) + side / 2 + 1);
+		}
+
+		void SetSealedFullForcePlateBc(
+			SolverHandler hStressSolver,
+			size_t side,
+			double force,
+			EDOF dof)
+		{
+			AddSealedFullPlateBoundary(hStressSolver, side);
 			AddElementForceBoundary(hStressSolver, force, dof, side*(side / 2) + side / 2 + 1);
 		}
 

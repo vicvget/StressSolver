@@ -25,18 +25,18 @@ namespace SpecialSolversTest
 			TestFactory factory;
 			SolverHandler _hsolver = factory
 				.E(2.1e11f)
-				.Density(7800.f)
+				.Density(7900.f)
 				.Damping(2.f)
-				.ScaleFactor(1e9f)
+				.ScaleFactor(1e8f)
 
 				.IterationsCount(100)
 				.SubIterationsCount(1000)
-				.TimeStep(0.0001f)
+				.TimeStep(0.001f)
 
 				.GridStep(0.01f)
 				.Dims(10, 3, 3, code)
 
-				.Force(1000000)
+				.Force(1000)
 
 				.SolverType(solverType)
 
