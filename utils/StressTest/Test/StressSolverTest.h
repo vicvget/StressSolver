@@ -100,12 +100,20 @@ namespace SpecialSolversTest
 			double force,
 			EDOF dof);
 
+		void SetSealedFullForcePlateBc(
+			SolverHandler hStressSolver,
+			size_t side,
+			double force,
+			EDOF dof);
+
 
 		void Test();
 		void Test1x1x3(int solverType, ECode code);
 		void Test10x1x3(int solverType, ECode code);
 		void Test10x3x1(int solverType, ECode code);
 		void Test10x3x3(int solverType, ECode code);
+		void Test10x5x5(int solverType, ECode code);
+		void Test10x7x7(int solverType, ECode code);
 		void Test1x10x10(int solverType, ECode code);
 		void Test1x11x11(int solverType, ECode code);
 		void Test1x51x51(int solverType, ECode code);

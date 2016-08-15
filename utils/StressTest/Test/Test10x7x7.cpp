@@ -19,27 +19,28 @@ namespace SpecialSolversTest
 
 	namespace StressStrainStuff
 	{
-		void Test1x11x11(int solverType, ECode code)
+
+		void Test10x7x7(int solverType, ECode code)
 		{
 			TestFactory factory;
 			SolverHandler _hsolver = factory
-				.E(2.1e12f)
+				.E(2.1e11f)
 				.Density(7900.f)
-				.Damping(1.f)
-				.ScaleFactor(1e11f)
+				.Damping(2.f)
+				.ScaleFactor(1e8f)
 
 				.IterationsCount(100)
 				.SubIterationsCount(1000)
-				.TimeStep(0.0005f)
+				.TimeStep(0.001f)
 
 				.GridStep(0.01f)
-				.Dims(1, 11, 11, code)
+				.Dims(10, 7, 7, code)
 
-				.Force(100000000)
+				.Force(1000)
 
 				.SolverType(solverType)
 
-				.BuildPlate();
+				.BuildBeam();
 
 			if (_hsolver != nullptr)
 			{

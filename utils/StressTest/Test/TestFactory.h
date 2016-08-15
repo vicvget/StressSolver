@@ -21,7 +21,8 @@ namespace SpecialSolversTest
 				yfb,
 				ybf,
 				ztb,
-				zbt
+				zbt,
+				xlrx
 			};
 
 		string ECodeToString(ECode code);
@@ -75,6 +76,7 @@ namespace SpecialSolversTest
 			int solverType;
 
 			TestFactory& Dims(size_t length, size_t sectionWidth, size_t sectionHeight, ECode code);
+			TestFactory& ForceDof(EDOF dof);
 		};
 	} // namespace StressStrainStuff
 } // namespace SpecialSolversTest

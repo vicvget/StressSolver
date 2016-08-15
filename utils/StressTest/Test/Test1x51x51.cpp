@@ -28,7 +28,7 @@ namespace SpecialSolversTest
 				.Damping(1.f)
 				.ScaleFactor(1e9f)
 
-				.IterationsCount(100)
+				.IterationsCount(200)
 				.SubIterationsCount(1000)
 				.TimeStep(0.0001f)
 

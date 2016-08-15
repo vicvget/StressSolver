@@ -200,6 +200,8 @@
     <ClCompile Include="..\..\Test\StressSolverTest.cpp" />
     <ClCompile Include="..\..\Test\Test10x3x1.cpp" />
     <ClCompile Include="..\..\Test\Test10x3x3.cpp" />
+    <ClCompile Include="..\..\Test\Test10x5x5.cpp" />
+    <ClCompile Include="..\..\Test\Test10x7x7.cpp" />
     <ClCompile Include="..\..\Test\Test1x10x10.cpp" />
     <ClCompile Include="..\..\Test\Test1x11x11.cpp" />
     <ClCompile Include="..\..\Test\Test1x1x3.cpp" />
