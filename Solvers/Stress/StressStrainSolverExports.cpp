@@ -328,13 +328,13 @@ namespace Stress
 	* @param scaleFactor - масштабный коэффициент
 	*/
 	DLL_FUNCTION
-	void UpdateBuffer
+	float UpdateBuffer
 		(
 			const void* hsolver,
 			double scaleFactor
 		)
 	{
-		((StressStrainSolver*)hsolver)->UpdateBuffer(scaleFactor);
+		return ((StressStrainSolver*)hsolver)->UpdateBuffer(scaleFactor);
 	}
 
 

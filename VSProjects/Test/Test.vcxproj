@@ -182,6 +182,7 @@
     <ClInclude Include="..\..\Test\ComparativeTest.h" />
     <ClInclude Include="..\..\Test\BaseExporter.h" />
     <ClInclude Include="..\..\Test\DummyExporter.h" />
+    <ClInclude Include="..\..\Test\FrameChartsExporter.h" />
     <ClInclude Include="..\..\Test\MprExporter.h" />
     <ClInclude Include="..\..\Test\StressSolver.h" />
     <ClInclude Include="..\..\Test\StressSolverTest.h" />
@@ -194,12 +195,14 @@
     <ClCompile Include="..\..\Test\CommonSolversTest.cpp" />
     <ClCompile Include="..\..\Test\ComparativeTest.cpp" />
     <ClCompile Include="..\..\Test\DummyExporter.cpp" />
+    <ClCompile Include="..\..\Test\FrameChartsExporter.cpp" />
     <ClCompile Include="..\..\Test\main.cpp" />
     <ClCompile Include="..\..\Test\MprExporter.cpp" />
     <ClCompile Include="..\..\Test\StressSolver.cpp" />
     <ClCompile Include="..\..\Test\StressSolverTest.cpp" />
     <ClCompile Include="..\..\Test\Test10x3x1.cpp" />
     <ClCompile Include="..\..\Test\Test10x3x3.cpp" />
+    <ClCompile Include="..\..\Test\Test10x5x5_2.cpp" />
     <ClCompile Include="..\..\Test\Test10x5x5.cpp" />
     <ClCompile Include="..\..\Test\Test10x7x7.cpp" />
     <ClCompile Include="..\..\Test\Test1x10x10.cpp" />
@@ -207,6 +210,8 @@
     <ClCompile Include="..\..\Test\Test1x1x3.cpp" />
     <ClCompile Include="..\..\Test\Test10x1x3.cpp" />
     <ClCompile Include="..\..\Test\Test1x51x51.cpp" />
+    <ClCompile Include="..\..\Test\Test50x5x5.cpp" />
+    <ClCompile Include="..\..\Test\Test50x5x5_2.cpp" />
     <ClCompile Include="..\..\Test\TestFactory.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -194,7 +194,7 @@ namespace Stress
 	* @param scaleFactor - масштабный коэффициент
 	*/
 	DLL_FUNCTION
-	void UpdateBuffer
+	float UpdateBuffer
 		(
 			const void* hsolver,
 			double scaleFactor = 1.0

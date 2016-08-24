@@ -26,17 +26,17 @@ namespace SpecialSolversTest
 				.E(2.1e12f)
 				.Density(7900.f)
 				.Damping(1.f)
-				.ScaleFactor(1e11f)
+				.ScaleFactor(1e9f)
 
 				.IterationsCount(100)
 				.SubIterationsCount(1000)
-				.TimeStep(0.0005f)
+				.TimeStep(0.0001f)
 
 				.GridStep(0.01f)
 				.Dims(1, 11, 11, code)
 
-				.Force(100000000)
-
+				.Force(1000)
+				.ForceDof(dof_x) // для пластины!!!
 				.SolverType(solverType)
 
 				.BuildPlate();
