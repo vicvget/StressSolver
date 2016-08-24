@@ -36,7 +36,7 @@ namespace SpecialSolversTest
 				.Dims(1, 51, 51, code)
 
 				.Force(1000)
-
+				.ForceDof(dof_x) // для пластины!!!
 				.SolverType(solverType)
 
 				.BuildPlate();

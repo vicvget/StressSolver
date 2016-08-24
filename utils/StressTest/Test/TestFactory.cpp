@@ -94,7 +94,7 @@ SpecialSolvers::StressStrainStuff::SolverHandler SpecialSolversTest::StressStrai
 	stringstream str;
 	str << "beam_stress_type_" << solverType << '_' << _gridParams._nx << 'x' << _gridParams._ny << 'x' << _gridParams._nz << '_' << ECodeToString(code);
 	Uid(str.str());
-	return MakeSolver(
+	return MakeSolverBeam(
 		_gridParams,
 		_specialParams,
 		_integrationParams,
@@ -106,6 +106,26 @@ SpecialSolvers::StressStrainStuff::SolverHandler SpecialSolversTest::StressStrai
 		solverType
 	);
 }
+
+SpecialSolvers::StressStrainStuff::SolverHandler SpecialSolversTest::StressStrainStuff::TestFactory::BuildBeam2()
+{
+	stringstream str;
+	str << "beam2_stress_type_" << solverType << '_' << _gridParams._nx << 'x' << _gridParams._ny << 'x' << _gridParams._nz << '_' << ECodeToString(code);
+	Uid(str.str());
+	return MakeSolverBeam2(
+		_gridParams,
+		_specialParams,
+		_integrationParams,
+		solverUid,
+		faceSealed,
+		faceSealed2,
+		faceForced,
+		force,
+		forceDof,
+		solverType
+		);
+}
+
 
 SpecialSolvers::StressStrainStuff::SolverHandler SpecialSolversTest::StressStrainStuff::TestFactory::BuildPlate()
 {
@@ -177,6 +197,49 @@ SpecialSolversTest::StressStrainStuff::TestFactory& SpecialSolversTest::StressSt
 	}
 	return *this;
 }
+
+SpecialSolversTest::StressStrainStuff::TestFactory& SpecialSolversTest::StressStrainStuff::TestFactory::Dims2(size_t length, size_t sectionWidth, size_t sectionHeight, ECode code)
+{
+	this->code = code;
+	switch (code)
+	{
+	case xlr:
+	case xrl:
+		faceSealed = SpecialSolversTest::face_left;
+		faceSealed2 = SpecialSolversTest::face_right;
+		faceForced = SpecialSolversTest::face_front;
+		_gridParams._nx = length;
+		_gridParams._ny = sectionWidth;
+		_gridParams._nz = sectionHeight;
+		forceDof = dof_y;
+		break;
+	case yfb:
+	case ybf:
+		faceForced = SpecialSolversTest::face_left;
+		faceSealed = SpecialSolversTest::face_front;
+		faceSealed2 = SpecialSolversTest::face_back;
+		_gridParams._nx = sectionWidth;
+		_gridParams._ny = length;
+		_gridParams._nz = sectionHeight;
+		forceDof = dof_z;
+		break;
+	case ztb:
+	case zbt:
+		faceForced = SpecialSolversTest::face_front;
+		faceSealed = SpecialSolversTest::face_top;
+		faceSealed2 = SpecialSolversTest::face_bottom;
+		std::swap(faceForced, faceSealed);
+		_gridParams._nx = sectionHeight;
+		_gridParams._ny = sectionWidth;
+		_gridParams._nz = length;
+		forceDof = dof_x;
+		break;
+	default:
+		break;
+	}
+	return *this;
+}
+
 
 SpecialSolversTest::StressStrainStuff::TestFactory& SpecialSolversTest::StressStrainStuff::TestFactory::ForceDof(EDOF dof)
 {

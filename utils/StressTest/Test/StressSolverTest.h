@@ -34,12 +34,24 @@ namespace SpecialSolversTest
 		using namespace SpecialSolvers::StressStrainStuff;
 
 
-		SolverHandler MakeSolver(
+		SolverHandler MakeSolverBeam(
 			const GridParams& gridParams,
 			const SpecialParams& specialParams,
 			const IntegrationParams& integrationParams,
 			const std::string& solverUid,
 			EFACE sealedFace,
+			EFACE forcedFace,
+			double force,
+			EDOF dof,
+			const int solverType);
+
+		SolverHandler MakeSolverBeam2(
+			const GridParams& gridParams,
+			const SpecialParams& specialParams,
+			const IntegrationParams& integrationParams,
+			const std::string& solverUid,
+			EFACE sealedFace,
+			EFACE sealedFace2,
 			EFACE forcedFace,
 			double force,
 			EDOF dof,
@@ -54,7 +66,7 @@ namespace SpecialSolversTest
 			EDOF dof,
 			const int solverType);
 
-		SolverHandler MakeSolver
+		SolverHandler MakeSolverBeam
 		(
 			const GridParams& gridParams,
 			const SpecialParams& specialParams,
@@ -66,6 +78,15 @@ namespace SpecialSolversTest
 		void SetSealedForceBc(
 			SolverHandler hStressSolver,
 			EFACE faceSealed,
+			EFACE faceForced,
+			double force,
+			EDOF dof,
+			const GridParams& gridParams);
+
+		void SetSealed2ForceBc(
+			SolverHandler hStressSolver,
+			EFACE faceSealed,
+			EFACE faceSealed2,
 			EFACE faceForced,
 			double force,
 			EDOF dof,
@@ -113,6 +134,9 @@ namespace SpecialSolversTest
 		void Test10x3x1(int solverType, ECode code);
 		void Test10x3x3(int solverType, ECode code);
 		void Test10x5x5(int solverType, ECode code);
+		void Test10x5x5_2(int solverType, ECode code);
+		void Test50x5x5(int solverType, ECode code);
+		void Test50x5x5_2(int solverType, ECode code);
 		void Test10x7x7(int solverType, ECode code);
 		void Test1x10x10(int solverType, ECode code);
 		void Test1x11x11(int solverType, ECode code);

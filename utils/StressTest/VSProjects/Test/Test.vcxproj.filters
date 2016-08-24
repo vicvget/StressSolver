@@ -56,6 +56,9 @@
     <ClInclude Include="..\..\Test\DummyExporter.h">
       <Filter>Header Files\Exporters</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Test\FrameChartsExporter.h">
+      <Filter>Header Files\Exporters</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Test\CommonSolvers.cpp">
@@ -117,6 +120,18 @@
     </ClCompile>
     <ClCompile Include="..\..\Test\Test10x7x7.cpp">
       <Filter>Source Files\StressSolverTests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Test\Test10x5x5_2.cpp">
+      <Filter>Source Files\StressSolverTests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Test\Test50x5x5.cpp">
+      <Filter>Source Files\StressSolverTests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Test\Test50x5x5_2.cpp">
+      <Filter>Source Files\StressSolverTests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Test\FrameChartsExporter.cpp">
+      <Filter>Source Files\Exporters</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

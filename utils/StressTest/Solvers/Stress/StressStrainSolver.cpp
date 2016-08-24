@@ -4,6 +4,7 @@
 #include <cstring>
 #include <fstream>
 #include "Common.h"
+#include "../../AdditionalModules/fmath/Vector3.h"
 
 using std::ifstream;
 using std::ofstream;
@@ -197,6 +198,13 @@ double* StressStrainSolver::GetElementShift(size_t elementId) const
 {
 	return _dataInternal + (elementId * vecStride2);
 }
+
+//virtual 
+double StressStrainSolver::GetElementDisplacement(size_t elementId) const
+{
+	return (MathHelpers::MakeVec3(GetElementShift(elementId)) - MathHelpers::MakeVec3(GetElementGridCoordinates(elementId))).Magnitude();
+}
+
 
 //virtual 
 double* StressStrainSolver::GetElementVelocity(size_t elementId) const

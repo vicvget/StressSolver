@@ -82,7 +82,7 @@ public:
 		);
 
 	virtual
-	void UpdateBuffer
+	float UpdateBuffer
 		(
 			double scale
 		);

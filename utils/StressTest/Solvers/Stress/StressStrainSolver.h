@@ -149,7 +149,7 @@ public:
 		= 0;
 
 	virtual
-	void UpdateBuffer
+	float UpdateBuffer
 		(
 			double scale = 1
 		)
@@ -271,7 +271,8 @@ public:
 
 
 	// Методы для получения характеристик элемента
-	virtual double* GetElementGridCoordinates		(size_t elementId) const;
+	virtual double  GetElementDisplacement(size_t elementId) const;
+	virtual double* GetElementGridCoordinates(size_t elementId) const;
 	virtual double* GetElementStress				(size_t elementId) const;
 	virtual double* GetElementStressAngular			(size_t elementId) const;
 	virtual double* GetElementShift					(size_t elementId) const;

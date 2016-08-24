@@ -41,6 +41,7 @@ namespace SpecialSolversTest
 			SpecialParams SpecialParams();
 
 			SolverHandler BuildBeam();
+			SolverHandler BuildBeam2();
 			SolverHandler BuildPlate();
 
 #pragma region setters
@@ -70,12 +71,14 @@ namespace SpecialSolversTest
 
 			EDOF forceDof;
 			EFACE faceSealed;
+			EFACE faceSealed2;
 			EFACE faceForced;
 			float force;
 			string solverUid;
 			int solverType;
 
 			TestFactory& Dims(size_t length, size_t sectionWidth, size_t sectionHeight, ECode code);
+			TestFactory& Dims2(size_t length, size_t sectionWidth, size_t sectionHeight, ECode code);
 			TestFactory& ForceDof(EDOF dof);
 		};
 	} // namespace StressStrainStuff

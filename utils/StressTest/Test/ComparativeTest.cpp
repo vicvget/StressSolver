@@ -147,15 +147,15 @@ bool ComparativeTest()
 		);
 
 
-	std::cout << "CalculateStrains" << std::endl;
-	cppSolver->CalculateStrains
-		(
-		0,	// 0 = -x, 1 = x, 2 = -y, 3 = y, 4 = -z, 5 = z
-		&SL[0],		// выход деформаций
-		&VL[0],		// выход изм. скоростей
-		1,	// номер узла 1
-		2	// номер узла 2
-		);
+	//std::cout << "CalculateStrains" << std::endl;
+	//cppSolver->CalculateStrains
+	//	(
+	//	0,	// 0 = -x, 1 = x, 2 = -y, 3 = y, 4 = -z, 5 = z
+	//	&SL[0],		// выход деформаций
+	//	&VL[0],		// выход изм. скоростей
+	//	1,	// номер узла 1
+	//	2	// номер узла 2
+	//	);
 	//cppSolver->CalculateStrains
 	//	(
 	//	0,	// 0 = -x, 1 = x, 2 = -y, 3 = y, 4 = -z, 5 = z
@@ -174,14 +174,14 @@ bool ComparativeTest()
 	//	);
 
 #ifndef USE_KNC
-	//cppSolver->CalculateStrainsAVX
-	//	(
-	//	0,	// 0 = -x, 1 = x, 2 = -y, 3 = y, 4 = -z, 5 = z
-	//	&SL2[0],		// выход деформаций 
-	//	&VL2[0],		// выход деформаций
-	//	0,	// номер узла 1
-	//	1	// номер узла 2
-	//	);
+	cppSolver->CalculateStrainsAVX
+		(
+		0,	// 0 = -x, 1 = x, 2 = -y, 3 = y, 4 = -z, 5 = z
+		&SL2[0],		// выход деформаций 
+		&VL2[0],		// выход деформаций
+		1,	// номер узла 1
+		2	// номер узла 2
+		);
 
 	//cppSolver->CalculateStrainsSSE
 	//	(

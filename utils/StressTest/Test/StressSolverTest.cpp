@@ -19,7 +19,7 @@ namespace SpecialSolversTest
 
 	namespace StressStrainStuff
 	{
-		SolverHandler MakeSolver(
+		SolverHandler MakeSolverBeam(
 			const GridParams& gridParams,
 			const SpecialParams& specialParams,
 			const IntegrationParams& integrationParams,
@@ -59,7 +59,7 @@ namespace SpecialSolversTest
 				gridParams._gridStep,
 				integrationParams._timeStep,
 				0,
-				0,
+				omp_get_max_threads(),
 				false,
 				solverType
 				);
@@ -75,6 +75,65 @@ namespace SpecialSolversTest
 
 			return _hsolver;
 		}
+
+
+		SolverHandler MakeSolverBeam2(
+			const GridParams& gridParams,
+			const SpecialParams& specialParams,
+			const IntegrationParams& integrationParams,
+			const string& solverUid,
+			EFACE sealedFace,
+			EFACE sealedFace2,
+			EFACE forcedFace,
+			double force,
+			EDOF dof,
+			const int solverType)
+		{
+			double* nodes = nullptr;
+			int* links = nullptr;
+			int nLinks;
+			string fileRlc = solverUid + ".rlc";
+			CreateTestGrid
+				(
+				nodes,
+				links,
+				nLinks,
+				gridParams._nx,
+				gridParams._ny,
+				gridParams._nz,
+				gridParams._gridStep,
+				fileRlc
+				);
+
+			double params[5];
+			specialParams.GetParams(params);
+			SolverHandler _hsolver = Stress::Init
+				(
+				solverUid,
+				params,
+				links,
+				nLinks,
+				nodes,
+				gridParams.NodesCount(),
+				gridParams._gridStep,
+				integrationParams._timeStep,
+				0,
+				omp_get_max_threads(),
+				false,
+				solverType
+				);
+
+			if (nodes != nullptr)
+				delete[] nodes;
+			if (links != nullptr)
+				delete[] links;
+			SetSealed2ForceBc(_hsolver, sealedFace, sealedFace2, forcedFace, force, dof, gridParams);
+			//SetSealedForceForceBc(_hsolver, sealedFace, forcedFace, force, dof, (EDOF)((dof+2)%3), gridParams);
+			//SetElementForceBc(_hsolver, force*gridParams._gridStep*gridParams._gridStep*10, 119, EDOF::dof_ry);
+
+			return _hsolver;
+		}
+
 
 		SolverHandler MakePlateSolver(
 			const GridParams& gridParams,
@@ -132,9 +191,9 @@ namespace SpecialSolversTest
 		}
 
 
-		SolverHandler MakeSolver(const GridParams& gridParams, const SpecialParams& specialParams, const IntegrationParams& integrationParams, const std::string& solverUid, const int solverType)
+		SolverHandler MakeSolverBeam(const GridParams& gridParams, const SpecialParams& specialParams, const IntegrationParams& integrationParams, const std::string& solverUid, const int solverType)
 		{
-			return MakeSolver(gridParams, specialParams, integrationParams, solverUid, face_left, face_right, 10, dof_y, solverType);
+			return MakeSolverBeam(gridParams, specialParams, integrationParams, solverUid, face_left, face_right, 10, dof_y, solverType);
 		}
 
 		//void OverrideStiffness(SolverHandler solver_handler, int i, int i1, int i2, int i3, int i4);
@@ -155,7 +214,7 @@ namespace SpecialSolversTest
 				stiffnessScale);
 		}
 
-		void FillFaceIndices(vector<int>& bcIndices, EFACE face, const GridParams& gridParams)
+		void FillFaceIndicesPlate(vector<int>& bcIndices, EFACE face, const GridParams& gridParams)
 		{
 			switch (face)
 			{
@@ -183,6 +242,53 @@ namespace SpecialSolversTest
 					for (size_t j = 0; j < gridParams._ny; j++)
 					{
 						bcIndices.push_back((int)(i*gridParams._nx*gridParams._ny + j * gridParams._nx + gridParams._nz));
+					}
+				break;
+			case face_front:
+				for (size_t i = 0; i < gridParams._nx; i++)
+					for (size_t j = 0; j < gridParams._nz; j++)
+					{
+						bcIndices.push_back((int)(i*gridParams._ny*gridParams._nz + j + 1));
+					}
+				break;
+			case face_back:
+				for (size_t i = 0; i < gridParams._nx; i++)
+					for (size_t j = 0; j < gridParams._nz; j++)
+					{
+						bcIndices.push_back((int)((i + 1)*gridParams._ny*gridParams._nz - j));
+					}
+				break;
+			}
+		}
+
+		void FillFaceIndices(vector<int>& bcIndices, EFACE face, const GridParams& gridParams)
+		{
+			switch (face)
+			{
+			case face_left:
+				for (int i = 0; i < gridParams._nz * gridParams._ny; i++)
+				{
+					bcIndices.push_back(i + 1);
+				}
+				break;
+			case face_right:
+				for (int i = 0; i < gridParams._nz * gridParams._ny; i++)
+				{
+					bcIndices.push_back(gridParams.NodesCount() - i);
+				}
+				break;
+			case face_bottom:
+				for (size_t i = 0; i < gridParams._nx; i++)
+					for (size_t j = 0; j < gridParams._ny; j++)
+					{
+						bcIndices.push_back((int)(i*gridParams._nz*gridParams._ny + j * gridParams._nz + 1));
+					}
+				break;
+			case face_top:
+				for (size_t i = 0; i < gridParams._nx; i++)
+					for (size_t j = 0; j < gridParams._ny; j++)
+					{
+						bcIndices.push_back((int)(i*gridParams._nz*gridParams._ny + j * gridParams._nz + gridParams._nz));
 					}
 				break;
 			case face_front:
@@ -324,9 +430,24 @@ namespace SpecialSolversTest
 			EDOF dof,
 			const GridParams& gridParams)
 		{
-			AddSealedBoundary(hStressSolver, faceSealed, gridParams);
 			AddForceBoundary(hStressSolver, force, dof, faceForced, gridParams);
+			AddSealedBoundary(hStressSolver, faceSealed, gridParams);
 		}
+
+		void SetSealed2ForceBc(
+			SolverHandler hStressSolver,
+			EFACE faceSealed,
+			EFACE faceSealed2,
+			EFACE faceForced,
+			double force,
+			EDOF dof,
+			const GridParams& gridParams)
+		{
+			AddForceBoundary(hStressSolver, force, dof, faceForced, gridParams);
+			AddSealedBoundary(hStressSolver, faceSealed, gridParams);
+			AddSealedBoundary(hStressSolver, faceSealed2, gridParams);
+		}
+
 
 		void SetSealedForcePlateBc(
 			SolverHandler hStressSolver,
@@ -334,6 +455,8 @@ namespace SpecialSolversTest
 			double force,
 			EDOF dof)
 		{
+//			AddElementForceBoundary(hStressSolver, force, dof, side*(side / 2) + side / 2 + 1);
+//			AddSealedPlateBoundary(hStressSolver, side);
 			AddSealedPlateBoundary(hStressSolver, side);
 			AddElementForceBoundary(hStressSolver, force, dof, side*(side / 2) + side / 2 + 1);
 		}
@@ -344,6 +467,8 @@ namespace SpecialSolversTest
 			double force,
 			EDOF dof)
 		{
+			//AddElementForceBoundary(hStressSolver, force, dof, side*(side / 2) + side / 2 + 1);
+			//AddSealedFullPlateBoundary(hStressSolver, side);
 			AddSealedFullPlateBoundary(hStressSolver, side);
 			AddElementForceBoundary(hStressSolver, force, dof, side*(side / 2) + side / 2 + 1);
 		}

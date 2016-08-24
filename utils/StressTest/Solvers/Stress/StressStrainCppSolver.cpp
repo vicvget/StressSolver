@@ -351,7 +351,7 @@ double StressStrainCppSolver::GetBoundaryParam
 }
 
 // virtual
-void StressStrainCppSolver::UpdateBuffer
+float StressStrainCppSolver::UpdateBuffer
 	(
 		double scale
 	)
@@ -359,13 +359,15 @@ void StressStrainCppSolver::UpdateBuffer
 	int id = 0;
 
 	GetScalarParameter(_data);
+	float maxScalar = _data[0];
 	for (int i = 0; i < _nElements; i++)
 	{
+		if (_data[i] > maxScalar) maxScalar = _data[i];
 		for (int j = 0; j < 3; j++)
 		{
 			if (fabs(_dataInternal[i * vecStride2 + j]) > 1e20)
 			{
-				std::cout << "COORDINATE BIG NUMBER!!!" << std::endl;
+				std::cout << "COORDINATE VALUE OVERFLOW: " << _dataInternal[i * vecStride2 + j] << std::endl;
 			}
 			_data[i * 3 + j + _nElements] =
 				(float)
@@ -375,6 +377,7 @@ void StressStrainCppSolver::UpdateBuffer
 					);
 		}
 	}
+	return maxScalar;
 }
 
 

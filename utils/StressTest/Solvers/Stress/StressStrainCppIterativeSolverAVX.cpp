@@ -418,20 +418,26 @@ void StressStrainCppIterativeSolverAVX::CalculateForces()
 	static int it = 0;
 
 	__declspec(align(32)) double strains[8], velocityStrains[8];
-
-#pragma omp parallel for private (strains,velocityStrains) num_threads(_numThreads)
+//#define MODX
+	memset(GetElementAcceleration(0), 0u, sizeof(double)*vecStride2*_nElements);
+	memset(GetElementStress(0), 0u, sizeof(double)*vecStride2*_nElements);
+//#pragma omp parallel for private (strains, velocityStrains) num_threads(_numThreads)
 	for (int elementId1 = 0; elementId1 < _nElements; elementId1++)
 	{
 		
 		double* accelerationVector = GetElementAcceleration(elementId1);
 
-		memset(GetElementAcceleration(elementId1), 0u, sizeof(double)*vecStride2);
-		memset(GetElementStress(elementId1), 0u, sizeof(double)*vecStride2);
+		//memset(GetElementAcceleration(elementId1), 0u, sizeof(double)*vecStride2);
+		//memset(GetElementStress(elementId1), 0u, sizeof(double)*vecStride2);
 
 		_testTimer.Start(5);
+		size_t nSides = 6;
+#ifdef MODX
+		nSides = 3;
+#endif
 
 		// обход 6 связанных элементов x-,y-,z-,x+,y+,z+
-		for (size_t side = 0; side < 6; side++)
+		for (size_t side = 0; side < nSides; side++)
 		{
 			size_t elementId2 = _linkedElements[6 * elementId1 + side];
 			if (elementId2)
@@ -448,6 +454,13 @@ void StressStrainCppIterativeSolverAVX::CalculateForces()
 				{
 					GetElementStress(elementId1)[component] += strains[component];
 					GetElementStress(elementId1)[component + vecStride] += strains[component + vecStride];
+#ifdef MODX
+//#pragma omp critical
+					{
+						GetElementStress(elementId2)[component] -= strains[component];
+						GetElementStress(elementId2)[component + vecStride] -= strains[component + vecStride];
+				    }
+#endif
 				}
 
 				// сила и момент из полученных деформаций
@@ -455,18 +468,18 @@ void StressStrainCppIterativeSolverAVX::CalculateForces()
 				Vec3 torque = -angular_vstrains * _dampingFactorAngular - angular_strains * _elasticFactorAngular;
 
 				// отладочный вывод деформаций
-				df[0] = -strains[0];
-				df[1] = -strains[1];
-				df[2] = -strains[2];
-				df[3] = -strains[0 + vecStride];
-				df[4] = -strains[1 + vecStride];
-				df[5] = -strains[2 + vecStride];
-				df[6] = force.X();
-				df[7] = force.Y();
-				df[8] = force.Z();
-				df[9] = torque.X();
-				df[10] = torque.Y();
-				df[11] = torque.Z();
+				//df[0] = -strains[0];
+				//df[1] = -strains[1];
+				//df[2] = -strains[2];
+				//df[3] = -strains[0 + vecStride];
+				//df[4] = -strains[1 + vecStride];
+				//df[5] = -strains[2 + vecStride];
+				//df[6] = force.X();
+				//df[7] = force.Y();
+				//df[8] = force.Z();
+				//df[9] = torque.X();
+				//df[10] = torque.Y();
+				//df[11] = torque.Z();
 
 
 				Vec3 vAcc;
@@ -488,12 +501,36 @@ void StressStrainCppIterativeSolverAVX::CalculateForces()
 				//MakeVec3(GetElementAcceleration(elementId1)) += vAcc;
 				//MakeVec3(GetElementAccelerationAngular(elementId1)) += vM;
 				
-				
+#ifdef MODX
+				double* accelerationVector2 = GetElementAcceleration(elementId2);
+
+				Vec3 vAcc2;
+				if (vecStride == 4)
+				{
+					Mat3x4 matA01(GetRotationMatrix(elementId2));
+					vAcc2 = matA01*force;
+				}
+				else
+				{
+					Mat3 matA01(GetRotationMatrix(elementId2));
+					vAcc2 = matA01*force;
+				}
+
+				Vec3 vM2 = force.Cross(MakeVec3(GetRadiusVector(side + 3))) - torque;
+
+#endif
 				for (int i = 0; i < 3; i++)
 				{
 					accelerationVector[i] += vAcc[i];
 					accelerationVector[i + vecStride] += vM[i];
+#ifdef MODX
+//#pragma omp critical
+				{
+						accelerationVector2[i] -= vAcc2[i];
+						accelerationVector2[i + vecStride] += vM2[i];
 				}
+#endif
+				} 
 
 			}
 		}

@@ -10,6 +10,7 @@
 #include "MprExporter.h"
 #include "ChartsExporter.h"
 #include "DummyExporter.h"
+#include "FrameChartsExporter.h"
 
 
 //#define NO_BLENDER
@@ -80,13 +81,18 @@ namespace SpecialSolvers
 
 			std::shared_ptr<BaseExporter> blenderExporter = std::make_shared<DummyExporter>(ssSolver);
 			std::shared_ptr<BaseExporter> chartsExporter = std::make_shared<DummyExporter>(ssSolver);
-
+			std::shared_ptr<FrameChartsExporter> frameChartsExporter = std::make_shared<FrameChartsExporter>(ssSolver);
+			for (size_t id = 11 * 5; id < 11 * 6; id++)
+			{
+				frameChartsExporter->AddId(id);
+			}
 
 			int iteration = 0;
 
 			mprExporter->Init();
 			blenderExporter->Init();
 			chartsExporter->Init();
+			frameChartsExporter->Init();
 
 			int progress = 0;
 
@@ -96,16 +102,16 @@ namespace SpecialSolvers
 			for (int i = 0; i < integrationParams._nIterations; i++)
 			{
 				Stress::Solve(hSolver, integrationParams._nSubIterations);
-				Stress::UpdateBuffer(hSolver);
-				double time = (1 + iteration) * integrationParams._timeStep * integrationParams._nSubIterations;
+				float maxstress = Stress::UpdateBuffer(hSolver);
+				float time = (1 + iteration) * integrationParams._timeStep * integrationParams._nSubIterations;
 
 				mprExporter->WriteFrame(time);
 				blenderExporter->WriteFrame(time);
 				chartsExporter->WriteFrame(time);
-
+				frameChartsExporter->WriteFrame(time);
 				if (i*100. / integrationParams._nIterations > progress)
 				{
-					std::cout << progress << '%' << std::endl << std::flush;
+					std::cout << progress << "% stress=" << maxstress << std::endl << std::flush;
 					progress++;
 				}
 				iteration++;
@@ -114,6 +120,7 @@ namespace SpecialSolvers
 			mprExporter->Finalize();
 			blenderExporter->Finalize();
 			chartsExporter->Finalize();
+			frameChartsExporter->Finalize();
 
 		}	
 	}
