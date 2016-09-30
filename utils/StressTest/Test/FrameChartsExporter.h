@@ -12,6 +12,7 @@ class FrameChartsExporter: public BaseExporter
 
 public:
 	FrameChartsExporter(Stress::StressStrainCppIterativeSolver* solver) : BaseExporter(solver) {};
+	FrameChartsExporter(Stress::StressStrainCppIterativeSolver* solver, const vector<size_t>& ids) : BaseExporter(solver), _elementIds(ids) {};
 	void AddId(size_t id) { _elementIds.push_back(id); }
 #pragma region overriden
 public:

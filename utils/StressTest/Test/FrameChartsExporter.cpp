@@ -17,7 +17,6 @@ void FrameChartsExporter::WriteFrame(float time)
 {
 	std::stringstream ss;
 	ss << _solver->_uid << std::setprecision(5) << time << "_framechart.txt";
-	//_ofs.
 	_ofs.open(ss.str());
 	if (_ofs.is_open() && _solver != nullptr)
 	{

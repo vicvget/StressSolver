@@ -109,6 +109,16 @@ public:
 			float* data
 		);
 
+	/** Получить напряжения по von Mises
+	* @param data - массив для записи напряжений как скалярного параметра
+	*/
+	virtual
+		void GetStressesX
+		(
+		float* data
+		);
+
+
 #pragma endregion
 
 	double df[12]; // debug

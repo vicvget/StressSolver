@@ -7,10 +7,12 @@
 class ChartsExporter: public BaseExporter
 {
 	std::ofstream _ofs;
-	size_t _elementId = 2;
+	vector<size_t> _elementIds;
+	bool _firstTime;
 
 public:
 	ChartsExporter(Stress::StressStrainCppIterativeSolver* solver) : BaseExporter(solver) {};
+	ChartsExporter(Stress::StressStrainCppIterativeSolver* solver, const vector<size_t>& ids) : BaseExporter(solver), _elementIds(ids) {};
 
 #pragma region overriden
 public:

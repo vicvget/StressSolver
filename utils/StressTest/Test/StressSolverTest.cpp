@@ -155,7 +155,7 @@ namespace SpecialSolversTest
 				nLinks,
 				gridParams._nx,
 				gridParams._ny,
-				gridParams._nz,
+				gridParams._nz,  
 				gridParams._gridStep,
 				fileRlc
 				);
@@ -190,6 +190,61 @@ namespace SpecialSolversTest
 			return _hsolver;
 		}
 
+
+		SolverHandler MakePlateQuaterSolver(
+			const GridParams& gridParams,
+			const SpecialParams& specialParams,
+			const IntegrationParams& integrationParams,
+			const string& solverUid,
+			double force,
+			EDOF dof,
+			const int solverType)
+		{
+			double* nodes = nullptr;
+			int* links = nullptr;
+			int nLinks;
+			string fileRlc = solverUid + ".rlc";
+			CreateTestGrid
+				(
+				nodes,
+				links,
+				nLinks,
+				gridParams._nx,
+				gridParams._ny,
+				gridParams._nz,
+				gridParams._gridStep,
+				fileRlc
+				);
+
+			double params[5];
+			specialParams.GetParams(params);
+			int numThreads = omp_get_max_threads();
+
+			SolverHandler _hsolver = Stress::Init
+				(
+				solverUid,
+				params,
+				links,
+				nLinks,
+				nodes,
+				gridParams.NodesCount(),
+				gridParams._gridStep,
+				integrationParams._timeStep,
+				0,
+				numThreads,
+				false,
+				solverType
+				);
+
+			if (nodes != nullptr)
+				delete[] nodes;
+			if (links != nullptr)
+				delete[] links;
+			size_t size = dof == dof_x ? gridParams._ny : gridParams._nx;
+			SetSealedFullForceQuarterPlateBc(_hsolver, size, force, dof);
+			//SetSealedForcePlateBc(_hsolver, size, force, dof);
+			return _hsolver;
+		}
 
 		SolverHandler MakeSolverBeam(const GridParams& gridParams, const SpecialParams& specialParams, const IntegrationParams& integrationParams, const std::string& solverUid, const int solverType)
 		{
@@ -471,6 +526,45 @@ namespace SpecialSolversTest
 			//AddSealedFullPlateBoundary(hStressSolver, side);
 			AddSealedFullPlateBoundary(hStressSolver, side);
 			AddElementForceBoundary(hStressSolver, force, dof, side*(side / 2) + side / 2 + 1);
+		}
+
+		void SetSealedFullForceQuarterPlateBc(
+			SolverHandler hStressSolver,
+			size_t side,
+			double force,
+			EDOF dof)
+		{
+			double bcParams[6] = { -1, -1, -1, -1, -1, -1 };
+			vector<int> bcIndices;
+			for (int i = 0; i < side; i++)
+			{
+				bcIndices.push_back(side*i + 1);
+			}
+
+			Stress::AddBoundary
+				(
+				hStressSolver,
+				&bcIndices[0],
+				static_cast<int>(bcIndices.size()),
+				4,
+				bcParams
+				);
+
+			double bcParams2[6] = { force, 0, 0, 0, 0, 0 };
+			vector<int> bcIndices2;
+			for (int i = 0; i < side/4; i++)
+			{
+				bcIndices2.push_back(side*side - i);
+			}
+
+			Stress::AddBoundary
+				(
+				hStressSolver,
+				&bcIndices2[0],
+				static_cast<int>(bcIndices2.size()),
+				3,
+				bcParams2
+				);
 		}
 
 

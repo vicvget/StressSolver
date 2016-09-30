@@ -35,20 +35,21 @@ const size_t matStride = vecStride * 3; // смещения матриц поворота (3x3, 3x4)
 	size_t stressVectorSize		= sizeof(double)*nNodes * vecStride2;
 
 	// Additional alignment for KNC
+	size_t alignBytes = sizeof(double) * 8;
 	size_t 
-	delta = dataInternalSize % 8;
-	if (delta) dataInternalSize += (8 - delta);
-	delta = dataRotationMtxSize % 8;
-	if (delta) dataRotationMtxSize += (8 - delta);
-	delta = stressVectorSize % 8;
-	if (delta) stressVectorSize += (8 - delta);
+		delta = dataInternalSize % (alignBytes);
+	if (delta) dataInternalSize += (alignBytes - delta)*sizeof(double);
+	delta = dataRotationMtxSize % alignBytes;
+	if (delta) dataRotationMtxSize += (alignBytes - delta)*sizeof(double);
+	delta = stressVectorSize % alignBytes;
+	if (delta) stressVectorSize += (alignBytes - delta)*sizeof(double);
 
 	// массивы для внутреннего хранения данных
 	//TODO: refactor to 3 arrays
 	_dataInternal		= (double*)aligned_alloc(dataInternalSize, ALIGNMENT); // поступательные и вращательные 3 - перемещения, скорости, ускорения
 	_dataRotationMtx	= (double*)aligned_alloc(dataRotationMtxSize, ALIGNMENT); // TODO: выравнивание матриц поворота
 	_stress				= (double*)aligned_alloc(stressVectorSize, ALIGNMENT);
-	_buffer				= (double*)aligned_alloc(8*5, ALIGNMENT);
+	_buffer				= (double*)aligned_alloc(8*5*sizeof(double), ALIGNMENT);
 
 	// обнуление массивов
 	memset(_stress, 0, stressVectorSize);
@@ -171,7 +172,8 @@ void StressStrainSolver::GetScalarParameter
 		float* data
 	)
 {
-	GetStressesByVonMises(data);
+	GetStressesX(data);
+	//GetStressesByVonMises(data);
 	//GetStressesByFirstTheoryOfStrength(data);
 }
 

@@ -143,6 +143,21 @@ SpecialSolvers::StressStrainStuff::SolverHandler SpecialSolversTest::StressStrai
 		);
 }
 
+SpecialSolvers::StressStrainStuff::SolverHandler SpecialSolversTest::StressStrainStuff::TestFactory::BuildQuarterPlate()
+{
+	stringstream str;
+	str << "quarter_plate_stress_type_" << solverType << '_' << _gridParams._nx << 'x' << _gridParams._ny << 'x' << _gridParams._nz << '_' << ECodeToString(code);
+	Uid(str.str());
+	return MakePlateQuaterSolver(
+		_gridParams,
+		_specialParams,
+		_integrationParams,
+		solverUid,
+		force,
+		forceDof,
+		solverType
+		);
+}
 
 SpecialSolversTest::StressStrainStuff::TestFactory& SpecialSolversTest::StressStrainStuff::TestFactory::Dims(size_t length, size_t sectionWidth, size_t sectionHeight, ECode code)
 {
