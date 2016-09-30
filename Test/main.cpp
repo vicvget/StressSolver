@@ -14,7 +14,8 @@ int main()
 
 	//SpecialSolversTest::StressStrainStuff::Test1x1x3(1, SpecialSolversTest::StressStrainStuff::ECode::xlr);
 	//SpecialSolversTest::StressStrainStuff::Test1x51x51(1, SpecialSolversTest::StressStrainStuff::ECode::xlr);
-	SpecialSolversTest::StressStrainStuff::Test1x11x11(1, SpecialSolversTest::StressStrainStuff::ECode::xlr);
+	//SpecialSolversTest::StressStrainStuff::Test1x11x11(1, SpecialSolversTest::StressStrainStuff::ECode::xlr);
+	SpecialSolversTest::StressStrainStuff::Test1x100x100a(0, SpecialSolversTest::StressStrainStuff::ECode::xlr);
 	//SpecialSolversTest::StressStrainStuff::Test10x3x3(1, SpecialSolversTest::StressStrainStuff::ECode::xlr);
 	//SpecialSolversTest::StressStrainStuff::Test50x5x5(1, SpecialSolversTest::StressStrainStuff::ECode::xlr);
 	//SpecialSolversTest::StressStrainStuff::Test10x5x5(1, SpecialSolversTest::StressStrainStuff::ECode::xlr);

@@ -175,6 +175,7 @@ void StressStrainCppIterativeSolver::Solve5()
 {
 	_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
 
+	// RK4 step 4
 #pragma omp parallel for num_threads(_numThreads)
 	for (int j = 0; j < _nVariables; j++)
 	{  
@@ -272,6 +273,51 @@ void StressStrainCppIterativeSolver::GetStressesByFirstTheoryOfStrength
 	}
 }
 
+
+/** Получить напряжения по X
+* @param data - массив для записи напряжений как скалярного параметра
+*/
+// virtual
+void StressStrainCppIterativeSolver::GetStressesX
+(
+float* data
+)
+{
+	double relativeShiftsSigned[6];
+
+	double sigma[6];
+
+#pragma omp parallel for private(relativeShiftsSigned, sigma) num_threads(_numThreads)
+	for (int elementId = 0; elementId < _nElements; elementId++)
+	{
+
+		for (size_t dof = 0; dof < 3; dof++)
+		{
+			relativeShiftsSigned[dof] = GetElementStress(elementId)[dof];
+			relativeShiftsSigned[dof] /= _gridStep;
+			relativeShiftsSigned[dof + 3] = GetElementStressAngular(elementId)[dof];
+		}
+
+		double summsq = 0;
+
+		for (int i = 0; i < 6; i++)
+		{
+			sigma[i] = 0;
+			for (int j = 0; j < 6; j++)
+			{
+				sigma[i] += _lameMatrix[i][j] * relativeShiftsSigned[j];
+			}
+			if (i > 2)
+			{
+				sigma[i] *= 2;
+				summsq += SQR(sigma[i]);
+			}
+		}
+		//summsq = 0;
+		data[elementId] = (float)(_elasticModulus * fabs(sigma[0]));
+	}
+}
+
 /** Получить напряжения по von Mises
 * @param data - массив для записи напряжений как скалярного параметра
 */
@@ -332,7 +378,7 @@ void StressStrainCppIterativeSolver::CalculateForces()
 
 	__declspec(align(32)) double strains[8], velocityStrains[8];
 
-#pragma omp parallel for private (strains, velocityStrains) num_threads(_numThreads)
+//#pragma omp parallel for private (strains, velocityStrains) num_threads(_numThreads)
 	for (int elementId1 = 0; elementId1 < _nElements; elementId1++)
 	{
 		

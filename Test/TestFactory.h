@@ -43,6 +43,7 @@ namespace SpecialSolversTest
 			SolverHandler BuildBeam();
 			SolverHandler BuildBeam2();
 			SolverHandler BuildPlate();
+			SolverHandler BuildQuarterPlate();
 
 #pragma region setters
 			TestFactory& E(float val);

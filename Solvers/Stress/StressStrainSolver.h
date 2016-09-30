@@ -255,6 +255,15 @@ public:
 		)
 		= 0;
 
+	/** Получить напряжения по X
+	* @param data - массив для записи напряжений как скалярного параметра
+	*/
+	virtual
+		void GetStressesX
+		(
+		float* data
+		)
+		= 0;
 
 public:
 

@@ -66,6 +66,16 @@ namespace SpecialSolversTest
 			EDOF dof,
 			const int solverType);
 
+
+		SolverHandler MakePlateQuaterSolver(
+			const GridParams& gridParams,
+			const SpecialParams& specialParams,
+			const IntegrationParams& integrationParams,
+			const std::string& solverUid,
+			double force,
+			EDOF dof,
+			const int solverType);
+
 		SolverHandler MakeSolverBeam
 		(
 			const GridParams& gridParams,
@@ -127,18 +137,26 @@ namespace SpecialSolversTest
 			double force,
 			EDOF dof);
 
+		void SetSealedFullForceQuarterPlateBc(
+			SolverHandler hStressSolver,
+			size_t side,
+			double force,
+			EDOF dof);
+
 
 		void Test();
 		void Test1x1x3(int solverType, ECode code);
 		void Test10x1x3(int solverType, ECode code);
 		void Test10x3x1(int solverType, ECode code);
 		void Test10x3x3(int solverType, ECode code);
+		void Test10x1x1(int solverType, ECode code);
 		void Test10x5x5(int solverType, ECode code);
 		void Test10x5x5_2(int solverType, ECode code);
 		void Test50x5x5(int solverType, ECode code);
 		void Test50x5x5_2(int solverType, ECode code);
 		void Test10x7x7(int solverType, ECode code);
 		void Test1x10x10(int solverType, ECode code);
+		void Test1x100x100a(int solverType, ECode code);
 		void Test1x11x11(int solverType, ECode code);
 		void Test1x51x51(int solverType, ECode code);
 

@@ -133,5 +133,11 @@
     <ClCompile Include="..\..\Test\FrameChartsExporter.cpp">
       <Filter>Source Files\Exporters</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Test\Test10x1x1.cpp">
+      <Filter>Source Files\StressSolverTests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Test\Test1x100x100a.cpp">
+      <Filter>Source Files\StressSolverTests</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

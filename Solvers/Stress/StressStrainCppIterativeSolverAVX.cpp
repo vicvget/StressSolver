@@ -260,8 +260,7 @@ void StressStrainCppIterativeSolverAVX::Solve2()
 	memcpy(_initX, _varX, sizeof(double)*_nVariables);
 	memcpy(_initDX, _varDX, sizeof(double)*_nVariables);
 
-	_testTimer.Start(3);
-#pragma omp parallel for num_threads(_numThreads)
+	#pragma omp parallel for num_threads(_numThreads)
 	for (int j = 0; j < _nVariables; j += regSize)
 	{
 		//_hDDX1[j] = _varDDX[j] * _timeStep;
