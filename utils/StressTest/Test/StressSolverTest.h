@@ -125,6 +125,11 @@ namespace SpecialSolversTest
 			double dampingFactorAngular,
 			double stiffnessScale);
 
+		void OverrideInertia(
+			SolverHandler hStressSolver,
+			double mass,
+			double inertia);
+
 		void SetSealedForcePlateBc(
 			SolverHandler hStressSolver,
 			size_t side,

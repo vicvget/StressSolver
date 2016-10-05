@@ -135,6 +135,7 @@ public:
 	double _elasticFactorLinear;	// приведенный коэффициент линейной жесткости
 	double _elasticFactorAngular;	// приведенный коэффициент угловой жесткости
 	bool _isStiffnessOverriden;		// признак перегрузки реальной жесткости и демпфирования
+	bool _isInertiaOverriden;		// признак перегрузки реальной массы и моментов инерции
 
 	//double _density;				// плотность материала
 	double _cellMass;				// масса элемента
@@ -218,5 +219,10 @@ public:
 		double dampingFactorLinear,
 		double dampingFactorAngular,
 		double stiffnessScale);
+
+	void OverrideInertia(
+		double mass,
+		double inertia);
+
 };
 };
