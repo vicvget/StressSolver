@@ -396,7 +396,7 @@ void StressStrainCppSolver::OverrideStiffness(double elasticFactorLinear, double
 
 	_isStiffnessOverriden = true;
 
-	std::cout << "PARAMS OVERRIDEN:" << std::endl
+	std::cout << "STIFFNESS PARAMS OVERRIDEN:" << std::endl
 		<< std::setw(OUTPUT_SPACING) << "STIFF SCALE: " << std::setw(OUTPUT_SPACING) << _stiffScale << std::endl
 		<< std::setw(OUTPUT_SPACING) << "STIFFNESS L: " << std::setw(OUTPUT_SPACING) << _elasticFactorLinear << std::endl
 		<< std::setw(OUTPUT_SPACING) << "STIFFNESS A: " << std::setw(OUTPUT_SPACING) << _elasticFactorAngular << std::endl
@@ -404,6 +404,20 @@ void StressStrainCppSolver::OverrideStiffness(double elasticFactorLinear, double
 		<< std::setw(OUTPUT_SPACING) << "DAMPING A: " << std::setw(OUTPUT_SPACING) << _dampingFactorAngular << std::endl;
 
 }
+
+void StressStrainCppSolver::OverrideInertia(
+	double mass,
+	double inertia)
+	{
+		_cellMass = mass;
+		_cellInertia = inertia;
+
+		_isInertiaOverriden = true;
+
+		std::cout << "INERTIA PARAMS OVERRIDEN:" << std::endl
+			<< std::setw(OUTPUT_SPACING) << "MASS: " << std::setw(OUTPUT_SPACING) << _cellMass << std::endl
+			<< std::setw(OUTPUT_SPACING) << "INERTIA: " << std::setw(OUTPUT_SPACING) << _cellInertia << std::endl;
+	}
 
 void CrossProduct
 (

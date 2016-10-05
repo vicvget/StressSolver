@@ -78,7 +78,7 @@ namespace SpecialSolvers
 			std::shared_ptr<BaseExporter> mprExporter = std::make_shared<MprExporter>(ssSolver, integrationParams);
 			//std::shared_ptr<BaseExporter> blenderExporter = std::make_shared<BlenderExporter>(ssSolver);
 
-			std::vector<size_t> ids = { 8, 9 };
+			std::vector<size_t> ids = { 99, 100 };
 
 			std::shared_ptr<BaseExporter> chartsExporter = std::make_shared<ChartsExporter>(ssSolver, ids);
 

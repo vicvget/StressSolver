@@ -251,7 +251,14 @@ namespace SpecialSolversTest
 			return MakeSolverBeam(gridParams, specialParams, integrationParams, solverUid, face_left, face_right, 10, dof_y, solverType);
 		}
 
-		//void OverrideStiffness(SolverHandler solver_handler, int i, int i1, int i2, int i3, int i4);
+		void OverrideInertia(
+			SolverHandler hStressSolver,
+			double mass,
+			double inertia)
+		{
+			((Stress::StressStrainCppSolver*)hStressSolver)->OverrideInertia(mass, inertia);
+
+		}
 
 		void OverrideStiffness(
 			SolverHandler hStressSolver,
