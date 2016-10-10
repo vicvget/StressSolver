@@ -19,23 +19,23 @@ namespace SpecialSolversTest
 
 	namespace StressStrainStuff
 	{
-		void Test1x100x100a(int solverType, ECode code)
+		void Test1x22x22a(int solverType, ECode code)
 		{
 			TestFactory factory;
 			SolverHandler _hsolver = factory
 				.E(1e6)
 				.Density(7900)
-				.Damping(0.1f)
+				.Damping(900.f)
 				.ScaleFactor(1.f)
 
-				.IterationsCount(1000)
-				.SubIterationsCount(10)
-				.TimeStep(0.0003f)
+				.IterationsCount(20000)
+				.SubIterationsCount(1)
+				.TimeStep(0.0002f)
 
-				.GridStep(0.008f)
-				.Dims(100, 100, 1, code)
+				.GridStep(0.036f)
+				.Dims(22, 22, 1, code)
 
-				.Force(1.f)
+				.Force(1000.f)
 				.ForceDof(dof_x) // для пластины!!!
 				.SolverType(solverType)
 				
@@ -45,7 +45,7 @@ namespace SpecialSolversTest
 			if (_hsolver != nullptr)
 			{
 				OverrideStiffness(_hsolver,
-					1e7,
+					1e6,
 					1.,
 					900.,
 					900.,

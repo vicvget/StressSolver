@@ -153,7 +153,21 @@ namespace MathHelpers
 		return *this;
 	}
 
-
+	template
+		<
+			typename DataType
+		>
+	template
+		<
+			typename DataType2
+		>
+	Vector3<DataType>& Vector3<DataType>::operator -= (const Vector3<DataType2>& rhs)
+	{
+		for (size_t coord = 0; coord < 3; coord++)
+			this->_rep._data[coord] -= rhs[coord];
+		return *this;
+	}	
+	
 	template
 		<
 			typename DataType
@@ -301,6 +315,13 @@ namespace MathHelpers
 				const Vector3<DataType2>& vec \
 			)	const;
 
+#	define SAME_METHOD_INSTANTIATION(Method, DataType1, DataType2) \
+		template \
+		Vector3<DataType1>& Vector3<DataType1>::Method \
+			( \
+				const Vector3<DataType2>& vec \
+			);
+
 #	define BINARY_VV_INSTANTIATION(ReturnType, Method, DataType1, DataType2) \
 		template \
 		ReturnType Method \
@@ -363,11 +384,23 @@ namespace MathHelpers
 			COMBINE(Macro, (__VA_ARGS__, Vector3CRef, Vector3Ref)) \
 			COMBINE(Macro, (__VA_ARGS__, Vector3CRef, Vector3CRef))
 
+#		define BINARY_SAME_FUNCTON_ISTANTIATION(Macro, ...) \
+			COMBINE(Macro, (__VA_ARGS__, Vector3Data, Vector3Data)) \
+			COMBINE(Macro, (__VA_ARGS__, Vector3Data, Vector3Ref)) \
+			COMBINE(Macro, (__VA_ARGS__, Vector3Data, Vector3CRef)) \
+			COMBINE(Macro, (__VA_ARGS__, Vector3Ref, Vector3Data)) \
+			COMBINE(Macro, (__VA_ARGS__, Vector3Ref, Vector3Ref)) \
+			COMBINE(Macro, (__VA_ARGS__, Vector3Ref, Vector3CRef)) 
+
 #	endif
 
 
 #	define FULL_METHOD_INSTANTIATION(ReturnType, Method) \
 		BINARY_FUNCTON_ISTANTIATION(METHOD_INSTANTIATION, ReturnType, Method)
+
+#	define FULL_SAME_METHOD_INSTANTIATION(Method) \
+		BINARY_SAME_FUNCTON_ISTANTIATION(SAME_METHOD_INSTANTIATION, Method)
+
 
 #	define FULL_BINARY_VV_INSTANTIATION(ReturnType, Method) \
 		BINARY_FUNCTON_ISTANTIATION(BINARY_VV_INSTANTIATION, ReturnType, Method)
@@ -377,6 +410,9 @@ namespace MathHelpers
 
 
 	FULL_METHOD_INSTANTIATION(Vec3Data, Cross)
+	FULL_SAME_METHOD_INSTANTIATION(operator +=)		
+	FULL_SAME_METHOD_INSTANTIATION(operator -=)
+
 	FULL_METHOD_INSTANTIATION(double, Angle)
 
 	FULL_BINARY_VV_INSTANTIATION(bool, operator ==)

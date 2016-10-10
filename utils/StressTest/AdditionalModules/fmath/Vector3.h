@@ -71,11 +71,13 @@ namespace MathHelpers
 
 		Vector3<DataType>& operator /= (double rhs);
 		
-		template
-			<
-				typename DataType2
-			>
+		template<typename DataType2>
+		//void operator += (const Vector3<DataType2>& rhs);
 		Vector3<DataType>& operator += (const Vector3<DataType2>& rhs);
+		
+		template<typename DataType2>
+		//void operator -= (const Vector3<DataType2>& rhs);
+		Vector3<DataType>& operator -= (const Vector3<DataType2>& rhs);
 
 		void Init
 			(
