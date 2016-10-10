@@ -386,7 +386,12 @@ double* StressStrainCppSolver::GetRadiusVector(size_t side) const
 	return _radiusVectors + side * vecStride;
 }
 
-void StressStrainCppSolver::OverrideStiffness(double elasticFactorLinear, double elasticFactorAngular, double dampingFactorLinear, double dampingFactorAngular, double stiffScale)
+int StressStrainCppSolver::GetLinkedElement(size_t elementId, size_t dof) const
+{
+	return _linkedElements[6 * elementId + dof];
+}
+
+	void StressStrainCppSolver::OverrideStiffness(double elasticFactorLinear, double elasticFactorAngular, double dampingFactorLinear, double dampingFactorAngular, double stiffScale)
 {
 	_stiffScale = stiffScale;
 	_dampingFactorAngular = dampingFactorAngular;

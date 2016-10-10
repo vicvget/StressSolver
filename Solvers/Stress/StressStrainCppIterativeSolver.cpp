@@ -290,9 +290,11 @@ float* data
 #pragma omp parallel for private(relativeShiftsSigned, sigma) num_threads(_numThreads)
 	for (int elementId = 0; elementId < _nElements; elementId++)
 	{
-
+		data[elementId] = GetElementStress(elementId)[0] * _elasticFactorLinear / _gridStep / 0.01;
+		continue;
 		for (size_t dof = 0; dof < 3; dof++)
 		{
+
 			relativeShiftsSigned[dof] = GetElementStress(elementId)[dof];
 			relativeShiftsSigned[dof] /= _gridStep;
 			relativeShiftsSigned[dof + 3] = GetElementStressAngular(elementId)[dof];
@@ -377,12 +379,89 @@ void StressStrainCppIterativeSolver::CalculateForces()
 	static int it = 0;
 
 	__declspec(align(32)) double strains[8], velocityStrains[8];
-
-//#pragma omp parallel for private (strains, velocityStrains) num_threads(_numThreads)
+#if 1
 	for (int elementId1 = 0; elementId1 < _nElements; elementId1++)
 	{
-		
-		double* accelerationVector = GetElementAcceleration(elementId1);
+		memset(GetElementAcceleration(elementId1), 0u, sizeof(double)*vecStride2);
+		memset(GetElementStress(elementId1), 0u, sizeof(double)*vecStride2);
+	}
+
+	//#pragma omp parallel for private (strains, velocityStrains) num_threads(_numThreads)
+	for (int elementId1 = 0; elementId1 < _nElements; elementId1++)
+	{
+		// обход x-,y-,z-
+		double* accelerationVector1 = GetElementAcceleration(elementId1);
+		double* stressVector1 = GetElementStress(elementId1);
+		for (int dof = 0; dof < 3; dof++)
+		{
+			size_t elementId2 = GetLinkedElement(elementId1, dof);
+
+			if (elementId2)
+			{
+				elementId2--;
+				CalculateStrains(dof, strains, velocityStrains, elementId1, elementId2);
+
+				double* accelerationVector2 = GetElementAcceleration(elementId1);
+				double* stressVector2 = GetElementStress(elementId1);
+
+
+				Vec3Ref linear_strains = MakeVec3(&strains[0]);
+				Vec3Ref angular_strains = MakeVec3(&strains[0] + vecStride);
+				Vec3Ref linear_vstrains = MakeVec3(&velocityStrains[0]);
+				Vec3Ref angular_vstrains = MakeVec3(&velocityStrains[0] + vecStride);
+
+				double stressFactor = GetLinkedElement(elementId1, dof+3) ? 0.5 : 1.0;
+
+				// нормальные напряжения
+				GetElementStress(elementId1)[dof] += linear_strains[dof] * stressFactor;
+				GetElementStress(elementId2)[dof] += linear_strains[dof] * stressFactor;
+
+				// касательные ??? - todo: переделать на сдвиг
+				GetElementStressAngular(elementId1)[dof] += angular_strains[dof] * stressFactor;
+				GetElementStressAngular(elementId2)[dof] -= angular_strains[dof] * stressFactor;
+
+				// сила и момент из полученных деформаций
+				Vec3 vForce1 = -linear_vstrains * _dampingFactorLinear - linear_strains * _elasticFactorLinear;
+				Vec3 vTorque = -angular_vstrains * _dampingFactorAngular - angular_strains * _elasticFactorAngular;
+
+				Vec3 vForce0; // сила в СК0
+				Vec3 vForce2; // сила в СК второго тела
+				
+				if (vecStride == 4)
+				{
+					Mat3x4 matA01(GetRotationMatrix(elementId1));
+					Mat3x4 matA02(GetRotationMatrix(elementId2));
+					vForce0 = matA01*vForce1;
+					vForce2 = matA02.Tmul(vForce0);
+				}
+				else
+				{
+					Mat3 matA01(GetRotationMatrix(elementId1));
+					Mat3 matA02(GetRotationMatrix(elementId2));
+					vForce0 = matA01*vForce1;
+					vForce2 = matA02.Tmul(vForce0);
+				}
+
+				Vec3Ref vR = MakeVec3(GetRadiusVector(dof));
+				Vec3 vForce1Torque = vR.Cross(vForce1);
+				Vec3 vForce2Torque = vR.Cross(vForce2); //(-R and -vForce2 gives +vForce2Torque)
+
+				Vec3 vTorque1 = vForce1Torque + vTorque;
+				Vec3 vTorque2 = vForce2Torque - vTorque;
+
+				MakeVec3(GetElementAcceleration(elementId1)) += vForce0;
+				MakeVec3(GetElementAccelerationAngular(elementId1)) += vTorque1;
+				MakeVec3(GetElementAcceleration(elementId2)) -= vForce0;
+				MakeVec3(GetElementAccelerationAngular(elementId2)) += vTorque2;
+			}
+		}
+	}
+	ApplyBoundary(); // модифицирует силы и моменты
+	ApplyMass();	 // вычисляет ускорения делением сил на массы и моментов на моменты инерции
+#else
+	//#pragma omp parallel for private (strains, velocityStrains) num_threads(_numThreads)
+	for (int elementId1 = 0; elementId1 < _nElements; elementId1++)
+	{
 
 		memset(GetElementAcceleration(elementId1), 0u, sizeof(double)*vecStride2);
 		memset(GetElementStress(elementId1), 0u, sizeof(double)*vecStride2);
@@ -390,8 +469,14 @@ void StressStrainCppIterativeSolver::CalculateForces()
 		_testTimer.Start(5);
 
 		// обход 6 связанных элементов x-,y-,z-,x+,y+,z+
+		
+		int dofFactors[3] = {0};
+
+
 		for (size_t side = 0; side < 6; side++)
 		{
+			int dof = side % 3;
+			dofFactors[dof]++;
 			size_t elementId2 = _linkedElements[6 * elementId1 + side];
 			if (elementId2)
 			{
@@ -402,11 +487,20 @@ void StressStrainCppIterativeSolver::CalculateForces()
 				Vec3Ref angular_strains = MakeVec3(&strains[0] + vecStride);
 				Vec3Ref linear_vstrains = MakeVec3(&velocityStrains[0]);
 				Vec3Ref angular_vstrains = MakeVec3(&velocityStrains[0] + vecStride);
-
-				for (size_t component = 0; component < 3; component++)
+				size_t component = dof;
+				//for (size_t component = 0; component < 3; component++)
 				{
-					GetElementStress(elementId1)[component] += linear_strains[component];
-					GetElementStressAngular(elementId1)[component] += angular_strains[component];
+					if (side < 3)
+					{
+						GetElementStress(elementId1)[component] += linear_strains[component];
+						GetElementStressAngular(elementId1)[component] += angular_strains[component];
+					}
+					else
+					{
+						GetElementStress(elementId1)[component] -= linear_strains[component];
+						GetElementStressAngular(elementId1)[component] -= angular_strains[component];						
+						GetElementStress(elementId1)[component] /= dofFactors[dof];
+					}
 				}
 
 				// сила и момент из полученных деформаций
@@ -444,16 +538,8 @@ void StressStrainCppIterativeSolver::CalculateForces()
 				Vec3 forceTorque = vR.Cross(force);
 				Vec3 vM = forceTorque + torque;
 
-				//MakeVec3(GetElementAcceleration(elementId1)) += vAcc;
-				//MakeVec3(GetElementAccelerationAngular(elementId1)) += vM;
-				
-				
-				for (int i = 0; i < 3; i++)
-				{
-					accelerationVector[i] += vAcc[i];
-					accelerationVector[i + vecStride] += vM[i];
-				}
-
+				MakeVec3(GetElementAcceleration(elementId1)) += vAcc;
+				MakeVec3(GetElementAccelerationAngular(elementId1)) += vM;
 			}
 		}
 		_testTimer.Stop(5);
@@ -464,6 +550,7 @@ void StressStrainCppIterativeSolver::CalculateForces()
 	}
 	ApplyBoundary(); // модифицирует силы и моменты
 	ApplyMass();	 // вычисляет ускорения делением сил на массы и моментов на моменты инерции
+#endif
 }
 
 

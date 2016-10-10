@@ -78,20 +78,20 @@ namespace SpecialSolvers
 			std::shared_ptr<BaseExporter> mprExporter = std::make_shared<MprExporter>(ssSolver, integrationParams);
 			//std::shared_ptr<BaseExporter> blenderExporter = std::make_shared<BlenderExporter>(ssSolver);
 
-			std::vector<size_t> ids = { 99, 100 };
+			std::vector<size_t> ids = { 483, 484 };
 
 			std::shared_ptr<BaseExporter> chartsExporter = std::make_shared<ChartsExporter>(ssSolver, ids);
 
 			std::shared_ptr<BaseExporter> blenderExporter = std::make_shared<DummyExporter>(ssSolver);
 			//std::shared_ptr<BaseExporter> chartsExporter = std::make_shared<DummyExporter>(ssSolver);
-			//std::shared_ptr<BaseExporter> frameChartsExporter = std::make_shared<DummyExporter>(ssSolver);
+			std::shared_ptr<BaseExporter> frameChartsExporter = std::make_shared<DummyExporter>(ssSolver);
 			//for (size_t id = 11 * 5; id < 11 * 6; id++)
 			std::vector<size_t> ids2;
 			for (size_t id = 1; id <= 10; id++)
 			{
 				ids2.push_back(id);
 			}
-			std::shared_ptr<BaseExporter> frameChartsExporter = std::make_shared<FrameChartsExporter>(ssSolver, ids2);
+			//std::shared_ptr<BaseExporter> frameChartsExporter = std::make_shared<FrameChartsExporter>(ssSolver, ids2);
 
 			int iteration = 0;
 

@@ -212,6 +212,7 @@ public:
 	// @param side - номер грани
 	// @returns радиус-вектор
 	double* GetRadiusVector(size_t side) const;
+	int GetLinkedElement(size_t elementId, size_t dof) const;
 
 	void OverrideStiffness(
 		double elasticModulus,
