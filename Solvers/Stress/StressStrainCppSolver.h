@@ -110,7 +110,6 @@ public:
 	double* _varDDX;	// смещения до 2 производных
 
 	double* _radiusVectors;
-
 	int* _linkedElements;
 
 	RotationSolver* _rotationSolver;// структура для интегрирования углов Эйлера

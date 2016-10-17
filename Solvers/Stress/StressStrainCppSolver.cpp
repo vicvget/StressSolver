@@ -226,6 +226,16 @@ StressStrainCppSolver::StressStrainCppSolver
 			}
 		}
 	}
+
+	for (int i = 0; i < nElements; i++)
+	{
+		for (int dof = 0; dof < 3; dof++)
+		{
+			 int tmp = (_linkedElements[6 * i + dof] > 0 ? 1 : 0) + (_linkedElements[6 * i + dof + 3] > 0 ? 1 : 0);
+			 _elementStressFactorCache[vecStride * i + dof] = tmp > 0 ? 1. / tmp : 0.;
+		}
+	}
+
 	memset(_dataInternal, 0, _nVariables * 3 * sizeof(double));
 	for (int i = 0; i < nElements; i++)
 	{
