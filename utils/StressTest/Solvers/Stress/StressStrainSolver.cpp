@@ -50,11 +50,12 @@ const size_t matStride = vecStride * 3; // смещения матриц поворота (3x3, 3x4)
 	_dataRotationMtx	= (double*)aligned_alloc(dataRotationMtxSize, ALIGNMENT); // TODO: выравнивание матриц поворота
 	_stress				= (double*)aligned_alloc(stressVectorSize, ALIGNMENT);
 	_buffer				= (double*)aligned_alloc(8*5*sizeof(double), ALIGNMENT);
-
+	_elementStressFactorCache = (double*)aligned_alloc(vecStride*nNodes*sizeof(double), ALIGNMENT);;
 	// обнуление массивов
 	memset(_stress, 0, stressVectorSize);
 	memset(_dataRotationMtx, 0, dataRotationMtxSize);
 	memset(_dataInternal, 0, dataInternalSize);
+	memset(_elementStressFactorCache, 0, vecStride*nNodes*sizeof(double));
 
 	// единичные матрицы поворота
 	for(size_t i = 0; i < _nElements; i++)
@@ -81,6 +82,7 @@ StressStrainSolver::~StressStrainSolver()
 
 	aligned_free(_dataInternal);
 	aligned_free(_dataRotationMtx);
+	aligned_free(_elementStressFactorCache);
 	aligned_free(_stress);
 	aligned_free(_buffer);
 }
@@ -247,4 +249,10 @@ double* StressStrainSolver::GetRotationMatrix(size_t elementId) const
 void StressStrainSolver::SetUid(const string& uid)
 {
 	_uid = uid;
+}
+
+//virtual 
+double* StressStrainSolver::GetElementStressFactors(size_t elementId) const
+{
+	return _elementStressFactorCache + (elementId * vecStride);
 }

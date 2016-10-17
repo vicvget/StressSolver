@@ -410,15 +410,30 @@ void StressStrainCppIterativeSolver::CalculateForces()
 				Vec3Ref linear_vstrains = MakeVec3(&velocityStrains[0]);
 				Vec3Ref angular_vstrains = MakeVec3(&velocityStrains[0] + vecStride);
 
-				double stressFactor = GetLinkedElement(elementId1, dof+3) ? 0.5 : 1.0;
+				//double stressFactor = GetLinkedElement(elementId1, dof+3) ? 0.5 : 1.0;
+				int testElement = 55;
+				if (_nIteration == 500)
+				{
+					if (elementId1 == testElement && dof == 0)
+						std::cout << "1SFb=" << " S=" << GetElementStress(elementId1)[dof] << " Linear=" << linear_strains[dof] << std::endl;
+					if (elementId2 == testElement && dof == 0)
+						std::cout << "2SFb=" << " S=" << GetElementStress(elementId2)[dof] << " Linear=" << linear_strains[dof] << std::endl;
+				}
 
 				// нормальные напряжения
-				GetElementStress(elementId1)[dof] += linear_strains[dof] * stressFactor;
-				GetElementStress(elementId2)[dof] += linear_strains[dof] * stressFactor;
+				GetElementStress(elementId1)[dof] += linear_strains[dof] * GetElementStressFactors(elementId1)[dof];
+				GetElementStress(elementId2)[dof] += linear_strains[dof] * GetElementStressFactors(elementId2)[dof];
+				if (_nIteration == 500)
+				{
+					if (elementId1 == testElement && dof == 0)
+						std::cout << "1SFa=" << " S=" << GetElementStress(elementId1)[dof] << " Linear=" << linear_strains[dof] << std::endl;
+					if (elementId2 == testElement && dof == 0)
+						std::cout << "2SFa=" << " S=" << GetElementStress(elementId2)[dof] << " Linear=" << linear_strains[dof] << std::endl;
+				}
 
 				// касательные ??? - todo: переделать на сдвиг
-				GetElementStressAngular(elementId1)[dof] += angular_strains[dof] * stressFactor;
-				GetElementStressAngular(elementId2)[dof] -= angular_strains[dof] * stressFactor;
+				GetElementStressAngular(elementId1)[dof] += angular_strains[dof] * GetElementStressFactors(elementId1)[dof];
+				GetElementStressAngular(elementId2)[dof] += angular_strains[dof] * GetElementStressFactors(elementId2)[dof];
 
 				// сила и момент из полученных деформаций
 				Vec3 vForce1 = -linear_vstrains * _dampingFactorLinear - linear_strains * _elasticFactorLinear;
@@ -488,6 +503,22 @@ void StressStrainCppIterativeSolver::CalculateForces()
 				Vec3Ref linear_vstrains = MakeVec3(&velocityStrains[0]);
 				Vec3Ref angular_vstrains = MakeVec3(&velocityStrains[0] + vecStride);
 				size_t component = dof;
+				int testElement = 55;
+				if (_nIteration == 500)
+				{
+					if (elementId1 == testElement && dof == 0)
+					{
+						if (side < 3)
+						{
+							std::cout << "1SFb=" << dofFactors[dof] << " S=" << GetElementStress(elementId1)[dof] << " Linear=" << linear_strains[dof] << std::endl;
+						}
+						else
+						{
+							std::cout << "2SFb=" << dofFactors[dof] << " S=" << GetElementStress(elementId1)[dof] << " Linear=" << linear_strains[dof] << std::endl;
+						}
+					}
+				}
+
 				//for (size_t component = 0; component < 3; component++)
 				{
 					if (side < 3)
@@ -502,6 +533,23 @@ void StressStrainCppIterativeSolver::CalculateForces()
 						GetElementStress(elementId1)[component] /= dofFactors[dof];
 					}
 				}
+
+				if (_nIteration == 500)
+				{
+					if (elementId1 == testElement && dof == 0)
+					{
+						if(side < 3)
+						{
+							std::cout << "1SFa=" << dofFactors[dof] << " S=" << GetElementStress(elementId1)[dof] << " Linear=" << linear_strains[dof] << std::endl;
+						}
+						else
+						{
+							std::cout << "2SFa=" << dofFactors[dof] << " S=" << GetElementStress(elementId1)[dof] << " Linear=" << linear_strains[dof] << std::endl;
+						}
+
+					}
+				}
+
 
 				// сила и момент из полученных деформаций
 				Vec3 force  = -linear_vstrains * _dampingFactorLinear - linear_strains * _elasticFactorLinear;

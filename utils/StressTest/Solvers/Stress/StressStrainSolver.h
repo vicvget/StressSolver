@@ -270,6 +270,7 @@ public:
 	float*	_data;				// неизвестные для сброса в файл (x,y,z,p)
 	double* _dataInternal;		// неизвестные для расчета (X,DX,DDX)
 	double* _dataRotationMtx;	// матрицы поворота для расчета
+	double* _elementStressFactorCache;	// коэффициенты НДС
 	double* _buffer;			// массив для KNC
 
 	double* _elements;			// исходные координаты элементов
@@ -294,5 +295,8 @@ public:
 
 	string _uid;
 	virtual void SetUid(const string& uid);
+
+	virtual double* GetElementStressFactors(size_t elementId) const;
+
 };
 

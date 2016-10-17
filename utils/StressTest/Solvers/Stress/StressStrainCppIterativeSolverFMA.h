@@ -11,8 +11,6 @@ using std::vector;
 namespace Stress
 {
 
-/** Унаследованный код на ФОРТРАНе
-*/
 class StressStrainCppIterativeSolverFMA
 	:
 		public StressStrainCppIterativeSolver
