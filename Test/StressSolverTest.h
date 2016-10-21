@@ -163,6 +163,10 @@ namespace SpecialSolversTest
 		void Test1x10x10(int solverType, ECode code);
 		void Test1x100x100a(int solverType, ECode code);
 		void Test1x22x22a(int solverType, ECode code);
+		void Test1x44x44a(int solverType, ECode code);
+		//void Test1x66x66a(int solverType, ECode code);
+		//void Test1x88x88a(int solverType, ECode code);
+		//void Test1x110x110a(int solverType, ECode code);
 		void Test1x11x11(int solverType, ECode code);
 		void Test1x51x51(int solverType, ECode code);
 

@@ -212,7 +212,9 @@
     <ClCompile Include="..\..\Test\Test1x1x3.cpp" />
     <ClCompile Include="..\..\Test\Test10x1x3.cpp" />
     <ClCompile Include="..\..\Test\Test1x22x22a.cpp" />
+    <ClCompile Include="..\..\Test\Test1x44x44a.cpp" />
     <ClCompile Include="..\..\Test\Test1x51x51.cpp" />
+    <ClCompile Include="..\..\Test\Test1x66x66a.cpp" />
     <ClCompile Include="..\..\Test\Test50x5x5.cpp" />
     <ClCompile Include="..\..\Test\Test50x5x5_2.cpp" />
     <ClCompile Include="..\..\Test\TestFactory.cpp" />

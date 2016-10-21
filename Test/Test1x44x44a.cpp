@@ -19,18 +19,19 @@ namespace SpecialSolversTest
 
 	namespace StressStrainStuff
 	{
-		void Test1x22x22a(int solverType, ECode code)
+		void Test1x44x44a(int solverType, ECode code)
 		{
-			int side = 22;
+			int side = 44;
 			float sideLength = 0.8;
+
 			TestFactory factory;
 			SolverHandler _hsolver = factory
 				.E(1e6)
 				.Density(7900)
-				.Damping(900.f)
+				.Damping(0.1f)
 				.ScaleFactor(1.f)
 
-				.IterationsCount(200)
+				.IterationsCount(300)
 				.SubIterationsCount(100)
 				.TimeStep(0.0003f)
 

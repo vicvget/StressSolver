@@ -278,10 +278,7 @@ void StressStrainCppIterativeSolver::GetStressesByFirstTheoryOfStrength
 * @param data - массив для записи напряжений как скалярного параметра
 */
 // virtual
-void StressStrainCppIterativeSolver::GetStressesX
-(
-float* data
-)
+void StressStrainCppIterativeSolver::GetStressesX(float* data)
 {
 	double relativeShiftsSigned[6];
 
@@ -290,7 +287,7 @@ float* data
 #pragma omp parallel for private(relativeShiftsSigned, sigma) num_threads(_numThreads)
 	for (int elementId = 0; elementId < _nElements; elementId++)
 	{
-		data[elementId] = GetElementStress(elementId)[0] * _elasticFactorLinear / _gridStep / 0.01;
+		data[elementId] = GetElementStress(elementId)[0] * _elasticFactorLinear / (_gridStep * 0.01); // костыль для толщины в 10 мм
 		continue;
 		for (size_t dof = 0; dof < 3; dof++)
 		{
@@ -399,7 +396,7 @@ void StressStrainCppIterativeSolver::CalculateForces()
 			if (elementId2)
 			{
 				elementId2--;
-				CalculateStrains(dof, strains, velocityStrains, elementId1, elementId2);
+				CalculateStrainsAVX(dof, strains, velocityStrains, elementId1, elementId2);
 
 				double* accelerationVector2 = GetElementAcceleration(elementId1);
 				double* stressVector2 = GetElementStress(elementId1);
@@ -410,26 +407,9 @@ void StressStrainCppIterativeSolver::CalculateForces()
 				Vec3Ref linear_vstrains = MakeVec3(&velocityStrains[0]);
 				Vec3Ref angular_vstrains = MakeVec3(&velocityStrains[0] + vecStride);
 
-				//double stressFactor = GetLinkedElement(elementId1, dof+3) ? 0.5 : 1.0;
-				int testElement = 55;
-				if (_nIteration == 500)
-				{
-					if (elementId1 == testElement && dof == 0)
-						std::cout << "1SFb=" << " S=" << GetElementStress(elementId1)[dof] << " Linear=" << linear_strains[dof] << std::endl;
-					if (elementId2 == testElement && dof == 0)
-						std::cout << "2SFb=" << " S=" << GetElementStress(elementId2)[dof] << " Linear=" << linear_strains[dof] << std::endl;
-				}
-
 				// нормальные напряжения
 				GetElementStress(elementId1)[dof] += linear_strains[dof] * GetElementStressFactors(elementId1)[dof];
 				GetElementStress(elementId2)[dof] += linear_strains[dof] * GetElementStressFactors(elementId2)[dof];
-				if (_nIteration == 500)
-				{
-					if (elementId1 == testElement && dof == 0)
-						std::cout << "1SFa=" << " S=" << GetElementStress(elementId1)[dof] << " Linear=" << linear_strains[dof] << std::endl;
-					if (elementId2 == testElement && dof == 0)
-						std::cout << "2SFa=" << " S=" << GetElementStress(elementId2)[dof] << " Linear=" << linear_strains[dof] << std::endl;
-				}
 
 				// касательные ??? - todo: переделать на сдвиг
 				GetElementStressAngular(elementId1)[dof] += angular_strains[dof] * GetElementStressFactors(elementId1)[dof];
