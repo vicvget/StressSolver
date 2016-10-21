@@ -21,6 +21,9 @@ namespace SpecialSolversTest
 	{
 		void Test1x100x100a(int solverType, ECode code)
 		{
+			int side = 100;
+			float sideLength = 0.8;
+
 			TestFactory factory;
 			SolverHandler _hsolver = factory
 				.E(1e6)
@@ -28,14 +31,14 @@ namespace SpecialSolversTest
 				.Damping(0.1f)
 				.ScaleFactor(1.f)
 
-				.IterationsCount(1000)
-				.SubIterationsCount(10)
+				.IterationsCount(500)
+				.SubIterationsCount(100)
 				.TimeStep(0.0003f)
 
-				.GridStep(0.008f)
-				.Dims(100, 100, 1, code)
+				.GridStep(sideLength/side)
+				.Dims(side, side, 1, code)
 
-				.Force(1.f)
+				.Force(1000.f)
 				.ForceDof(dof_x) // для пластины!!!
 				.SolverType(solverType)
 				
@@ -47,8 +50,8 @@ namespace SpecialSolversTest
 				OverrideStiffness(_hsolver,
 					1e7,
 					1.,
-					900.,
-					900.,
+					1800.,
+					1000.,
 					1.);
 				OverrideInertia(_hsolver, 1., 1.);
 
