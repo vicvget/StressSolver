@@ -265,6 +265,55 @@ public:
 		)
 		= 0;
 
+	/** ѕолучить напр€жени€ по Y
+	* @param data - массив дл€ записи напр€жений как скал€рного параметра
+	*/
+	virtual
+		void GetStressesY
+		(
+		float* data
+		)
+		= 0;
+
+	/** ѕолучить напр€жени€ по Z
+	* @param data - массив дл€ записи напр€жений как скал€рного параметра
+	*/
+	virtual
+		void GetStressesZ
+		(
+		float* data
+		)
+		= 0;
+
+	/** ѕолучить напр€жени€ по XY
+	* @param data - массив дл€ записи напр€жений как скал€рного параметра
+	*/
+	virtual
+		void GetStressesXY
+		(
+		float* data
+		)
+		= 0;
+
+	/** ѕолучить напр€жени€ по XY
+	* @param data - массив дл€ записи напр€жений как скал€рного параметра
+	*/
+	virtual
+		void GetStressesXZ
+		(
+		float* data
+		)
+		= 0;
+
+	/** ѕолучить напр€жени€ по XY
+	* @param data - массив дл€ записи напр€жений как скал€рного параметра
+	*/
+	virtual
+		void GetStressesYZ
+		(
+		float* data
+		)
+		= 0;
 public:
 
 	float*	_data;				// неизвестные дл€ сброса в файл (x,y,z,p)

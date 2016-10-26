@@ -148,5 +148,8 @@
     <ClCompile Include="..\..\Test\Test1x66x66a.cpp">
       <Filter>Source Files\StressSolverTests</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Test\TestPlate1xXxXa.cpp">
+      <Filter>Source Files\StressSolverTests</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

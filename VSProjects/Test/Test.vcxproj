@@ -218,6 +218,7 @@
     <ClCompile Include="..\..\Test\Test50x5x5.cpp" />
     <ClCompile Include="..\..\Test\Test50x5x5_2.cpp" />
     <ClCompile Include="..\..\Test\TestFactory.cpp" />
+    <ClCompile Include="..\..\Test\TestPlate1xXxXa.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

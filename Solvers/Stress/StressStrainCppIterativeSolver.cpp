@@ -280,42 +280,80 @@ void StressStrainCppIterativeSolver::GetStressesByFirstTheoryOfStrength
 // virtual
 void StressStrainCppIterativeSolver::GetStressesX(float* data)
 {
-	double relativeShiftsSigned[6];
-
-	double sigma[6];
-
-#pragma omp parallel for private(relativeShiftsSigned, sigma) num_threads(_numThreads)
+#pragma omp parallel for num_threads(_numThreads)
 	for (int elementId = 0; elementId < _nElements; elementId++)
 	{
-		data[elementId] = GetElementStress(elementId)[0] * _elasticFactorLinear / (_gridStep * 0.01); // костыль для толщины в 10 мм
-		continue;
-		for (size_t dof = 0; dof < 3; dof++)
-		{
-
-			relativeShiftsSigned[dof] = GetElementStress(elementId)[dof];
-			relativeShiftsSigned[dof] /= _gridStep;
-			relativeShiftsSigned[dof + 3] = GetElementStressAngular(elementId)[dof];
-		}
-
-		double summsq = 0;
-
-		for (int i = 0; i < 6; i++)
-		{
-			sigma[i] = 0;
-			for (int j = 0; j < 6; j++)
-			{
-				sigma[i] += _lameMatrix[i][j] * relativeShiftsSigned[j];
-			}
-			if (i > 2)
-			{
-				sigma[i] *= 2;
-				summsq += SQR(sigma[i]);
-			}
-		}
-		//summsq = 0;
-		data[elementId] = (float)(_elasticModulus * fabs(sigma[0]));
+		data[elementId] = GetElementStress(elementId)[0] * _elasticFactorLinear / (_gridStep *_gridStep) * _stressScalingFactorX;
 	}
 }
+
+/** Получить напряжения по Y
+* @param data - массив для записи напряжений как скалярного параметра
+*/
+// virtual
+void StressStrainCppIterativeSolver::GetStressesY(float* data)
+{
+#pragma omp parallel for num_threads(_numThreads)
+	for (int elementId = 0; elementId < _nElements; elementId++)
+	{
+		data[elementId] = GetElementStress(elementId)[1] * _elasticFactorLinear / (_gridStep *_gridStep) * _stressScalingFactorY;
+	}
+}
+
+/** Получить напряжения по Z
+* @param data - массив для записи напряжений как скалярного параметра
+*/
+// virtual
+void StressStrainCppIterativeSolver::GetStressesZ(float* data)
+{
+#pragma omp parallel for num_threads(_numThreads)
+	for (int elementId = 0; elementId < _nElements; elementId++)
+	{
+		data[elementId] = GetElementStress(elementId)[2] * _elasticFactorLinear / (_gridStep *_gridStep) * _stressScalingFactorZ;
+	}
+}
+
+/** Получить напряжения по XY
+* @param data - массив для записи напряжений как скалярного параметра
+*/
+// virtual
+void StressStrainCppIterativeSolver::GetStressesXY(float* data)
+{
+#pragma omp parallel for num_threads(_numThreads)
+	for (int elementId = 0; elementId < _nElements; elementId++)
+	{
+		// TODO: scalingFactorX и scalingFactorY для 2 компонент!
+		data[elementId] = GetElementStressAngular(elementId)[2] * _elasticFactorLinear / 2. / (_gridStep * _gridStep) * _stressScalingFactorX;
+	}
+}
+
+/** Получить напряжения по XZ
+* @param data - массив для записи напряжений как скалярного параметра
+*/
+// virtual
+void StressStrainCppIterativeSolver::GetStressesXZ(float* data)
+{
+#pragma omp parallel for num_threads(_numThreads)
+	for (int elementId = 0; elementId < _nElements; elementId++)
+	{
+		data[elementId] = GetElementStressAngular(elementId)[1] * _elasticFactorLinear / 2. / (_gridStep * 0.01); // костыль для толщины в 10 мм
+	}
+}
+
+/** Получить напряжения по YZ
+* @param data - массив для записи напряжений как скалярного параметра
+*/
+// virtual
+void StressStrainCppIterativeSolver::GetStressesYZ(float* data)
+{
+#pragma omp parallel for num_threads(_numThreads)
+	for (int elementId = 0; elementId < _nElements; elementId++)
+	{
+		data[elementId] = GetElementStressAngular(elementId)[0] * _elasticFactorLinear / 2. / (_gridStep * 0.01); // костыль для толщины в 10 мм
+	}
+}
+
+
 
 /** Получить напряжения по von Mises
 * @param data - массив для записи напряжений как скалярного параметра
@@ -383,6 +421,8 @@ void StressStrainCppIterativeSolver::CalculateForces()
 		memset(GetElementStress(elementId1), 0u, sizeof(double)*vecStride2);
 	}
 
+	const int exclusive_dofs[][2] = { { 1, 2 }, { 0, 2 }, { 1, 3 } };
+
 	//#pragma omp parallel for private (strains, velocityStrains) num_threads(_numThreads)
 	for (int elementId1 = 0; elementId1 < _nElements; elementId1++)
 	{
@@ -412,8 +452,15 @@ void StressStrainCppIterativeSolver::CalculateForces()
 				GetElementStress(elementId2)[dof] += linear_strains[dof] * GetElementStressFactors(elementId2)[dof];
 
 				// касательные ??? - todo: переделать на сдвиг
-				GetElementStressAngular(elementId1)[dof] += angular_strains[dof] * GetElementStressFactors(elementId1)[dof];
-				GetElementStressAngular(elementId2)[dof] += angular_strains[dof] * GetElementStressFactors(elementId2)[dof];
+				int dof0 = exclusive_dofs[dof][0];
+				int dof1 = exclusive_dofs[dof][1];
+				GetElementStressAngular(elementId1)[dof0] += linear_strains[dof1] * GetElementStressFactors(elementId1)[dof];
+				GetElementStressAngular(elementId1)[dof1] += linear_strains[dof0] * GetElementStressFactors(elementId1)[dof];
+				GetElementStressAngular(elementId2)[dof0] += linear_strains[dof1] * GetElementStressFactors(elementId2)[dof];
+				GetElementStressAngular(elementId2)[dof1] += linear_strains[dof0] * GetElementStressFactors(elementId2)[dof];
+			
+				//GetElementStressAngular(elementId1)[dof] += angular_strains[dof] * GetElementStressFactors(elementId1)[dof];
+				//GetElementStressAngular(elementId2)[dof] += angular_strains[dof] * GetElementStressFactors(elementId2)[dof];
 
 				// сила и момент из полученных деформаций
 				Vec3 vForce1 = -linear_vstrains * _dampingFactorLinear - linear_strains * _elasticFactorLinear;

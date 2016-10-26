@@ -15,7 +15,7 @@ StressStrainSolver::StressStrainSolver
 		int stride = 4
 	)
 	:
-		_dataSize(nNodes * stride),
+		_dataSize(nNodes * stride + nNodes*6), // приведенные напряжения, 6 компонент тензора напряжений
 		_nElements(nNodes),
 		_readIco(false),
 		_writeIco(false),
@@ -175,6 +175,12 @@ void StressStrainSolver::GetScalarParameter
 	)
 {
 	GetStressesX(data);
+	GetStressesX(data + _nElements);
+	GetStressesY(data + _nElements * 2);
+	GetStressesZ(data + _nElements * 3);
+	GetStressesXY(data + _nElements * 4);
+	GetStressesXZ(data + _nElements * 5);
+	GetStressesYZ(data + _nElements * 6);
 	//GetStressesByVonMises(data);
 	//GetStressesByFirstTheoryOfStrength(data);
 }

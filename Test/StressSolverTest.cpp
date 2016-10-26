@@ -260,6 +260,12 @@ namespace SpecialSolversTest
 
 		}
 
+		void OverrideScalingFactors(SolverHandler hStressSolver, double stressScalingFactorX, double stressScalingFactorY, double stressScalingFactorZ)
+		{
+			((Stress::StressStrainCppSolver*)hStressSolver)->OverrideScalingFactors(stressScalingFactorX, stressScalingFactorY, stressScalingFactorZ);
+		}
+
+
 		void OverrideStiffness(
 			SolverHandler hStressSolver,
 			double elasticFactorLinear,

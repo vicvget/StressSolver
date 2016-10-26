@@ -86,7 +86,7 @@ MultiphysicsResultsHeader::MultiphysicsResultsHeader
 
 		case ST_StressStrain:
 			Type = (char)type;
-			ScalarsCount = 1;
+			ScalarsCount = 7;
 			VectorsCount = 1;
 			break;
 	}
