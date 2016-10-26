@@ -110,12 +110,13 @@ public:
 	/** Получить напряжения по von Mises
 	* @param data - массив для записи напряжений как скалярного параметра
 	*/
-	virtual
-		void GetStressesX
-		(
-		float* data
-		);
+	virtual void GetStressesX(float* data);
+	virtual void GetStressesY(float* data);
+	virtual void GetStressesZ(float* data);
 
+	virtual void GetStressesXY(float* data);
+	virtual void GetStressesXZ(float* data);
+	virtual void GetStressesYZ(float* data);
 
 #pragma endregion
 

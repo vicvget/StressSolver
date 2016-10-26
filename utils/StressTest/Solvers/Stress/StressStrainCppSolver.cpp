@@ -125,11 +125,10 @@ StressStrainCppSolver::StressStrainCppSolver
 	_elasticFactorLinear = elasticModulusScaled * _gridStep;
 	_elasticFactorAngular = 2 * shearModulusScaled * _gridStep3;
 
+	_stressScalingFactorX = 1.;
+	_stressScalingFactorY = 1.;
+	_stressScalingFactorZ = 1.;
 
-	// DEBUG!!
-	//_shearModulusScaled = _elasticModulusScaled / 100;
-	//_dampingFactorLinear = 10;
-	//_dampingFactorAngular = 10;
 	
 	
 	std::cout << "------------------------------" << std::endl
@@ -401,7 +400,14 @@ int StressStrainCppSolver::GetLinkedElement(size_t elementId, size_t dof) const
 	return _linkedElements[6 * elementId + dof];
 }
 
-	void StressStrainCppSolver::OverrideStiffness(double elasticFactorLinear, double elasticFactorAngular, double dampingFactorLinear, double dampingFactorAngular, double stiffScale)
+void StressStrainCppSolver::OverrideScalingFactors(double stressScalingFactorX, double stressScalingFactorY, double stressScalingFactorZ)
+{
+	_stressScalingFactorX = stressScalingFactorX;
+	_stressScalingFactorY = stressScalingFactorY;
+	_stressScalingFactorZ = stressScalingFactorZ;
+}
+
+void StressStrainCppSolver::OverrideStiffness(double elasticFactorLinear, double elasticFactorAngular, double dampingFactorLinear, double dampingFactorAngular, double stiffScale)
 {
 	_stiffScale = stiffScale;
 	_dampingFactorAngular = dampingFactorAngular;

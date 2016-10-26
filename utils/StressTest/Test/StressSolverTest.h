@@ -130,6 +130,13 @@ namespace SpecialSolversTest
 			double mass,
 			double inertia);
 
+		void OverrideScalingFactors(
+			SolverHandler hStressSolver,
+			double stressScalingFactorX,
+			double stressScalingFactorY,
+			double stressScalingFactorZ);
+
+
 		void SetSealedForcePlateBc(
 			SolverHandler hStressSolver,
 			size_t side,

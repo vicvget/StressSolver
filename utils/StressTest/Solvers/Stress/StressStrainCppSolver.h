@@ -136,6 +136,12 @@ public:
 	bool _isStiffnessOverriden;		// признак перегрузки реальной жесткости и демпфирования
 	bool _isInertiaOverriden;		// признак перегрузки реальной массы и моментов инерции
 
+	// Масштабные коэффициенты для напряжений по X,Y,Z
+	double _stressScalingFactorX;
+	double _stressScalingFactorY;
+	double _stressScalingFactorZ;
+
+
 	//double _density;				// плотность материала
 	double _cellMass;				// масса элемента
 	double _cellInertia;			// момент элемента
@@ -223,6 +229,11 @@ public:
 	void OverrideInertia(
 		double mass,
 		double inertia);
+
+	void OverrideScalingFactors(
+		double stressScalingFactorX,
+		double stressScalingFactorY,
+		double stressScalingFactorZ);
 
 };
 };
