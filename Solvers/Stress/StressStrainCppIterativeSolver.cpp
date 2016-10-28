@@ -185,6 +185,8 @@ void StressStrainCppIterativeSolver::Solve5()
 	}
 	_rotationSolver->Solve1();
 	CalculateForces();
+
+	CheckVelocitySumm();
 }
 
 /** Получить смещения

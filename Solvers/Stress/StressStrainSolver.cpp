@@ -77,7 +77,16 @@ void StressStrainSolver::SetZeroVelocities()
 
 void StressStrainSolver::CheckVelocitySumm()
 {
-	//if (_velocitySum[1] > _velocitySum[0] && _velocitySum[1] > _velocitySum[0])
+	_velocitySum[2] = _velocitySum[1];
+	_velocitySum[1] = _velocitySum[0];
+	_velocitySum[0] = GetSquareSummOfVelocities();
+	if (_velocitySum[1] > _velocitySum[0] && _velocitySum[1] > _velocitySum[0])
+	{
+		SetZeroVelocities();
+		_velocitySum[0] = 0;
+		_velocitySum[1] = 0;
+		_velocitySum[2] = 0;
+	}
 }
 
 double StressStrainSolver::GetSquareSummOfVelocities()
@@ -88,6 +97,7 @@ double StressStrainSolver::GetSquareSummOfVelocities()
 	{
 		sum += vel[i]*vel[i];
 	}
+	return sum;
 }
 
 StressStrainSolver::~StressStrainSolver()
