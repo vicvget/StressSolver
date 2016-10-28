@@ -23,6 +23,7 @@ namespace SpecialSolversTest
 		{
 			int side = 44;
 			float sideLength = 0.8;
+			float gridStep = sideLength / side;
 
 			TestFactory factory;
 			SolverHandler _hsolver = factory
@@ -35,7 +36,7 @@ namespace SpecialSolversTest
 				.SubIterationsCount(100)
 				.TimeStep(0.0003f)
 
-				.GridStep(sideLength/side)
+				.GridStep(gridStep)
 				.Dims(side, side, 1, code)
 
 				.Force(1000.f)
@@ -54,6 +55,8 @@ namespace SpecialSolversTest
 					1000.,
 					1.);
 				OverrideInertia(_hsolver, 1., 1.);
+				double factor = gridStep / 0.01;
+				OverrideScalingFactors(_hsolver, factor, factor, factor);
 
 				PerformanceCounter pc;
 				pc.Start();

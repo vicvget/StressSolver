@@ -31,6 +31,9 @@ protected:
 	bool _readIco;
 	bool _writeIco;
 	int _nWriteIteration;
+
+	double _velocitySum[3];
+
 public:
 
 	size_t vecStride;
@@ -45,7 +48,8 @@ public:
 
 
 	void SetZeroVelocities();
-
+	void CheckVelocitySumm();
+	double GetSquareSummOfVelocities();
 	virtual
 	~StressStrainSolver();
 	
@@ -316,13 +320,15 @@ public:
 		= 0;
 public:
 
-	float*	_data;				// неизвестные для сброса в файл (x,y,z,p)
+	float*	_data;				// неизвестные для сброса в файл (dataScalar,dataVector)
+	//float*	_dataScalar;		// неизвестные для сброса в файл (p0,p1,...,p6)
+	float*	_dataVector;        // неизвестные для сброса в файл (x,y,z)
 	double* _dataInternal;		// неизвестные для расчета (X,DX,DDX)
 	double* _dataRotationMtx;	// матрицы поворота для расчета
 	double* _elementStressFactorCache;	// коэффициенты НДС
 	double* _buffer;			// массив для KNC
 
-	double* _elements;			// исходные координаты элементов
+	double* _coordinates;			// исходные координаты элементов
 
 	int _dataSize;
 	double* _stress;			// напряжения

@@ -283,7 +283,7 @@ void StressStrainCppIterativeSolver::GetStressesX(float* data)
 #pragma omp parallel for num_threads(_numThreads)
 	for (int elementId = 0; elementId < _nElements; elementId++)
 	{
-		data[elementId] = GetElementStress(elementId)[0] * _elasticFactorLinear / (_gridStep *_gridStep) * _stressScalingFactorX;
+		data[elementId] = (float)(GetElementStress(elementId)[0] * _elasticFactorLinear / (_gridStep *_gridStep) * _stressScalingFactorX);
 	}
 }
 
@@ -296,7 +296,7 @@ void StressStrainCppIterativeSolver::GetStressesY(float* data)
 #pragma omp parallel for num_threads(_numThreads)
 	for (int elementId = 0; elementId < _nElements; elementId++)
 	{
-		data[elementId] = GetElementStress(elementId)[1] * _elasticFactorLinear / (_gridStep *_gridStep) * _stressScalingFactorY;
+		data[elementId] = (float)(GetElementStress(elementId)[1] * _elasticFactorLinear / (_gridStep *_gridStep) * _stressScalingFactorY);
 	}
 }
 
@@ -309,7 +309,7 @@ void StressStrainCppIterativeSolver::GetStressesZ(float* data)
 #pragma omp parallel for num_threads(_numThreads)
 	for (int elementId = 0; elementId < _nElements; elementId++)
 	{
-		data[elementId] = GetElementStress(elementId)[2] * _elasticFactorLinear / (_gridStep *_gridStep) * _stressScalingFactorZ;
+		data[elementId] = (float)(GetElementStress(elementId)[2] * _elasticFactorLinear / (_gridStep *_gridStep) * _stressScalingFactorZ);
 	}
 }
 
@@ -323,7 +323,7 @@ void StressStrainCppIterativeSolver::GetStressesXY(float* data)
 	for (int elementId = 0; elementId < _nElements; elementId++)
 	{
 		// TODO: scalingFactorX и scalingFactorY для 2 компонент!
-		data[elementId] = GetElementStressAngular(elementId)[2] * _elasticFactorLinear / 2. / (_gridStep * _gridStep) * _stressScalingFactorX;
+		data[elementId] = (float)(GetElementStressAngular(elementId)[2] * _elasticFactorLinear / 2. / (_gridStep * _gridStep) * _stressScalingFactorX);
 	}
 }
 
@@ -336,7 +336,7 @@ void StressStrainCppIterativeSolver::GetStressesXZ(float* data)
 #pragma omp parallel for num_threads(_numThreads)
 	for (int elementId = 0; elementId < _nElements; elementId++)
 	{
-		data[elementId] = GetElementStressAngular(elementId)[1] * _elasticFactorLinear / 2. / (_gridStep * 0.01); // костыль для толщины в 10 мм
+		data[elementId] = (float)(GetElementStressAngular(elementId)[1] * _elasticFactorLinear / 2. / (_gridStep * 0.01)); // костыль для толщины в 10 мм
 	}
 }
 
@@ -349,7 +349,7 @@ void StressStrainCppIterativeSolver::GetStressesYZ(float* data)
 #pragma omp parallel for num_threads(_numThreads)
 	for (int elementId = 0; elementId < _nElements; elementId++)
 	{
-		data[elementId] = GetElementStressAngular(elementId)[0] * _elasticFactorLinear / 2. / (_gridStep * 0.01); // костыль для толщины в 10 мм
+		data[elementId] = (float)(GetElementStressAngular(elementId)[0] * _elasticFactorLinear / 2. / (_gridStep * 0.01)); // костыль для толщины в 10 мм
 	}
 }
 
@@ -488,8 +488,13 @@ void StressStrainCppIterativeSolver::CalculateForces()
 				Vec3 vForce1Torque = vR.Cross(vForce1);
 				Vec3 vForce2Torque = vR.Cross(vForce2); //(-R and -vForce2 gives +vForce2Torque)
 
+				// Full torque
 				Vec3 vTorque1 = vForce1Torque + vTorque;
 				Vec3 vTorque2 = vForce2Torque - vTorque;
+
+				// Non full torque
+				//Vec3 vTorque1 = vForce1Torque;
+				//Vec3 vTorque2 = vForce2Torque;
 
 				MakeVec3(GetElementAcceleration(elementId1)) += vForce0;
 				MakeVec3(GetElementAccelerationAngular(elementId1)) += vTorque1;

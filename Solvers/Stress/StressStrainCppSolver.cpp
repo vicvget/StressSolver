@@ -194,8 +194,8 @@ StressStrainCppSolver::StressStrainCppSolver
 	}
 
 	// копируем координаты узлов сетки
-	_elements = new double[nElements*3];
-	memcpy(_elements, nodes, sizeof(double) * nElements * 3);
+	_coordinates = new double[nElements*3];
+	memcpy(_coordinates, nodes, sizeof(double) * nElements * 3);
 	memset(_linkedElements, 0, nElements * 6 * sizeof(int));
 	for (int i = 0; i < nLinks * 2; i += 2)
 	{
@@ -206,8 +206,8 @@ StressStrainCppSolver::StressStrainCppSolver
 		int* linkedElementsOffset2 = _linkedElements + elementId2 * 6;
 
 		// выбираем одну из координат
-		double* node1 = &_elements[3 * links[i]];
-		double* node2 = &_elements[3 * links[i + 1]];
+		double* node1 = &_coordinates[3 * links[i]];
+		double* node2 = &_coordinates[3 * links[i + 1]];
 
 		const double relativeTolerance = 1e-4;
 		for (int k = 0; k < 3; k++)
@@ -257,7 +257,7 @@ StressStrainCppSolver::~StressStrainCppSolver()
 	aligned_free(_radiusVectors);
 
 	delete [] _linkedElements;
-	delete [] _elements;
+	delete [] _coordinates;
 	delete _rotationSolver;
 }
 
@@ -378,11 +378,11 @@ float StressStrainCppSolver::UpdateBuffer
 			{
 				std::cout << "COORDINATE VALUE OVERFLOW: " << _dataInternal[i * vecStride2 + j] << std::endl;
 			}
-			_data[i * 3 + j + _nElements] =
+			_dataVector[i * 3 + j] =
 				(float)
 					(
-						_elements[i * 3 + j] +
-						(_dataInternal[i * vecStride2 + j] - _elements[i * 3 + j]) * scale
+						_coordinates[i * 3 + j] +
+						(_dataInternal[i * vecStride2 + j] - _coordinates[i * 3 + j]) * scale
 					);
 		}
 	}

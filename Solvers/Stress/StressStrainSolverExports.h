@@ -30,8 +30,8 @@ namespace Stress
 	* @param params - параметры
 	* @param links - св€зи
 	* @param nLinks - количество св€зей
-	* @param nodes - координаты узлов (тройки чисел)
-	* @param nNodes - количество узлов
+	* @param coordinates - координаты элементов (тройки чисел 3xnElements)
+	* @param nElements - количество элементов
 	* @param solverType - тип решател€ 0-iterative, 1-statics
 	* @return указатель на решатель
 	*/
@@ -42,8 +42,8 @@ namespace Stress
 			double* params,
 			int* links,
 			int nLinks,
-			double *nodes,
-			int nNodes,
+			double *coordinates,
+			int nElements,
 			double gridStep,
 			double timeStep,
 			int procType = 0,

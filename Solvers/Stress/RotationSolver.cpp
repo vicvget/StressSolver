@@ -82,8 +82,12 @@ namespace Stress
 		_isValid(true)
 	{
 		_nRVariables = nElements*_vecStride;
-		const size_t matSize = nElements*_matStride*sizeof(double);
-		const size_t varSize = nElements*_vecStride*sizeof(double);
+		
+		const size_t maxRegSize = 8; // KNC - 8 doubles
+		size_t matCount = ((nElements*_matStride + maxRegSize - 1) / maxRegSize) * maxRegSize;
+		size_t varCount = ((nElements*_vecStride + maxRegSize - 1) / maxRegSize) * maxRegSize;
+		size_t matSize = matCount*sizeof(double);
+		size_t varSize = varCount*sizeof(double);
 
 		_varDR = (double*)aligned_alloc(varSize, ALIGNMENT);
 		_hDR1 = (double*)aligned_alloc(varSize, ALIGNMENT);

@@ -11,12 +11,12 @@ using std::ofstream;
 
 StressStrainSolver::StressStrainSolver
 	(
-		int const nNodes,
+		int const nElements,
 		int stride = 4
 	)
 	:
-		_dataSize(nNodes * stride + nNodes*6), // приведенные напряжения, 6 компонент тензора напряжений
-		_nElements(nNodes),
+		_dataSize(nElements * (3+7)), // вектор координат (3), приведенные напряжения, 6 компонент тензора напряжений (7)
+		_nElements(nElements),
 		_readIco(false),
 		_writeIco(false),
 		vecStride(stride),
@@ -24,25 +24,27 @@ StressStrainSolver::StressStrainSolver
 		matStride(stride*3)
 {
 
-const size_t vecStride = stride;				// смещение векторов
-const size_t vecStride2 = vecStride * 2;
-const size_t matStride = vecStride * 3; // смещения матриц поворота (3x3, 3x4)
+	const size_t vecStride = stride;				// смещение векторов
+	const size_t vecStride2 = vecStride * 2;
+	const size_t matStride = vecStride * 3; // смещения матриц поворота (3x3, 3x4)
+
+			
 
 	_data = new float[_dataSize];
-
-	size_t dataInternalSize		= sizeof(double)*nNodes * vecStride2 * 3;
-	size_t dataRotationMtxSize	= sizeof(double)*nNodes * matStride;
-	size_t stressVectorSize		= sizeof(double)*nNodes * vecStride2;
-
+	_dataVector = _data + nElements * 7;
 	// Additional alignment for KNC
-	size_t alignBytes = sizeof(double) * 8;
-	size_t 
-		delta = dataInternalSize % (alignBytes);
-	if (delta) dataInternalSize += (alignBytes - delta)*sizeof(double);
-	delta = dataRotationMtxSize % alignBytes;
-	if (delta) dataRotationMtxSize += (alignBytes - delta)*sizeof(double);
-	delta = stressVectorSize % alignBytes;
-	if (delta) stressVectorSize += (alignBytes - delta)*sizeof(double);
+	const size_t maxRegSize = 8;
+	size_t dataInternalElementsCount = _nElements * vecStride2 * 3; // 6-dof shifts, velocities and accelerations
+	size_t dataRotationMtxElementsCount = _nElements * matStride;
+	size_t stressVectorElementsCount = _nElements * vecStride2;
+	
+	dataInternalElementsCount = ((dataInternalElementsCount + maxRegSize - 1) / maxRegSize) * maxRegSize;
+	dataRotationMtxElementsCount = ((dataRotationMtxElementsCount + maxRegSize - 1) / maxRegSize) * maxRegSize;
+	stressVectorElementsCount = ((stressVectorElementsCount + maxRegSize - 1) / maxRegSize) * maxRegSize;
+
+	size_t dataInternalSize = sizeof(double) * dataInternalElementsCount;
+	size_t dataRotationMtxSize = sizeof(double) * dataRotationMtxElementsCount;
+	size_t stressVectorSize = sizeof(double) * stressVectorElementsCount;
 
 	// массивы для внутреннего хранения данных
 	//TODO: refactor to 3 arrays
@@ -50,12 +52,14 @@ const size_t matStride = vecStride * 3; // смещения матриц поворота (3x3, 3x4)
 	_dataRotationMtx	= (double*)aligned_alloc(dataRotationMtxSize, ALIGNMENT); // TODO: выравнивание матриц поворота
 	_stress				= (double*)aligned_alloc(stressVectorSize, ALIGNMENT);
 	_buffer				= (double*)aligned_alloc(8*5*sizeof(double), ALIGNMENT);
-	_elementStressFactorCache = (double*)aligned_alloc(vecStride*nNodes*sizeof(double), ALIGNMENT);;
+	
+	_elementStressFactorCache = (double*)aligned_alloc(vecStride*_nElements*sizeof(double), ALIGNMENT);
+
 	// обнуление массивов
 	memset(_stress, 0, stressVectorSize);
 	memset(_dataRotationMtx, 0, dataRotationMtxSize);
 	memset(_dataInternal, 0, dataInternalSize);
-	memset(_elementStressFactorCache, 0, vecStride*nNodes*sizeof(double));
+	memset(_elementStressFactorCache, 0, vecStride*_nElements*sizeof(double));
 
 	// единичные матрицы поворота
 	for(size_t i = 0; i < _nElements; i++)
@@ -71,6 +75,20 @@ void StressStrainSolver::SetZeroVelocities()
 	memset(_dataInternal + _nElements * vecStride2, 0, sizeof(double)*_nElements * vecStride2);
 }
 
+void StressStrainSolver::CheckVelocitySumm()
+{
+	//if (_velocitySum[1] > _velocitySum[0] && _velocitySum[1] > _velocitySum[0])
+}
+
+double StressStrainSolver::GetSquareSummOfVelocities()
+{
+	double* vel = _dataInternal + _nElements * vecStride2;
+	double sum = 0;
+	for (int i = 0; i < _nElements; i++)
+	{
+		sum += vel[i]*vel[i];
+	}
+}
 
 StressStrainSolver::~StressStrainSolver()
 {
@@ -101,15 +119,15 @@ void StressStrainSolver::InitIco ( const string& fileName,
 bool StressStrainSolver::ReadIco(const char* fileName)
 {
 	ifstream ifs(fileName, std::ios_base::binary);
-	int nNodes;
+	int nElements;
 	double* dataPointer = GetDataInternal(DataType::DT_Shifts);
 	double* mtxPointer = GetDataRotaionMtx();
 
 	if(ifs.is_open())
 	{
-		ifs.read((char*)&nNodes, sizeof(int));
-		ifs.read((char*)dataPointer, nNodes*sizeof(double)*6);
-		ifs.read((char*)mtxPointer, nNodes*sizeof(double)*9);
+		ifs.read((char*)&nElements, sizeof(int));
+		ifs.read((char*)dataPointer, nElements*sizeof(double)*6);
+		ifs.read((char*)mtxPointer, nElements*sizeof(double)*9);
 		ifs.close();
 		return true;
 	}
@@ -188,7 +206,7 @@ void StressStrainSolver::GetScalarParameter
 
 double* StressStrainSolver::GetElementGridCoordinates(size_t elementId) const
 {
-	return _elements + elementId * 3;
+	return _coordinates + elementId * 3;
 }
 
 //virtual 

@@ -116,7 +116,7 @@ public:
 
 	size_t _nVariables;				// количество неизвестных
 	size_t _nIteration;				// номер итерации
-	size_t _numThreads;				// число параллельных потоков OpenMP
+	int _numThreads;				// число параллельных потоков OpenMP
 	
 	//double _time;					// время
 	double _timeStep;				// шаг по времени

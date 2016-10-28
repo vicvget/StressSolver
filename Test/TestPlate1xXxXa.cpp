@@ -21,8 +21,8 @@ namespace SpecialSolversTest
 	{
 		void Test1xXxXa(int solverType, float plateSideLength, float plateWidth, int sideElements)
 		{
-			float gridStep = plateSideLength / sideElements;
-			float stressScalingFactor = plateWidth / plateSideLength;
+			float gridStep = (float)(plateSideLength / sideElements);
+			float stressScalingFactor = (float)(plateWidth / plateSideLength);
 
 			TestFactory factory;
 			SolverHandler _hsolver = factory
