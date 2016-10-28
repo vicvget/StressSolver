@@ -11,17 +11,21 @@ int main()
 
 	// Solver  test
 	using namespace SpecialSolversTest;
-
-	//SpecialSolversTest::StressStrainStuff::Test1x1x3(1, SpecialSolversTest::StressStrainStuff::ECode::xlr);
-	//SpecialSolversTest::StressStrainStuff::Test1x51x51(1, SpecialSolversTest::StressStrainStuff::ECode::xlr);
-	//SpecialSolversTest::StressStrainStuff::Test1x11x11(1, SpecialSolversTest::StressStrainStuff::ECode::xlr);
-	//SpecialSolversTest::StressStrainStuff::Test1x22x22a(0, SpecialSolversTest::StressStrainStuff::ECode::xlr);
-	SpecialSolversTest::StressStrainStuff::Test1x44x44a(0, SpecialSolversTest::StressStrainStuff::ECode::xlr);
-	//SpecialSolversTest::StressStrainStuff::Test1x100x100a(0, SpecialSolversTest::StressStrainStuff::ECode::xlr);
-	//SpecialSolversTest::StressStrainStuff::Test10x3x3(1, SpecialSolversTest::StressStrainStuff::ECode::xlr);
-	//SpecialSolversTest::StressStrainStuff::Test50x5x5(1, SpecialSolversTest::StressStrainStuff::ECode::xlr);
-	//SpecialSolversTest::StressStrainStuff::Test10x5x5(1, SpecialSolversTest::StressStrainStuff::ECode::xlr);
-	//SpecialSolversTest::StressStrainStuff::Test10x7x7(1, SpecialSolversTest::StressStrainStuff::ECode::xlr);
-
+	using namespace SpecialSolversTest::StressStrainStuff;
+	//Test1x1x3(0, xlr);
+	//Test1x51x51(1, xlr);
+	//Test1x11x11(1, xlr);
+	Test1x22x22a(0, xlr);
+	//Test1x44x44a(0, xlr);
+	//Test1x100x100a(0, xlr);
+	//Test10x3x3(1, xlr);
+	//Test50x5x5(1, xlr);
+	//Test10x5x5(1, xlr);
+	//Test10x7x7(1, xlr);
+	//Test1xXxXa(0, 0.8, 0.01, 10);
+	//Test1xXxXa(0, 0.8, 0.01, 20);
+	//Test1xXxXa(0, 0.8, 0.01, 30);
+	//Test1xXxXa(0, 0.8, 0.01, 40);
+	//Test1xXxXa(0, 0.8, 0.01, 50);
 	return 0;
 }

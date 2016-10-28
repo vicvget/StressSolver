@@ -24,6 +24,7 @@ namespace SpecialSolversTest
 			int side = 22;
 			float sideLength = 0.8;
 			TestFactory factory;
+			float gridStep = sideLength / side;
 			SolverHandler _hsolver = factory
 				.E(1e6)
 				.Density(7900)
@@ -53,7 +54,8 @@ namespace SpecialSolversTest
 					1000.,
 					1.);
 				OverrideInertia(_hsolver, 1., 1.);
-
+				double factor = gridStep / 0.01;
+				OverrideScalingFactors(_hsolver, factor, factor, factor);
 				PerformanceCounter pc;
 				pc.Start();
 				Solve

@@ -183,6 +183,8 @@ namespace SpecialSolversTest
 		void Test2x2x5(int solverType,  ECode code);
 		void TestSolveSystemOfLinearEquationsForStiffness();
 
+		void Test1xXxXa(int solverType, float plateSideLength, float plateWidth, int sideElements);
+
 	}
 
 }
