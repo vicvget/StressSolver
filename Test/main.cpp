@@ -25,7 +25,9 @@ int main()
 	//Test1xXxXa(0, 0.8, 0.01, 10);
 	//Test1xXxXa(0, 0.8, 0.01, 20);
 	//Test1xXxXa(0, 0.8, 0.01, 30);
-	Test1xXxXa(0, 0.8, 0.01, 100);
+	//Test1xXxXa(0, 0.8, 0.01, 100);
+	//Test1xXxXa(0, 0.8, 0.01, 80);
+	Test1xXxXa(0, 0.8, 0.01, 60);
 	//Test1xXxXa(0, 0.8, 0.01, 50);
 	return 0;
 }

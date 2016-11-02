@@ -219,6 +219,12 @@ public:
 			int dir,
 			int type
 		);
+	
+	/** Получить векторный параметр
+	* @param dataVector - массив для записи векторного параметра
+	*/
+	virtual
+	void GetVectorParameter(float* dataVector);
 
 	/** Получить скалярный параметр
 	* @param data - массив для записи скалярного параметра
