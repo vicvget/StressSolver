@@ -24,16 +24,26 @@ namespace SpecialSolversTest
 			float gridStep = (float)(plateSideLength / sideElements);
 			float stressScalingFactor = (float)(gridStep/plateWidth);
 
+			//double timeStep = 1e-4;
+			//double stiff = 1e8;
+			//double ldamp = 1e3;
+			//double adamp = 1e2;
+
+			double timeStep = 1e-6;
+			double stiff = 1e11;
+			double ldamp = 1e5;
+			double adamp = 1e2;
+
 			TestFactory factory;
 			SolverHandler _hsolver = factory
-				.E(1e6)
+				.E(2.1e11)
 				.Density(7900)
 				.Damping(0.1f)
 				.ScaleFactor(1.f)
 
-				.IterationsCount(500)
+				.IterationsCount(100)
 				.SubIterationsCount(100)
-				.TimeStep(0.0003f)
+				.TimeStep(timeStep)
 
 				.GridStep(gridStep)
 				.Dims(sideElements, sideElements, 1, SpecialSolversTest::StressStrainStuff::ECode::xlr)
@@ -48,12 +58,12 @@ namespace SpecialSolversTest
 			if (_hsolver != nullptr)
 			{
 				OverrideStiffness(_hsolver,
-					1e7,
-					1.,
-					1800.,
-					1000.,
+					stiff,
+					0.,
+					ldamp,//1800.,
+					adamp,//1000.,
 					1.);
-				OverrideInertia(_hsolver, 1., 1.);
+				OverrideInertia(_hsolver, 1., 1.);// *(gridStep*gridStep*0.25));
 				OverrideScalingFactors(
 					_hsolver,
 					stressScalingFactor,

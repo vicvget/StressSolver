@@ -368,24 +368,21 @@ float StressStrainCppSolver::UpdateBuffer
 	int id = 0;
 
 	GetScalarParameter(_data);
+	GetVectorParameter(_dataVector);
 	float maxScalar = _data[0];
+	double sum = 0, metric;
 	for (int i = 0; i < _nElements; i++)
 	{
-		if (_data[i] > maxScalar) maxScalar = _data[i];
-		for (int j = 0; j < 3; j++)
-		{
-			if (fabs(_dataInternal[i * vecStride2 + j]) > 1e20)
-			{
-				std::cout << "COORDINATE VALUE OVERFLOW: " << _dataInternal[i * vecStride2 + j] << std::endl;
-			}
-			_dataVector[i * 3 + j] =
-				(float)
-					(
-						_coordinates[i * 3 + j] +
-						(_dataInternal[i * vecStride2 + j] - _coordinates[i * 3 + j]) * scale
-					);
-		}
+		sum += _data[i];
 	}
+	sum /= _nElements;
+	for (int i = 0; i < _nElements; i++)
+	{
+		metric += ((sum - _data[i])*(sum - _data[i]));
+		if (_data[i] > maxScalar) maxScalar = _data[i];
+	}
+	maxScalar = (float)sqrt(metric)/_nElements;
+
 	return maxScalar;
 }
 

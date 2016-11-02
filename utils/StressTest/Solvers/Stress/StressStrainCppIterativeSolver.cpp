@@ -325,7 +325,7 @@ void StressStrainCppIterativeSolver::GetStressesXY(float* data)
 	for (int elementId = 0; elementId < _nElements; elementId++)
 	{
 		// TODO: scalingFactorX и scalingFactorY для 2 компонент!
-		data[elementId] = (float)(GetElementStressAngular(elementId)[2] * _elasticFactorLinear / 2. / (_gridStep * _gridStep) * _stressScalingFactorX);
+		data[elementId] = (float)(GetElementStressAngular(elementId)[2] * _elasticFactorLinear / 2. /(1.+0.28) / (_gridStep * _gridStep) * _stressScalingFactorX);
 	}
 }
 
@@ -338,7 +338,7 @@ void StressStrainCppIterativeSolver::GetStressesXZ(float* data)
 #pragma omp parallel for num_threads(_numThreads)
 	for (int elementId = 0; elementId < _nElements; elementId++)
 	{
-		data[elementId] = (float)(GetElementStressAngular(elementId)[1] * _elasticFactorLinear / 2. / (_gridStep * 0.01)); // костыль для толщины в 10 мм
+		data[elementId] = (float)(GetElementStressAngular(elementId)[1] * _elasticFactorLinear / 2. / (1. + 0.28) / (_gridStep * 0.01)); // костыль для толщины в 10 мм
 	}
 }
 
@@ -351,7 +351,7 @@ void StressStrainCppIterativeSolver::GetStressesYZ(float* data)
 #pragma omp parallel for num_threads(_numThreads)
 	for (int elementId = 0; elementId < _nElements; elementId++)
 	{
-		data[elementId] = (float)(GetElementStressAngular(elementId)[0] * _elasticFactorLinear / 2. / (_gridStep * 0.01)); // костыль для толщины в 10 мм
+		data[elementId] = (float)(GetElementStressAngular(elementId)[0] * _elasticFactorLinear / 2. / (1. + 0.28) / (_gridStep * 0.01)); // костыль для толщины в 10 мм
 	}
 }
 
@@ -366,47 +366,28 @@ void StressStrainCppIterativeSolver::GetStressesByVonMises
 		float* data
 	)
 {
-	double relativeShiftsSigned[6];
+	float* sigma1 = data + _nElements;
+	float* sigma2 = data + _nElements*2;
+	float* sigma3 = data + _nElements*3;
+	float* sigma4 = data + _nElements*4;
+	float* sigma5 = data + _nElements*5;
+	float* sigma6 = data + _nElements*6;
 
-	double sigma[6];
-	
-#pragma omp parallel for private(relativeShiftsSigned, sigma) num_threads(_numThreads)
+#pragma omp parallel for num_threads(_numThreads)
 	for (int elementId = 0; elementId < _nElements; elementId++)
-	{
-		
-		for (size_t dof = 0; dof < 3; dof++)
-		{
-			relativeShiftsSigned[dof] = GetElementStress(elementId)[dof];
-			relativeShiftsSigned[dof] /= _gridStep;
-			relativeShiftsSigned[dof+3] = GetElementStressAngular(elementId)[dof];
-		}
-
-		double summsq = 0;
-
-		for (int i = 0; i < 6; i++)
-		{
-			sigma[i] = 0;
-			for (int j = 0; j < 6; j++)
-			{
-				sigma[i] += _lameMatrix[i][j] * relativeShiftsSigned[j];
-			}
-			if (i > 2)
-			{
-				sigma[i] *= 2;
-				summsq += SQR(sigma[i]);
-			}
-		}
-		//summsq = 0;
-		data[elementId] = (float)(_elasticModulus * sqrt
+	{	
+		data[elementId] = (float)sqrt
 			(
-				0.5 *
-					(
-						SQR(sigma[0] - sigma[1]) +
-						SQR(sigma[1] - sigma[2]) +
-						SQR(sigma[0] - sigma[2]) +
-						6 * summsq
-					)
-			));
+					0.5 *
+					(SQR(sigma1[elementId] - sigma2[elementId]) +
+					SQR(sigma2[elementId] - sigma3[elementId]) +
+					SQR(sigma1[elementId] - sigma3[elementId]) +
+					6 * 
+					(SQR(sigma4[elementId]) +
+					SQR(sigma5[elementId]) +
+					SQR(sigma6[elementId])
+					))
+			);
 	}
 }
 

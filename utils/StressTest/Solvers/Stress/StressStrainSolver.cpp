@@ -197,19 +197,48 @@ double StressStrainSolver::GetData
 * @param data - массив для записи скалярного параметра
 */
 // virtual
+void StressStrainSolver::GetVectorParameter
+(
+	float* dataVector
+)
+{
+	for (int i = 0; i < _nElements; i++)
+	{
+		for (int j = 0; j < 3; j++)
+		{
+			if (fabs(_dataInternal[i * vecStride2 + j]) > 1e20)
+			{
+				std::cout << "COORDINATE VALUE OVERFLOW: " << _dataInternal[i * vecStride2 + j] << std::endl;
+			}
+			float scale = 1.;
+			dataVector[i * 3 + j] =
+				(float)
+				(
+				_coordinates[i * 3 + j] +
+				(_dataInternal[i * vecStride2 + j] - _coordinates[i * 3 + j]) * scale
+				);
+		}
+	}
+}
+
+
+/** Получить скалярный параметр
+* @param data - массив для записи скалярного параметра
+*/
+// virtual
 void StressStrainSolver::GetScalarParameter
 	(
 		float* data
 	)
 {
-	GetStressesX(data);
+	//GetStressesX(data);
 	GetStressesX(data + _nElements);
 	GetStressesY(data + _nElements * 2);
 	GetStressesZ(data + _nElements * 3);
 	GetStressesXY(data + _nElements * 4);
 	GetStressesXZ(data + _nElements * 5);
 	GetStressesYZ(data + _nElements * 6);
-	//GetStressesByVonMises(data);
+	GetStressesByVonMises(data);
 	//GetStressesByFirstTheoryOfStrength(data);
 }
 
