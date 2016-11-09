@@ -71,32 +71,138 @@ StressStrainSolver::StressStrainSolver
 }
 
 void StressStrainSolver::SetZeroVelocities()
-{
-	memset(_dataInternal + _nElements * vecStride2, 0, sizeof(double)*_nElements * vecStride2);
+{	
+	memset(GetElementVelocity(0), 0, sizeof(double)*_nElements * vecStride2);
 }
 
-void StressStrainSolver::CheckVelocitySumm()
+void StressStrainSolver::SetZeroVelocitiesX()
+{
+	for (int i = 0; i < _nElements; i++)
+	{
+		GetElementVelocity(i)[0] = 0.;
+	}
+}
+
+void StressStrainSolver::SetZeroVelocitiesY()
+{
+	for (int i = 0; i < _nElements; i++)
+	{
+		GetElementVelocity(i)[1] = 0.;
+	}
+}
+
+void StressStrainSolver::SetZeroVelocitiesZ()
+{
+	for (int i = 0; i < _nElements; i++)
+	{
+		GetElementVelocity(i)[2] = 0.;
+	}
+}
+
+
+bool StressStrainSolver::Check(double* _velocitySum)
 {
 	_velocitySum[2] = _velocitySum[1];
 	_velocitySum[1] = _velocitySum[0];
 	_velocitySum[0] = GetSquareSummOfVelocities();
 	if (_velocitySum[1] > _velocitySum[0] && _velocitySum[1] > _velocitySum[0])
 	{
-		SetZeroVelocities();
 		_velocitySum[0] = 0;
 		_velocitySum[1] = 0;
 		_velocitySum[2] = 0;
+		return true;
 	}
+	return false;
+}
+
+void StressStrainSolver::CheckVelocitySumm()
+{
+	_velocitySum[2] = _velocitySum[1];
+	_velocitySum[1] = _velocitySum[0];
+
+	_velocitySumSingle[2] = _velocitySumSingle[1];
+	_velocitySumSingle[1] = _velocitySumSingle[0];
+
+	_velocitySumX[2] = _velocitySumX[1];
+	_velocitySumX[1] = _velocitySumX[0];
+	
+	_velocitySumY[2] = _velocitySumY[1];
+	_velocitySumY[1] = _velocitySumY[0];
+	
+	_velocitySumZ[2] = _velocitySumZ[1];
+	_velocitySumZ[1] = _velocitySumZ[0];
+	GetSquareSummOfVelocities();
+
+	//if (_velocitySumSingle[1] > _velocitySumSingle[0] && _velocitySumSingle[1] > _velocitySumSingle[0])
+	//{
+	//	SetZeroVelocities();
+	//	_velocitySumSingle[0] = 0;
+	//	_velocitySumSingle[1] = 0;
+	//	_velocitySumSingle[2] = 0;
+	//}
+	bool modified = false;
+
+	{
+		if (_velocitySumX[1] > _velocitySumX[0] && _velocitySumX[1] > _velocitySumX[0])
+		{
+			//SetZeroVelocitiesX();
+			SetZeroVelocities();
+			_velocitySumX[0] = 0;
+			_velocitySumX[1] = 0;
+			_velocitySumX[2] = 0;
+			modified = true;
+		}
+
+		else if (_velocitySumY[1] > _velocitySumY[0] && _velocitySumY[1] > _velocitySumY[0])
+		{
+			//SetZeroVelocitiesY();
+			SetZeroVelocities();
+			_velocitySumY[0] = 0;
+			_velocitySumY[1] = 0;
+			_velocitySumY[2] = 0;
+			modified = true;
+		}
+
+		else if (_velocitySumZ[1] > _velocitySumZ[0] && _velocitySumZ[1] > _velocitySumZ[0])
+		{
+			//SetZeroVelocitiesZ();
+			SetZeroVelocities();
+			_velocitySumZ[0] = 0;
+			_velocitySumZ[1] = 0;
+			_velocitySumZ[2] = 0;
+			modified = true;
+		}
+	}
+
+	//if (!modified && _velocitySum[1] > _velocitySum[0] && _velocitySum[1] > _velocitySum[0])
+	//{
+	//	SetZeroVelocities();
+	//	_velocitySum[0] = 0;
+	//	_velocitySum[1] = 0;
+	//	_velocitySum[2] = 0;
+	//}
+
 }
 
 double StressStrainSolver::GetSquareSummOfVelocities()
 {
-	double* vel = _dataInternal + _nElements * vecStride2;
+	_velocitySum[0] = 0;
+	_velocitySumSingle[0] = 0;
+	_velocitySumX[0] = 0;
+	_velocitySumY[0] = 0;
+	_velocitySumZ[0] = 0;
 	double sum = 0;
-	for (int i = 0; i < _nElements; i++)
+	double* velSingle = GetElementVelocity(_nElements/2);
+	_velocitySumSingle[0] += velSingle[2] * velSingle[2];
+	for (int elementId = 0; elementId < _nElements; elementId++)
 	{
-		sum += vel[i]*vel[i];
+		double* vel = GetElementVelocity(elementId);
+		_velocitySumX[0] += vel[0] * vel[0];
+		_velocitySumY[0] += vel[1] * vel[1];
+		_velocitySumZ[0] += vel[2] * vel[2];
+		_velocitySum[0] = _velocitySumX[0] + _velocitySumY[0] + _velocitySumZ[0];
 	}
+	sum =_velocitySum[0];
 	return sum;
 }
 

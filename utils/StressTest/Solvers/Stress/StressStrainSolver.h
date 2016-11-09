@@ -33,6 +33,10 @@ protected:
 	int _nWriteIteration;
 
 	double _velocitySum[3];
+	double _velocitySumSingle[3];
+	double _velocitySumX[3];
+	double _velocitySumY[3];
+	double _velocitySumZ[3];
 
 public:
 
@@ -48,7 +52,12 @@ public:
 
 
 	void SetZeroVelocities();
+	void SetZeroVelocitiesX();
+	void SetZeroVelocitiesY();
+	void SetZeroVelocitiesZ();
+
 	void CheckVelocitySumm();
+	bool Check(double* _velocitySum);
 	double GetSquareSummOfVelocities();
 	virtual
 	~StressStrainSolver();

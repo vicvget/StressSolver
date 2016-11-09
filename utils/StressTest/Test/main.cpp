@@ -13,7 +13,7 @@ int main()
 	using namespace SpecialSolversTest;
 	using namespace SpecialSolversTest::StressStrainStuff;
 	//Test1x1x3(0, xlr);
-	//Test1x51x51(1, xlr);
+	Test1x51x51(1, xlr);
 	//Test1x11x11(1, xlr);
 	//Test1x22x22a(0, xlr);
 	//Test1x44x44a(0, xlr);
@@ -27,7 +27,9 @@ int main()
 	//Test1xXxXa(0, 0.8, 0.01, 30);
 	//Test1xXxXa(0, 0.8, 0.01, 100);
 	//Test1xXxXa(0, 0.8, 0.01, 80);
-	Test1xXxXa(0, 0.8, 0.01, 60);
+	//Test1xXxXa(0, 0.8, 0.01, 1000);
 	//Test1xXxXa(0, 0.8, 0.01, 50);
+	//Test1xXxXa(0, 0.8, 0.01, 20);
+	//Test1xXxXa(0, 0.8, 0.01, 100);
 	return 0;
 }
