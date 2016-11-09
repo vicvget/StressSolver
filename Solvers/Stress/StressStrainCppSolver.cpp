@@ -125,9 +125,10 @@ StressStrainCppSolver::StressStrainCppSolver
 	_elasticFactorLinear = elasticModulusScaled * _gridStep;
 	_elasticFactorAngular = 2 * shearModulusScaled * _gridStep3;
 
-	_stressScalingFactorX = 1.;
-	_stressScalingFactorY = 1.;
-	_stressScalingFactorZ = 1.;
+	_stressScalingFactors[0] = 1.;
+	_stressScalingFactors[1] = 1.;
+	_stressScalingFactors[2] = 1.;
+	_puassonFactor = 0.;
 
 	
 	
@@ -376,13 +377,13 @@ float StressStrainCppSolver::UpdateBuffer
 		sum += _data[i];
 	}
 	sum /= _nElements;
-	for (int i = 0; i < _nElements; i++)
-	{
-		metric += ((sum - _data[i])*(sum - _data[i]));
-		if (_data[i] > maxScalar) maxScalar = _data[i];
-	}
-	maxScalar = (float)sqrt(metric)/_nElements;
-
+	//for (int i = 0; i < _nElements; i++)
+	//{
+	//	metric += ((sum - _data[i])*(sum - _data[i]));
+	//	if (_data[i] > maxScalar) maxScalar = _data[i];
+	//}
+	//maxScalar = (float)sqrt(metric)/_nElements;
+	maxScalar = sum;
 	return maxScalar;
 }
 
@@ -399,9 +400,9 @@ int StressStrainCppSolver::GetLinkedElement(size_t elementId, size_t dof) const
 
 void StressStrainCppSolver::OverrideScalingFactors(double stressScalingFactorX, double stressScalingFactorY, double stressScalingFactorZ)
 {
-	_stressScalingFactorX = stressScalingFactorX;
-	_stressScalingFactorY = stressScalingFactorY;
-	_stressScalingFactorZ = stressScalingFactorZ;
+	_stressScalingFactors[0] = stressScalingFactorX;
+	_stressScalingFactors[1] = stressScalingFactorY;
+	_stressScalingFactors[2] = stressScalingFactorZ;
 }
 
 void StressStrainCppSolver::OverrideStiffness(double elasticFactorLinear, double elasticFactorAngular, double dampingFactorLinear, double dampingFactorAngular, double stiffScale)

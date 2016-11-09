@@ -137,9 +137,8 @@ public:
 	bool _isInertiaOverriden;		// признак перегрузки реальной массы и моментов инерции
 
 	// Масштабные коэффициенты для напряжений по X,Y,Z
-	double _stressScalingFactorX;
-	double _stressScalingFactorY;
-	double _stressScalingFactorZ;
+	double _stressScalingFactors[3];
+	double _puassonFactor;
 
 
 	//double _density;				// плотность материала
