@@ -5,9 +5,20 @@
 #include <fstream>
 #include "Common.h"
 #include "../../AdditionalModules/fmath/Vector3.h"
+#include "../../AdditionalModules/fmath/Matrix3x3.h"
+#include "../../AdditionalModules/fmath/Matrix3x4.h"
 
 using std::ifstream;
 using std::ofstream;
+
+#define SQR(x) ((x) * (x))
+
+using MathHelpers::Vec3;
+using MathHelpers::Vec3Ref;
+using MathHelpers::MakeVec3;
+using MathHelpers::Mat3;
+using MathHelpers::Mat3x4;
+
 
 StressStrainSolver::StressStrainSolver
 	(
@@ -425,3 +436,4 @@ double* StressStrainSolver::GetElementStressFactors(size_t elementId) const
 {
 	return _elementStressFactorCache + (elementId * vecStride);
 }
+

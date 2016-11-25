@@ -411,137 +411,284 @@ void StressStrainCppIterativeSolverAVX::Solve5()
 	MeasuredRun(2, CalculateForces());
 }
 
-void StressStrainCppIterativeSolverAVX::CalculateForces()
+void StressStrainCppIterativeSolverAVX::CalculateStrains
+(
+	size_t side,			// 0 = -x, 1 = x, 2 = -y, 3 = y, 4 = -z, 5 = z
+	double *shiftStrains,		// выход деформаций
+	double *velocityStrains,	// выход изм. скоростей
+	size_t nodeId1,				// номер узла 1
+	size_t nodeId2					// номер узла 2
+) const
 {
-	_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
-	static int it = 0;
 
-	__declspec(align(32)) double strains[8], velocityStrains[8];
-//#define MODX
-	memset(GetElementAcceleration(0), 0u, sizeof(double)*vecStride2*_nElements);
-	memset(GetElementStress(0), 0u, sizeof(double)*vecStride2*_nElements);
-//#pragma omp parallel for private (strains, velocityStrains) num_threads(_numThreads)
-	for (int elementId1 = 0; elementId1 < _nElements; elementId1++)
-	{
-		
-		double* accelerationVector = GetElementAcceleration(elementId1);
+	// Start AVX code
+	double* pmatA01 = GetRotationMatrix(nodeId1);
+	double* pmatA02 = GetRotationMatrix(nodeId2);
 
-		//memset(GetElementAcceleration(elementId1), 0u, sizeof(double)*vecStride2);
-		//memset(GetElementStress(elementId1), 0u, sizeof(double)*vecStride2);
+	// vecStride must be 4
+	__m256d matA01row1 = _mm256_load_pd(pmatA01);
+	__m256d matA01row2 = _mm256_load_pd(pmatA01 + vecStride);
+	__m256d matA01row3 = _mm256_load_pd(pmatA01 + vecStride2);
 
-		_testTimer.Start(5);
-		size_t nSides = 6;
-#ifdef MODX
-		nSides = 3;
-#endif
+	__m256d matA02el1;
+	__m256d matA02el2;
+	__m256d matA02el3;
 
-		// обход 6 связанных элементов x-,y-,z-,x+,y+,z+
-		for (size_t side = 0; side < nSides; side++)
-		{
-			size_t elementId2 = _linkedElements[6 * elementId1 + side];
-			if (elementId2)
-			{
-				elementId2--;
-				CalculateStrainsAVX(side, strains, velocityStrains, elementId1, elementId2);
+	__m256d matA21row1;
+	__m256d matA21row2;
+	__m256d matA21row3;
 
-				Vec3Ref linear_strains = MakeVec3(&strains[0]);
-				Vec3Ref angular_strains = MakeVec3(&strains[0] + vecStride);
-				Vec3Ref linear_vstrains = MakeVec3(&velocityStrains[0]);
-				Vec3Ref angular_vstrains = MakeVec3(&velocityStrains[0] + vecStride);
+	// matA02 column 1/3
+	matA02el1 = _mm256_set1_pd(pmatA02[0]);
+	matA02el2 = _mm256_set1_pd(pmatA02[vecStride]);
+	matA02el3 = _mm256_set1_pd(pmatA02[vecStride2]);
 
-				for (size_t component = 0; component < 3; component++)
-				{
-					GetElementStress(elementId1)[component] += strains[component];
-					GetElementStress(elementId1)[component + vecStride] += strains[component + vecStride];
-#ifdef MODX
-//#pragma omp critical
-					{
-						GetElementStress(elementId2)[component] -= strains[component];
-						GetElementStress(elementId2)[component + vecStride] -= strains[component + vecStride];
-				    }
-#endif
-				}
+	// matA01.TMul(matA02)
+	matA02el1 = _mm256_mul_pd(matA01row1, matA02el1);
+	matA02el2 = _mm256_mul_pd(matA01row2, matA02el2);
+	matA02el3 = _mm256_mul_pd(matA01row3, matA02el3);
 
-				// сила и момент из полученных деформаций
-				Vec3 force  = -linear_vstrains * _dampingFactorLinear - linear_strains * _elasticFactorLinear;
-				Vec3 torque = -angular_vstrains * _dampingFactorAngular - angular_strains * _elasticFactorAngular;
+	matA21row1 = _mm256_add_pd(matA02el1, _mm256_add_pd(matA02el2, matA02el3));
 
-				// отладочный вывод деформаций
-				//df[0] = -strains[0];
-				//df[1] = -strains[1];
-				//df[2] = -strains[2];
-				//df[3] = -strains[0 + vecStride];
-				//df[4] = -strains[1 + vecStride];
-				//df[5] = -strains[2 + vecStride];
-				//df[6] = force.X();
-				//df[7] = force.Y();
-				//df[8] = force.Z();
-				//df[9] = torque.X();
-				//df[10] = torque.Y();
-				//df[11] = torque.Z();
+	// matA02 column 2/3
+	matA02el1 = _mm256_set1_pd(pmatA02[1]);
+	matA02el2 = _mm256_set1_pd(pmatA02[vecStride + 1]);
+	matA02el3 = _mm256_set1_pd(pmatA02[vecStride2 + 1]);
+
+	// matA01.TMul(matA02)
+	matA02el1 = _mm256_mul_pd(matA01row1, matA02el1);
+	matA02el2 = _mm256_mul_pd(matA01row2, matA02el2);
+	matA02el3 = _mm256_mul_pd(matA01row3, matA02el3);
+
+	matA21row2 = _mm256_add_pd(matA02el1, _mm256_add_pd(matA02el2, matA02el3));
+
+	// matA02 column 3/3
+	matA02el1 = _mm256_set1_pd(pmatA02[2]);
+	matA02el2 = _mm256_set1_pd(pmatA02[vecStride + 2]);
+	matA02el3 = _mm256_set1_pd(pmatA02[vecStride2 + 2]);
+
+	// matA01.TMul(matA02)
+	matA02el1 = _mm256_mul_pd(matA01row1, matA02el1);
+	matA02el2 = _mm256_mul_pd(matA01row2, matA02el2);
+	matA02el3 = _mm256_mul_pd(matA01row3, matA02el3);
+
+	matA21row3 = _mm256_add_pd(matA02el1, _mm256_add_pd(matA02el2, matA02el3));
+	// Матрица A_{21} сформирована
+
+	double* rv = GetRadiusVector(side);
+	__m256d ivecC1 = _mm256_load_pd(rv);
+	__m256d vecDP = _mm256_sub_pd(
+		_mm256_load_pd(GetElementShift(nodeId1)),
+		_mm256_load_pd(GetElementShift(nodeId2))); // P1-P2
+
+	matA02el1 = _mm256_set1_pd(rv[0]);
+	matA02el2 = _mm256_set1_pd(rv[1]);
+	matA02el3 = _mm256_set1_pd(rv[2]);
+
+	matA02el1 = _mm256_mul_pd(matA21row1, matA02el1);
+	matA02el2 = _mm256_mul_pd(matA21row2, matA02el2);
+	matA02el3 = _mm256_mul_pd(matA21row3, matA02el3);
+
+	__m256d mul1 = _mm256_add_pd(_mm256_add_pd(matA02el1, matA02el2), matA02el3);
+	__declspec(align(32)) double tmp[4];
+	_mm256_store_pd(tmp, vecDP);
+	matA02el1 = _mm256_set1_pd(tmp[0]);
+	matA02el2 = _mm256_set1_pd(tmp[1]);
+	matA02el3 = _mm256_set1_pd(tmp[2]);
+
+	matA02el1 = _mm256_mul_pd(matA01row1, matA02el1);
+	matA02el2 = _mm256_mul_pd(matA01row2, matA02el2);
+	matA02el3 = _mm256_mul_pd(matA01row3, matA02el3);
 
 
-				Vec3 vAcc;
-				if (vecStride == 4)
-				{
-					Mat3x4 matA01(GetRotationMatrix(elementId1));
-					vAcc = matA01*force;
-				}
-				else
-				{
-					Mat3 matA01(GetRotationMatrix(elementId1));
-					vAcc = matA01*force;
-				}
+	__m256d mul2 = _mm256_add_pd(_mm256_add_pd(matA02el1, matA02el2), matA02el3);
+	__m256d res = _mm256_add_pd(_mm256_add_pd(ivecC1, mul1), mul2);
 
-				Vec3Ref vR = MakeVec3(GetRadiusVector(side));
-				Vec3 forceTorque = vR.Cross(force);
-				Vec3 vM = forceTorque + torque;
+	_mm256_store_pd(shiftStrains, res); // получено SL, линейные компоненты
 
-				//MakeVec3(GetElementAcceleration(elementId1)) += vAcc;
-				//MakeVec3(GetElementAccelerationAngular(elementId1)) += vM;
-				
-#ifdef MODX
-				double* accelerationVector2 = GetElementAcceleration(elementId2);
+	// Расчет VL
+	// переводим вектор разницы линейных скоростей точек связи С2-С1 в СК1
+	// Vec3 VecT1 = matA01.Tmul(vecV1 - vecV2) + vecW1.Cross(vecC1) - matA12*(vecW2.Cross(vecC2));
+	// vecC2 = -vecC1
+	// vecC2.Cross(vecW1) = -vecC1.Cross(vecW1)
 
-				Vec3 vAcc2;
-				if (vecStride == 4)
-				{
-					Mat3x4 matA01(GetRotationMatrix(elementId2));
-					vAcc2 = matA01*force;
-				}
-				else
-				{
-					Mat3 matA01(GetRotationMatrix(elementId2));
-					vAcc2 = matA01*force;
-				}
+	__declspec(align(32)) double cp1[4] = { 0 };	// векторное произведение 
+	__declspec(align(32)) double cp2[4] = { 0 };	// векторное произведение
 
-				Vec3 vM2 = force.Cross(MakeVec3(GetRadiusVector(side + 3))) - torque;
+	CrossProduct(GetElementVelocityAngular(nodeId1), GetRadiusVector(side), cp1);	// [w1 x c1]
+	CrossProduct(GetElementVelocityAngular(nodeId2), GetRadiusVector(side), cp2);	// -[w2 x c2] = [w2 x c1]
 
-#endif
-				for (int i = 0; i < 3; i++)
-				{
-					accelerationVector[i] += vAcc[i];
-					accelerationVector[i + vecStride] += vM[i];
-#ifdef MODX
-//#pragma omp critical
-				{
-						accelerationVector2[i] -= vAcc2[i];
-						accelerationVector2[i + vecStride] += vM2[i];
-				}
-#endif
-				} 
+	__m256d cp1r = _mm256_load_pd(&cp1[0]);
+	__m256d vecDV = _mm256_sub_pd(
+		_mm256_load_pd(GetElementVelocity(nodeId1)),
+		_mm256_load_pd(GetElementVelocity(nodeId2))); // V1-V2
 
-			}
-		}
-		_testTimer.Stop(5);
+	matA02el1 = _mm256_set1_pd(cp2[0]);
+	matA02el2 = _mm256_set1_pd(cp2[1]);
+	matA02el3 = _mm256_set1_pd(cp2[2]);
 
-		//Vec3Ref force = MakeVec3(&forces[0]);
-		//Vec3Ref torque = MakeVec3(&forces[0] + vecStride);
-		
-	}
-	ApplyBoundary(); // модифицирует силы и моменты
-	ApplyMass();	 // вычисляет ускорения делением сил на массы и моментов на моменты инерции
+	matA02el1 = _mm256_mul_pd(matA21row1, matA02el1);
+	matA02el2 = _mm256_mul_pd(matA21row2, matA02el2);
+	matA02el3 = _mm256_mul_pd(matA21row3, matA02el3);
+
+	mul1 = _mm256_add_pd(_mm256_add_pd(matA02el1, matA02el2), matA02el3);
+
+	_mm256_store_pd(tmp, vecDV);
+	matA02el1 = _mm256_set1_pd(tmp[0]);
+	matA02el2 = _mm256_set1_pd(tmp[1]);
+	matA02el3 = _mm256_set1_pd(tmp[2]);
+
+	matA02el1 = _mm256_mul_pd(matA01row1, matA02el1);
+	matA02el2 = _mm256_mul_pd(matA01row2, matA02el2);
+	matA02el3 = _mm256_mul_pd(matA01row3, matA02el3);
+
+	mul2 = _mm256_add_pd(_mm256_add_pd(matA02el1, matA02el2), matA02el3);
+
+	res = _mm256_add_pd(_mm256_add_pd(cp1r, mul1), mul2);
+
+	_mm256_store_pd(velocityStrains, res); // получено VL, линейные компоненты
+
+	__m256d x1 = _mm256_load_pd(GetElementShiftAngular(nodeId1));
+	__m256d x2 = _mm256_load_pd(GetElementShiftAngular(nodeId2));
+	_mm256_store_pd(shiftStrains + vecStride, _mm256_sub_pd(x1, x2));
+
+	x1 = _mm256_load_pd(GetElementVelocityAngular(nodeId1));
+	x2 = _mm256_load_pd(GetElementVelocityAngular(nodeId2));
+	_mm256_store_pd(velocityStrains + vecStride, _mm256_sub_pd(x1, x2));
 }
+
+//void StressStrainCppIterativeSolverAVX::CalculateForcesAll()
+//{
+//	_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
+//	static int it = 0;
+//
+//	__declspec(align(32)) double strains[8], velocityStrains[8];
+////#define MODX
+//	memset(GetElementAcceleration(0), 0u, sizeof(double)*vecStride2*_nElements);
+//	memset(GetElementStress(0), 0u, sizeof(double)*vecStride2*_nElements);
+////#pragma omp parallel for private (strains, velocityStrains) num_threads(_numThreads)
+//	for (int elementId1 = 0; elementId1 < _nElements; elementId1++)
+//	{
+//		
+//		double* accelerationVector = GetElementAcceleration(elementId1);
+//
+//		//memset(GetElementAcceleration(elementId1), 0u, sizeof(double)*vecStride2);
+//		//memset(GetElementStress(elementId1), 0u, sizeof(double)*vecStride2);
+//
+//		_testTimer.Start(5);
+//		size_t nSides = 6;
+//#ifdef MODX
+//		nSides = 3;
+//#endif
+//
+//		// обход 6 связанных элементов x-,y-,z-,x+,y+,z+
+//		for (size_t side = 0; side < nSides; side++)
+//		{
+//			size_t elementId2 = _linkedElements[6 * elementId1 + side];
+//			if (elementId2)
+//			{
+//				elementId2--;
+//				CalculateStrainsAVX(side, strains, velocityStrains, elementId1, elementId2);
+//
+//				Vec3Ref linear_strains = MakeVec3(&strains[0]);
+//				Vec3Ref angular_strains = MakeVec3(&strains[0] + vecStride);
+//				Vec3Ref linear_vstrains = MakeVec3(&velocityStrains[0]);
+//				Vec3Ref angular_vstrains = MakeVec3(&velocityStrains[0] + vecStride);
+//
+//				for (size_t component = 0; component < 3; component++)
+//				{
+//					GetElementStress(elementId1)[component] += strains[component];
+//					GetElementStress(elementId1)[component + vecStride] += strains[component + vecStride];
+//#ifdef MODX
+////#pragma omp critical
+//					{
+//						GetElementStress(elementId2)[component] -= strains[component];
+//						GetElementStress(elementId2)[component + vecStride] -= strains[component + vecStride];
+//				    }
+//#endif
+//				}
+//
+//				// сила и момент из полученных деформаций
+//				Vec3 force  = -linear_vstrains * _dampingFactorLinear - linear_strains * _elasticFactorLinear;
+//				Vec3 torque = -angular_vstrains * _dampingFactorAngular - angular_strains * _elasticFactorAngular;
+//
+//				// отладочный вывод деформаций
+//				//df[0] = -strains[0];
+//				//df[1] = -strains[1];
+//				//df[2] = -strains[2];
+//				//df[3] = -strains[0 + vecStride];
+//				//df[4] = -strains[1 + vecStride];
+//				//df[5] = -strains[2 + vecStride];
+//				//df[6] = force.X();
+//				//df[7] = force.Y();
+//				//df[8] = force.Z();
+//				//df[9] = torque.X();
+//				//df[10] = torque.Y();
+//				//df[11] = torque.Z();
+//
+//
+//				Vec3 vAcc;
+//				if (vecStride == 4)
+//				{
+//					Mat3x4 matA01(GetRotationMatrix(elementId1));
+//					vAcc = matA01*force;
+//				}
+//				else
+//				{
+//					Mat3 matA01(GetRotationMatrix(elementId1));
+//					vAcc = matA01*force;
+//				}
+//
+//				Vec3Ref vR = MakeVec3(GetRadiusVector(side));
+//				Vec3 forceTorque = vR.Cross(force);
+//				Vec3 vM = forceTorque + torque;
+//
+//				//MakeVec3(GetElementAcceleration(elementId1)) += vAcc;
+//				//MakeVec3(GetElementAccelerationAngular(elementId1)) += vM;
+//				
+//#ifdef MODX
+//				double* accelerationVector2 = GetElementAcceleration(elementId2);
+//
+//				Vec3 vAcc2;
+//				if (vecStride == 4)
+//				{
+//					Mat3x4 matA01(GetRotationMatrix(elementId2));
+//					vAcc2 = matA01*force;
+//				}
+//				else
+//				{
+//					Mat3 matA01(GetRotationMatrix(elementId2));
+//					vAcc2 = matA01*force;
+//				}
+//
+//				Vec3 vM2 = force.Cross(MakeVec3(GetRadiusVector(side + 3))) - torque;
+//
+//#endif
+//				for (int i = 0; i < 3; i++)
+//				{
+//					accelerationVector[i] += vAcc[i];
+//					accelerationVector[i + vecStride] += vM[i];
+//#ifdef MODX
+////#pragma omp critical
+//				{
+//						accelerationVector2[i] -= vAcc2[i];
+//						accelerationVector2[i + vecStride] += vM2[i];
+//				}
+//#endif
+//				} 
+//
+//			}
+//		}
+//		_testTimer.Stop(5);
+//
+//		//Vec3Ref force = MakeVec3(&forces[0]);
+//		//Vec3Ref torque = MakeVec3(&forces[0] + vecStride);
+//		
+//	}
+//	ApplyBoundary(); // модифицирует силы и моменты
+//	ApplyMass();	 // вычисляет ускорения делением сил на массы и моментов на моменты инерции
+//}
+
 }
 
 #endif
