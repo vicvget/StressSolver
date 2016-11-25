@@ -11,16 +11,16 @@ using std::vector;
 namespace Stress
 {
 
-class StressStrainCppIterativeSolverFMA
-	:
+	class StressStrainCppIterativeSolverFMA
+		:
 		public StressStrainCppIterativeSolver
-{
-public:
-	const int regSize = 4;
+	{
+	public:
+		const int regSize = 4;
 
-	// создает объект с заданными параметрами
-	StressStrainCppIterativeSolverFMA
-		(
+		// создает объект с заданными параметрами
+		StressStrainCppIterativeSolverFMA
+			(
 			double* params,
 			int* links,
 			int nLinks,
@@ -30,53 +30,52 @@ public:
 			double timeStep,
 			int numThreads,
 			int stride
-		);
+			);
 
-	virtual
-	~StressStrainCppIterativeSolverFMA();
+		virtual
+			~StressStrainCppIterativeSolverFMA();
 
 #pragma region overriden
 
-	virtual	void InitialSolve();
+		virtual	void InitialSolve();
 
-	virtual void Solve(const int nIteratons);
-	virtual	void SolveFull(const int nIteratons);
+		virtual void Solve(const int nIteratons);
+		virtual	void SolveFull(const int nIteratons);
 
-	/**
-	* Расчет первой стадии метода Рунге-Кутты
-	*/
-	virtual
-	void Solve1();
+		/**
+		* Расчет первой стадии метода Рунге-Кутты
+		*/
+		virtual
+			void Solve1();
 
-	/**
-	* Расчет второй стадии метода Рунге-Кутты
-	*/
-	virtual
-	void Solve2();
+		/**
+		* Расчет второй стадии метода Рунге-Кутты
+		*/
+		virtual
+			void Solve2();
 
-	/**
-	* Расчет третьей стадии метода Рунге-Кутты
-	*/
-	virtual
-	void Solve3();
+		/**
+		* Расчет третьей стадии метода Рунге-Кутты
+		*/
+		virtual
+			void Solve3();
 
-	/**
-	* Расчет четвертой стадии метода Рунге-Кутты
-	*/
-	virtual
-	void Solve4();
+		/**
+		* Расчет четвертой стадии метода Рунге-Кутты
+		*/
+		virtual
+			void Solve4();
 
-	/**
-	* Расчет пятой стадии метода Рунге-Кутты
-	*/
-	virtual
-	void Solve5();
-
+		/**
+		* Расчет пятой стадии метода Рунге-Кутты
+		*/
+		virtual
+			void Solve5();
+		
+		virtual
+			void CalculateStrains(size_t side, double* shiftStrains, double* velocityStrains, size_t nodeId1, size_t nodeId2) const;
 #pragma endregion
 
-	double df[12]; // debug
-protected:
-
-	virtual	void CalculateForces();
-};
+		double df[12]; // debug
+	};
 }

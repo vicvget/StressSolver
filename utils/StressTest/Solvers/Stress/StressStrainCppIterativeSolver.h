@@ -17,15 +17,15 @@ using std::vector;
 namespace Stress
 {
 
-class StressStrainCppIterativeSolver
-	:
+	class StressStrainCppIterativeSolver
+		:
 		public StressStrainCppSolver
-{
-public:
+	{
+	public:
 
-	// создает объект с заданными параметрами
-	StressStrainCppIterativeSolver
-		(
+		// создает объект с заданными параметрами
+		StressStrainCppIterativeSolver
+			(
 			double* params,
 			int* links,
 			int nLinks,
@@ -35,101 +35,95 @@ public:
 			double timeStep,
 			int numThreads,
 			int stride
-		);
+			);
 
-	virtual
-	~StressStrainCppIterativeSolver();
+		virtual
+			~StressStrainCppIterativeSolver();
 
 #pragma region overriden
 
-	virtual
-		void InitialSolve
-		(
-		);
+		virtual
+			void InitialSolve
+			(
+			);
 
-	virtual	void Solve(const int nIteratons);
-	virtual void SolveFull(const int nIteratons);
+		virtual	void Solve(const int nIteratons);
+		virtual void SolveFull(const int nIteratons);
 
-	/**
-	* Расчет первой стадии метода Рунге-Кутты
-	*/
-	virtual
-	void Solve1();
+		/**
+		* Расчет первой стадии метода Рунге-Кутты
+		*/
+		virtual
+			void Solve1();
 
-	/**
-	* Расчет второй стадии метода Рунге-Кутты
-	*/
-	virtual
-	void Solve2();
+		/**
+		* Расчет второй стадии метода Рунге-Кутты
+		*/
+		virtual
+			void Solve2();
 
-	/**
-	* Расчет третьей стадии метода Рунге-Кутты
-	*/
-	virtual
-	void Solve3();
+		/**
+		* Расчет третьей стадии метода Рунге-Кутты
+		*/
+		virtual
+			void Solve3();
 
-	/**
-	* Расчет четвертой стадии метода Рунге-Кутты
-	*/
-	virtual
-	void Solve4();
+		/**
+		* Расчет четвертой стадии метода Рунге-Кутты
+		*/
+		virtual
+			void Solve4();
 
-	/**
-	* Расчет пятой стадии метода Рунге-Кутты
-	*/
-	virtual
-	void Solve5();
+		/**
+		* Расчет пятой стадии метода Рунге-Кутты
+		*/
+		virtual
+			void Solve5();
 
-	/** Получить смещения
-	* @param data - массив для записи смещений как скалярного параметра
-	*/
-	virtual
-	void GetDisplacement
-		(
+		/** Получить смещения
+		* @param data - массив для записи смещений как скалярного параметра
+		*/
+		virtual
+			void GetDisplacement
+			(
 			float* data
-		);
+			);
 
-	/** Получить напряжения по первой теории прочности
-	* @param data - массив для записи напряжений как скалярного параметра
-	*/
-	virtual
-	void GetStressesByFirstTheoryOfStrength
-		(
+		/** Получить напряжения по первой теории прочности
+		* @param data - массив для записи напряжений как скалярного параметра
+		*/
+		virtual
+			void GetStressesByFirstTheoryOfStrength
+			(
 			float* data
-		);
+			);
 
-	/** Получить напряжения по von Mises
-	* @param data - массив для записи напряжений как скалярного параметра
-	*/
-	virtual
-	void GetStressesByVonMises
-		(
-			float* data
-		);
+		/** Получить напряжения по von Mises
+		* @param data - массив для записи напряжений как скалярного параметра
+		*/
+		virtual	void GetStressesByVonMises(float* data);
+		virtual
+			void CalculateStrains(size_t side, double* shiftStrains, double* velocityStrains, size_t nodeId1, size_t nodeId2) const;
+		virtual
+			void CalculateStrainsUa(size_t side, double* shiftStrains, double* velocityStrains, size_t nodeId1, size_t nodeId2) const;
+		/** Получить напряжения по von Mises
+				* @param data - массив для записи напряжений как скалярного параметра
+				*/
+		virtual void GetStressesX(float* data);
+		virtual void GetStressesY(float* data);
+		virtual void GetStressesZ(float* data);
 
-	/** Получить напряжения по von Mises
-	* @param data - массив для записи напряжений как скалярного параметра
-	*/
-	virtual void GetStressesX(float* data);
-	virtual void GetStressesY(float* data);
-	virtual void GetStressesZ(float* data);
-
-	virtual void GetStressesXY(float* data);
-	virtual void GetStressesXZ(float* data);
-	virtual void GetStressesYZ(float* data);
+		virtual void GetStressesXY(float* data);
+		virtual void GetStressesXZ(float* data);
+		virtual void GetStressesYZ(float* data);
 
 #pragma endregion
 
-	double df[12]; // debug
+		double df[12]; // debug
 
-protected:
-	// номер итерации расчетного цикла
+	protected:
+		// номер итерации расчетного цикла
+		int _iterationNumber;
 
-	virtual void CalculateForces();
-
-	int _iterationNumber;
-	void ApplyBoundary();
-	void ApplyMass();
-
-};
+	};
 }

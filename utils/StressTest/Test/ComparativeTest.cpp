@@ -173,16 +173,16 @@ bool ComparativeTest()
 	//	1	// номер узла 2
 	//	);
 
-#ifndef USE_KNC
-	cppSolver->CalculateStrainsAVX
-		(
-		0,	// 0 = -x, 1 = x, 2 = -y, 3 = y, 4 = -z, 5 = z
-		&SL2[0],		// выход деформаций 
-		&VL2[0],		// выход деформаций
-		1,	// номер узла 1
-		2	// номер узла 2
-		);
-
+//#ifndef USE_KNC
+//	cppSolver->CalculateStrainsAVX
+//		(
+//		0,	// 0 = -x, 1 = x, 2 = -y, 3 = y, 4 = -z, 5 = z
+//		&SL2[0],		// выход деформаций 
+//		&VL2[0],		// выход деформаций
+//		1,	// номер узла 1
+//		2	// номер узла 2
+//		);
+//
 	//cppSolver->CalculateStrainsSSE
 	//	(
 	//	0,	// 0 = -x, 1 = x, 2 = -y, 3 = y, 4 = -z, 5 = z
@@ -200,34 +200,34 @@ bool ComparativeTest()
 	//	0,	// номер узла 1
 	//	1	// номер узла 2
 	//	);
-#else
-	std::cout << "CalculateStrainsKNC" << std::endl;
-	cppSolver->CalculateStrainsKNC
-		(
-		0,	// 0 = -x, 1 = x, 2 = -y, 3 = y, 4 = -z, 5 = z
-		&SL5[0],		// выход деформаций 
-		&VL5[0],		// выход деформаций
-		1,	// номер узла 1
-		2	// номер узла 2
-		);
-	cppSolver->CalculateStrainsKNC
-		(
-		0,	// 0 = -x, 1 = x, 2 = -y, 3 = y, 4 = -z, 5 = z
-		&SL5[0],		// выход деформаций 
-		&VL5[0],		// выход деформаций
-		1,	// номер узла 1
-		3	// номер узла 2
-		);
-	cppSolver->CalculateStrainsKNC
-	(
-		0,	// 0 = -x, 1 = x, 2 = -y, 3 = y, 4 = -z, 5 = z
-		&SL5[0],		// выход деформаций 
-		&VL5[0],		// выход деформаций
-		0,	// номер узла 1
-		1	// номер узла 2
-	);
-
-#endif
+//#else
+//	std::cout << "CalculateStrainsKNC" << std::endl;
+//	cppSolver->CalculateStrainsKNC
+//		(
+//		0,	// 0 = -x, 1 = x, 2 = -y, 3 = y, 4 = -z, 5 = z
+//		&SL5[0],		// выход деформаций 
+//		&VL5[0],		// выход деформаций
+//		1,	// номер узла 1
+//		2	// номер узла 2
+//		);
+//	cppSolver->CalculateStrainsKNC
+//		(
+//		0,	// 0 = -x, 1 = x, 2 = -y, 3 = y, 4 = -z, 5 = z
+//		&SL5[0],		// выход деформаций 
+//		&VL5[0],		// выход деформаций
+//		1,	// номер узла 1
+//		3	// номер узла 2
+//		);
+//	cppSolver->CalculateStrainsKNC
+//	(
+//		0,	// 0 = -x, 1 = x, 2 = -y, 3 = y, 4 = -z, 5 = z
+//		&SL5[0],		// выход деформаций 
+//		&VL5[0],		// выход деформаций
+//		0,	// номер узла 1
+//		1	// номер узла 2
+//	);
+//
+//#endif
 
 	const int width = 9;
 	std::cout  << "SL " << 

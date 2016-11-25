@@ -335,19 +335,16 @@ public:
 		= 0;
 public:
 
-	float*	_data;				// неизвестные для сброса в файл (dataScalar,dataVector)
-	//float*	_dataScalar;		// неизвестные для сброса в файл (p0,p1,...,p6)
-	float*	_dataVector;        // неизвестные для сброса в файл (x,y,z)
-	double* _dataInternal;		// неизвестные для расчета (X,DX,DDX)
-	double* _dataRotationMtx;	// матрицы поворота для расчета
+	float*	_data;						// неизвестные для сброса в файл (dataScalar,dataVector)
+	float*	_dataVector;				// неизвестные для сброса в файл (x,y,z) (указатель в массиве _data)
+	int		_dataSize;					// размер данных для сброса
+	double* _dataInternal;				// неизвестные для расчета (X,DX,DDX)
+	double* _dataRotationMtx;			// матрицы поворота для расчета
 	double* _elementStressFactorCache;	// коэффициенты НДС
-	double* _buffer;			// массив для KNC
-
-	double* _coordinates;			// исходные координаты элементов
-
-	int _dataSize;
-	double* _stress;			// напряжения
-	int _nElements;				// число элементов
+	double* _buffer;					// массив для KNC
+	double* _coordinates;				// исходные координаты элементов
+	double* _stress;					// напряжения
+	int _nElements;						// число элементов
 
 
 	// Методы для получения характеристик элемента
@@ -367,6 +364,13 @@ public:
 	virtual void SetUid(const string& uid);
 
 	virtual double* GetElementStressFactors(size_t elementId) const;
-
+	virtual void CalculateStrains
+		(
+		size_t side,			// 0 = -x, 1 = x, 2 = -y, 3 = y, 4 = -z, 5 = z
+		double *shiftStrains,		// выход деформаций
+		double *velocityStrains,	// выход изм. скоростей
+		size_t nodeId1,				// номер узла 1
+		size_t nodeId2					// номер узла 2
+		) const = 0;
 };
 
