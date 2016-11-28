@@ -65,7 +65,6 @@ void StressStrainCppIterativeSolverFMA::SolveFull(const int nIterations)
 	constantD2 = _mm256_set1_pd(0.5);
 	constantD6 = _mm256_set1_pd(1 / 6.0);
 
-	FTimer test_timer;
 	_iterationNumber = 0;
 	_testTimer.Start(0);
 
@@ -214,7 +213,6 @@ void StressStrainCppIterativeSolverFMA::Solve(const int nIterations)
 {
 	_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
 
-	FTimer test_timer;
 	_iterationNumber = 0;
 	_testTimer.Start(0);
 	while (_iterationNumber != nIterations && _rotationSolver->IsValid())

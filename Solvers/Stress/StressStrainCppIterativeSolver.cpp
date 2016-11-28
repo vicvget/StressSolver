@@ -4,7 +4,7 @@
 
 #include <cstring>
 
-#define NOTIMER
+//#define NOTIMER
 #ifndef M_PI
 #define M_PI 3.1415926535897932384626433832795
 #endif
@@ -59,10 +59,10 @@ StressStrainCppIterativeSolver::~StressStrainCppIterativeSolver()
 
 void StressStrainCppIterativeSolver::Solve(const int nIterations)
 {
+	SolveFull(nIterations);
+		return;
 	_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
 
-	FTimer test_timer;
-	//std::cout << "Full routine\n";
 	_iterationNumber = 0;
 	_testTimer.Start(0);
 	while (_iterationNumber != nIterations && _rotationSolver->IsValid())
@@ -77,9 +77,95 @@ void StressStrainCppIterativeSolver::Solve(const int nIterations)
 	}
 }
 
-void StressStrainCppIterativeSolver::SolveFull(const int nIteratons)
+void StressStrainCppIterativeSolver::SolveFull(const int nIterations)
 {
-	Solve(nIteratons);
+//	Solve(nIterations);
+
+	_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
+
+	_iterationNumber = 0;
+	_testTimer.Start(0);
+	while (_iterationNumber != nIterations && _rotationSolver->IsValid())
+	{
+		_iterationNumber++;
+		_nIteration++;
+
+		memcpy(_initX, _varX, sizeof(double)*_nVariables);
+		memcpy(_initDX, _varDX, sizeof(double)*_nVariables);
+
+		_testTimer.Start(3);
+		// RK4 step 1
+#pragma omp parallel for num_threads(_numThreads)
+		for (int j = 0; j < _nVariables; j++)
+		{
+			_hDDX1[j] = _varDDX[j] * _timeStep;
+			_varX[j] += _varDX[j] * _timeStep * 0.5;
+			_varDX[j] += _hDDX1[j] * 0.5;
+		}
+		_testTimer.Stop(3);
+		//	_stageRK = 2;
+
+		MeasuredRun(1, _rotationSolver->Solve2());
+		MeasuredRun(2, CalculateForces());
+
+		_testTimer.Start(3);
+		// RK4 step 2
+#pragma omp parallel for num_threads(_numThreads)
+		for (int j = 0; j < _nVariables; j++)
+		{
+			_hDDX2[j] = _varDDX[j] * _timeStep;
+			_varX[j] += _hDDX1[j] * _timeStep * 0.25;
+			_varDX[j] = _initDX[j] + _hDDX2[j] * 0.5;
+		}
+		_testTimer.Stop(3);
+		//	_stageRK = 3;
+		MeasuredRun(1, _rotationSolver->Solve3());
+		MeasuredRun(2, CalculateForces());
+
+		_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
+		//	_time = _timeTmp + _timeStep;
+
+		_testTimer.Start(3);
+		// RK4 step 3
+#pragma omp parallel for num_threads(_numThreads)
+		for (int j = 0; j < _nVariables; j++)
+		{
+			_hDDX3[j] = _varDDX[j] * _timeStep;
+			_varX[j] = _initX[j] + (_initDX[j] + _hDDX2[j] * 0.5) * _timeStep;
+			_varDX[j] = _initDX[j] + _hDDX3[j];
+		}
+		_testTimer.Stop(3);
+
+		//	_stageRK = 4;
+		MeasuredRun(1, _rotationSolver->Solve4());
+		MeasuredRun(2, CalculateForces());
+
+		// RK4 step 4
+		_testTimer.Start(3);
+#pragma omp parallel for num_threads(_numThreads)
+		for (int j = 0; j < _nVariables; j++)
+		{
+			double sDDX = _hDDX2[j] + _hDDX3[j];
+			_varX[j] = _initX[j] + (_initDX[j] + (_hDDX1[j] + sDDX) / 6.0) * _timeStep;
+			_varDX[j] = _initDX[j] + (_hDDX1[j] + sDDX + sDDX + _varDDX[j] * _timeStep) / 6.0;
+		}
+		_testTimer.Stop(3);
+		MeasuredRun(1, _rotationSolver->Solve1());
+		MeasuredRun(2, CalculateForces());
+
+		CheckVelocitySumm();
+	}
+#ifndef NOTIMER
+	const int width = 16;
+	//	_testTimer.SetWidth(width);
+	std::cout << "-----------------------------------\n";
+	double t1 = _testTimer.Print(1, "Rotations: ");
+	double t2 = _testTimer.Print(2, "Forces: ");
+	double t3 = _testTimer.Print(3, "Integration: ");
+
+	std::cout << std::setw(width) << "Summ: " << t1 + t2 + t3 << std::endl;
+	_testTimer.Print(0, "Total: ");
+#endif
 }
 
 	// virtual

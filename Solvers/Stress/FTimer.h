@@ -25,6 +25,7 @@
 #include <vector>
 #include <iomanip>
 #include <iostream>
+#include <omp.h>
 
 class PerformanceCounter
 {
@@ -90,15 +91,51 @@ public:
 	}
 };
 
+class PerformanceOmpCounter
+{
+	double _current;
+	double _total;
+public:
+	PerformanceOmpCounter()
+	{
+		_total = 0;
+	}
+
+	void Start()
+	{
+		_current = omp_get_wtime();
+	}
+
+	double Get(bool isStop = false)
+	{
+		if (isStop) Stop();
+		double current_time = (double)_total;
+		return current_time;
+	}
+
+	void Stop()
+	{
+		_total += omp_get_wtime() -_current;
+	}
+
+	double Print(const char* tag, bool isStop = false)
+	{
+		double current_time = Get(isStop);
+		std::cout << std::setw(10) << tag << std::setprecision(20) << current_time << std::endl;
+		return current_time;
+	}
+};
+
+
 
 class FTimer
 {
-	std::vector<PerformanceCounter>	_counters;
+	std::vector<PerformanceOmpCounter>	_counters;
 public:
 	FTimer(){};
 	void Add()
 	{
-		_counters.push_back(PerformanceCounter());
+		_counters.push_back(PerformanceOmpCounter());
 	}
 	void Allocate(unsigned int num)
 	{
