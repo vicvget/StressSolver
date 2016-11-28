@@ -238,7 +238,6 @@ namespace Stress
 	{
 		_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
 
-		FTimer test_timer;
 		_iterationNumber = 0;
 		_testTimer.Start(0);
 
@@ -395,9 +394,6 @@ namespace Stress
 	void StressStrainCppIterativeSolverKNC::Solve(const int nIterations)
 	{
 		_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
-		//SolveFull(nIterations);
-		//return;
-		//FTimer test_timer;
 		_iterationNumber = 0;
 		_testTimer.Start(0);
 		//std::cout << "Solve routine entered" << std::endl;
