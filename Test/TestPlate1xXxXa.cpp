@@ -42,7 +42,7 @@ namespace SpecialSolversTest
 				.ScaleFactor(1.f)
 
 				.IterationsCount(1)
-				.SubIterationsCount(1000)
+				.SubIterationsCount(10000)
 				.TimeStep(timeStep)
 
 				.GridStep(gridStep)

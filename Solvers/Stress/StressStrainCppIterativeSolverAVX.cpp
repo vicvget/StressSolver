@@ -53,18 +53,6 @@ void StressStrainCppIterativeSolverAVX::SolveFull(const int nIterations)
 {
 	_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
 
-	__m256d timeStep;
-	__m256d timeStep2;
-	__m256d timeStep4;
-	__m256d constantD2;
-	__m256d constantD6;
-
-	timeStep = _mm256_set1_pd(_timeStep);
-	timeStep2 = _mm256_set1_pd(_timeStep2);
-	timeStep4 = _mm256_set1_pd(_timeStep4);
-	constantD2 = _mm256_set1_pd(0.5);
-	constantD6 = _mm256_set1_pd(1 / 6.0);
-
 
 	_iterationNumber = 0;
 	_testTimer.Start(0);
@@ -82,12 +70,16 @@ void StressStrainCppIterativeSolverAVX::SolveFull(const int nIterations)
 		memcpy(_initDX, _varDX, sizeof(double)*_nVariables);
 
 		_testTimer.Start(3);
-	#pragma omp parallel for num_threads(_numThreads)
+		#pragma omp parallel for num_threads(_numThreads)
 		for (int j = 0; j < _nVariables; j += regSize)
 		{
 			//_hDDX1[j] = _varDDX[j] * _timeStep;
 			//_varX[j] += _varDX[j] * _timeStep2;
 			//_varDX[j] += _hDDX1[j] * 0.5;
+
+			__m256d timeStep = _mm256_set1_pd(_timeStep);
+			__m256d timeStep2 = _mm256_set1_pd(_timeStep2);
+			__m256d constantD2 = _mm256_set1_pd(0.5);
 
 			Xtmp = _mm256_load_pd(_varX + j);
 			DXtmp = _mm256_load_pd(_varDX + j);
@@ -112,6 +104,10 @@ void StressStrainCppIterativeSolverAVX::SolveFull(const int nIterations)
 			//_hDDX2[j] = _varDDX[j] * _timeStep;
 			//_varX[j] += _hDDX1[j] * _timeStep4;
 			//_varDX[j] = _initDX[j] + _hDDX2[j] * 0.5;
+
+			__m256d timeStep = _mm256_set1_pd(_timeStep);
+			__m256d timeStep4 = _mm256_set1_pd(_timeStep4);
+			__m256d constantD2 = _mm256_set1_pd(0.5);
 
 			Xtmp = _mm256_load_pd(_varX + j);
 			DXtmp = _mm256_load_pd(_initDX + j);
@@ -138,6 +134,9 @@ void StressStrainCppIterativeSolverAVX::SolveFull(const int nIterations)
 			//_varX[j] = _initX[j] + (_initDX[j] + _hDDX2[j] * 0.5) * _timeStep;
 			//_varDX[j] = _initDX[j] + _hDDX3[j];
 
+			__m256d timeStep = _mm256_set1_pd(_timeStep);
+			__m256d constantD2 = _mm256_set1_pd(0.5);
+
 			Xtmp = _mm256_load_pd(_initX + j);
 			DXtmp = _mm256_load_pd(_initDX + j);
 			DDXtmp = _mm256_load_pd(_varDDX + j);
@@ -163,6 +162,9 @@ void StressStrainCppIterativeSolverAVX::SolveFull(const int nIterations)
 			//_varX[j] = _initX[j] + (_initDX[j] + sDDX / 6.0) * _timeStep;
 			//_varDX[j] = _initDX[j] + (_hDDX1[j] + sDDX + sDDX + _varDDX[j] * _timeStep) / 6.0;
 
+			__m256d timeStep = _mm256_set1_pd(_timeStep);
+			__m256d constantD6 = _mm256_set1_pd(1 / 6.0);
+
 			Xtmp = _mm256_load_pd(_initX + j);
 			DXtmp = _mm256_load_pd(_initDX + j);
 			DDXtmp = _mm256_load_pd(_varDDX + j);
@@ -184,6 +186,7 @@ void StressStrainCppIterativeSolverAVX::SolveFull(const int nIterations)
 		MeasuredRun(1, _rotationSolver->Solve1());
 		MeasuredRun(2, CalculateForces());
 
+		CheckVelocitySumm();
 	}
 	_testTimer.Stop(0);
 #ifndef NOTIMER
@@ -194,7 +197,7 @@ void StressStrainCppIterativeSolverAVX::SolveFull(const int nIterations)
 	double t2 = _testTimer.Print(2, "Forces: ");
 	double t3 = _testTimer.Print(3, "Integration: ");
 	//_testTimer.Print(5, "Linksh:");
-	//std::cout << std::setw(width) << "Summ: " << t1 + t2 + t3 << std::endl;
+	std::cout << std::setw(width) << "Summ: " << t1 + t2 + t3 << std::endl;
 	_testTimer.Print(0, "Total: ");
 #endif
 }
@@ -202,6 +205,9 @@ void StressStrainCppIterativeSolverAVX::SolveFull(const int nIterations)
 
 void StressStrainCppIterativeSolverAVX::Solve(const int nIterations)
 {
+	SolveFull(nIterations);
+	return;
+
 	_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
 
 	_iterationNumber = 0;

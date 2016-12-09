@@ -10,6 +10,30 @@ using MathHelpers::MakeVec3;
 using MathHelpers::Mat3;
 using MathHelpers::Mat3x4;
 
+
+//__m512i izmm00 = _mm512_load_epi64(pmtx);    //A2A1
+//__m512i izmm01 = _mm512_load_epi64(pmtx+8);	 //B1A3
+//__m512i izmm02 = _mm512_load_epi64(pmtx+16); //B3B2
+//__m512i izmm03 = _mm512_alignr_epi32(izmm00, izmm01, 8); //A1B1
+//__m512i izmm04 = _mm512_alignr_epi32(izmm01, izmm02, 8); //A3B3
+//
+//__m512d zmm00 = (__m512d)_mm512_alignr_epi32(izmm03, izmm03, 8); //B1A1
+//__m512d zmm01 = (__m512d)_mm512_alignr_epi32(izmm02, izmm00, 8); //B2A2
+//__m512d zmm02 = (__m512d)_mm512_alignr_epi32(izmm04, izmm04, 8); //B3A3
+//
+////Вместо D1C1,D2C2,D3C3
+////нам надо получить С1B1,C2B2,C3B3
+//
+//izmm03 = _mm512_load_epi64(pmtr);    //C2C1
+//izmm04 = _mm512_load_epi64(pmtr+8);  //D1C3 // D1 не используется
+//izmm05 = _mm512_alignr_epi32(izmm02, izmm03, 8); //B2C2
+//
+//zmm03 = (__m512d)_mm512_alignr_epi32(izmm03, izmm01, 8); //C1B1
+//zmm04 = (__m512d)_mm512_alignr_epi32(izmm02, izmm02, 8); //C2B2
+//zmm05 = (__m512d)_mm512_alignr_epi32(izmm04, izmm02, 8); //C3B3
+//
+//// остальная часть кода такая же
+
 namespace Stress
 {
 
