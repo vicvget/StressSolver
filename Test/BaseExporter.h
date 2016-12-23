@@ -1,5 +1,5 @@
 #pragma once
-#include <StressStrainCppIterativeSolver.h>
+#include "../Solvers/Stress/StressStrainCppIterativeSolver.h"
 
 class BaseExporter
 {

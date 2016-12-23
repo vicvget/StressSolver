@@ -1,4 +1,4 @@
-#ifdef USE_KNC
+//#ifdef USE_KNC
 #pragma once
 
 #include "StressStrainCppIterativeSolver.h"
@@ -25,7 +25,7 @@ namespace Stress
 
 	public:
 
-		virtual void CalculateStrains(size_t side, double* shiftStrains, double* velocityStrains, size_t nodeId1, size_t nodeId2) const;
+		//virtual void CalculateStrains(size_t side, double* shiftStrains, double* velocityStrains, size_t nodeId1, size_t nodeId2) const;
 		// создает объект с заданными параметрами
 		StressStrainCppIterativeSolverKNC
 			(
@@ -88,4 +88,4 @@ namespace Stress
 		double df[12]; // debug
 	};
 }
-#endif
+//#endif
