@@ -27,10 +27,15 @@ if(MSVC) # MSVC compiler (Win32 only)
 elseif(UNIX OR CMAKE_COMPILER_IS_GNUCXX) # Clang OR Gcc (Linux, Mac OS or Win32 with MingW)
 	# Enable C++11 and displays all warnings
 	#set(CMAKE_CXX_FLAGS "-Wall -std=c++11 -Wextra -o3")
-	set(CMAKE_CXX_FLAGS "-std=c++11 -openmp -fPIC -mmic -Wall -Wextra -pedantic -Wno-variadic-macros -Wno-unknown-pragmas -Wno-sign-compare -Wno-switch -O3")
+# uncomment for KNC
+	set(CMAKE_CXX_FLAGS "-mmic -std=c++11 -qopenmp -fPIC -Wall -Wextra -pedantic -Wno-variadic-macros -Wno-unknown-pragmas -Wno-sign-compare -Wno-switch -O2")
+# uncomment for CPU
+#	set(CMAKE_CXX_FLAGS "-mavx -std=c++11 -qopenmp -fPIC  -Wall -Wextra -pedantic -Wno-variadic-macros -Wno-unknown-pragmas -Wno-sign-compare -Wno-switch -O2")
 endif()
-
+# uncomment for KNC
 add_definitions(-DNOMPI -DGNUCPP -DGFORTRAN -DGNU_CPP -DUSE_KNC)
+# uncomment for CPU
+#add_definitions(-DNOMPI -DGNUCPP -DGFORTRAN -DGNU_CPP)
 
 #include_directories($(PROJECT_SOURCE_DIR)/fcore/wrappers)
 

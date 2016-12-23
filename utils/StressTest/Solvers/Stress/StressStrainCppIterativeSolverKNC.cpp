@@ -1,4 +1,4 @@
-#ifdef USE_KNC
+//#ifdef USE_KNC
 
 #include "StressStrainCppIterativeSolverKNC.h"
 #include "../../AdditionalModules/fmath/Matrix3x3.h"
@@ -36,6 +36,7 @@ using MathHelpers::Mat3x4;
 
 namespace Stress
 {
+	#ifdef USE_KNC
 
 	inline __m512d _mm512_loadu_pd(const double* a)
 	{
@@ -45,6 +46,7 @@ namespace Stress
 
 		return v_temp;
 	}
+#endif
 
 	void StressStrainCppIterativeSolverKNC::CalculateStrains
 		(
@@ -55,6 +57,7 @@ namespace Stress
 		size_t nodeId2					// номер узла 2
 		) const
 	{
+		#ifdef USE_KNC
 
 		// Start AVX code
 		double* pmatA01 = GetRotationMatrix(nodeId1);
@@ -220,6 +223,8 @@ namespace Stress
 			shiftStrains[i + vecStride] = sp1[i] - sp2[i];
 			velocityStrains[i + vecStride] = vp1[i] - vp2[i];
 		}
+
+#endif
 	}
 
 	StressStrainCppIterativeSolverKNC::StressStrainCppIterativeSolverKNC
@@ -260,6 +265,8 @@ namespace Stress
 	// AVX-версия
 	void StressStrainCppIterativeSolverKNC::SolveFull(const int nIterations)
 	{
+		#ifdef USE_KNC
+
 		_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
 
 		_iterationNumber = 0;
@@ -412,6 +419,7 @@ namespace Stress
 		//std::cout << std::setw(width) << "Summ: " << t1 + t2 + t3 << std::endl;
 		_testTimer.Print(0, "Total: ");
 #endif
+#endif
 	}
 
 
@@ -476,6 +484,8 @@ namespace Stress
 	// virtual
 	void StressStrainCppIterativeSolverKNC::Solve2()
 	{
+#ifdef USE_KNC
+
 		_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
 		__m512d timeStep = _mm512_set1_pd(_timeStep);
 		__m512d timeStep2 = _mm512_set1_pd(_timeStep2);
@@ -509,7 +519,7 @@ namespace Stress
 
 		MeasuredRun(1, _rotationSolver->Solve2());
 		MeasuredRun(2, CalculateForces());
-
+#endif
 	}
 
 	/**
@@ -518,6 +528,8 @@ namespace Stress
 	// virtual
 	void StressStrainCppIterativeSolverKNC::Solve3()
 	{
+#ifdef USE_KNC
+
 		_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
 
 		__m512d timeStep = _mm512_set1_pd(_timeStep);
@@ -550,6 +562,7 @@ namespace Stress
 
 		MeasuredRun(1, _rotationSolver->Solve3());
 		MeasuredRun(2, CalculateForces());
+#endif
 	}
 
 	/**
@@ -558,6 +571,8 @@ namespace Stress
 	// virtual
 	void StressStrainCppIterativeSolverKNC::Solve4()
 	{
+#ifdef USE_KNC
+
 		_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
 
 		__m512d timeStep = _mm512_set1_pd(_timeStep);
@@ -589,6 +604,7 @@ namespace Stress
 
 		MeasuredRun(1, _rotationSolver->Solve4());
 		MeasuredRun(2, CalculateForces());
+#endif
 	}
 
 	/**
@@ -597,6 +613,8 @@ namespace Stress
 	// virtual
 	void StressStrainCppIterativeSolverKNC::Solve5()
 	{
+#ifdef USE_KNC
+
 		_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
 
 		__m512d timeStep = _mm512_set1_pd(_timeStep);
@@ -632,6 +650,7 @@ namespace Stress
 
 		MeasuredRun(1, _rotationSolver->Solve1());
 		MeasuredRun(2, CalculateForces());
+#endif
 	}
 
 	//void StressStrainCppIterativeSolverKNC::CalculateForces()
@@ -731,4 +750,4 @@ namespace Stress
 	//}
 }
 
-#endif
+//#endif

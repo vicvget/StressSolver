@@ -52,7 +52,7 @@ public:
 		);
 
 	virtual
-	~MeshDataProvider() = default;
+	~MeshDataProvider() {};
 
 
 	// Селекторы
