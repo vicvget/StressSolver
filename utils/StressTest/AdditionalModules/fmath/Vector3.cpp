@@ -363,6 +363,13 @@ namespace MathHelpers
 			Macro(__VA_ARGS__, Vector3CRef, Vector3Data) \
 			Macro(__VA_ARGS__, Vector3CRef, Vector3Ref) \
 			Macro(__VA_ARGS__, Vector3CRef, Vector3CRef)
+#		define BINARY_SAME_FUNCTON_ISTANTIATION(Macro, ...) \
+			Macro(__VA_ARGS__, Vector3Data, Vector3Data) \
+			Macro(__VA_ARGS__, Vector3Data, Vector3Ref) \
+			Macro(__VA_ARGS__, Vector3Data, Vector3CRef) \
+			Macro(__VA_ARGS__, Vector3Ref, Vector3Data) \
+			Macro(__VA_ARGS__, Vector3Ref, Vector3Ref) \
+			Macro(__VA_ARGS__, Vector3Ref, Vector3CRef) 
 
 #	else
 
