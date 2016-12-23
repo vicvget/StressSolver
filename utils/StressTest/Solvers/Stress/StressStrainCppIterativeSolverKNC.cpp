@@ -634,101 +634,101 @@ namespace Stress
 		MeasuredRun(2, CalculateForces());
 	}
 
-	void StressStrainCppIterativeSolverKNC::CalculateForces()
-	{
-		_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
-		static int it = 0;
+	//void StressStrainCppIterativeSolverKNC::CalculateForces()
+	//{
+	//	_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
+	//	static int it = 0;
 
-		//__declspec(align(64)) double strains[8];
-		//__declspec(align(64)) double velocityStrains[8];
-		double velocityStrains[8] __attribute__((aligned(64)));
-		double strains[8] __attribute__((aligned(64)));
-		for (size_t elementId1 = 0; elementId1 < _nElements; elementId1++)
-		{
+	//	//__declspec(align(64)) double strains[8];
+	//	//__declspec(align(64)) double velocityStrains[8];
+	//	double velocityStrains[8] __attribute__((aligned(64)));
+	//	double strains[8] __attribute__((aligned(64)));
+	//	for (size_t elementId1 = 0; elementId1 < _nElements; elementId1++)
+	//	{
 
-			double* accelerationVector = GetElementAcceleration(elementId1);
+	//		double* accelerationVector = GetElementAcceleration(elementId1);
 
-			memset(GetElementAcceleration(elementId1), 0u, sizeof(double)*vecStride2);
-			memset(GetElementStress(elementId1), 0u, sizeof(double)*vecStride2);
+	//		memset(GetElementAcceleration(elementId1), 0u, sizeof(double)*vecStride2);
+	//		memset(GetElementStress(elementId1), 0u, sizeof(double)*vecStride2);
 
-			_testTimer.Start(5);
+	//		_testTimer.Start(5);
 
-			// обход 6 связанных элементов x-,y-,z-,x+,y+,z+
-			for (size_t side = 0; side < 6; side++)
-			{
-				size_t elementId2 = _linkedElements[6 * elementId1 + side];
-				if (elementId2)
-				{
-					elementId2--;
-					CalculateStrains(side, strains, velocityStrains, elementId1, elementId2);
+	//		// обход 6 связанных элементов x-,y-,z-,x+,y+,z+
+	//		for (size_t side = 0; side < 6; side++)
+	//		{
+	//			size_t elementId2 = _linkedElements[6 * elementId1 + side];
+	//			if (elementId2)
+	//			{
+	//				elementId2--;
+	//				CalculateStrains(side, strains, velocityStrains, elementId1, elementId2);
 
-					Vec3Ref linear_strains = MakeVec3(&strains[0]);
-					Vec3Ref angular_strains = MakeVec3(&strains[0] + vecStride);
-					Vec3Ref linear_vstrains = MakeVec3(&velocityStrains[0]);
-					Vec3Ref angular_vstrains = MakeVec3(&velocityStrains[0] + vecStride);
+	//				Vec3Ref linear_strains = MakeVec3(&strains[0]);
+	//				Vec3Ref angular_strains = MakeVec3(&strains[0] + vecStride);
+	//				Vec3Ref linear_vstrains = MakeVec3(&velocityStrains[0]);
+	//				Vec3Ref angular_vstrains = MakeVec3(&velocityStrains[0] + vecStride);
 
-					for (size_t component = 0; component < 3; component++)
-					{
-						GetElementStress(elementId1)[component] += strains[component];
-						GetElementStress(elementId1)[component + vecStride] += strains[component + vecStride];
-					}
+	//				for (size_t component = 0; component < 3; component++)
+	//				{
+	//					GetElementStress(elementId1)[component] += strains[component];
+	//					GetElementStress(elementId1)[component + vecStride] += strains[component + vecStride];
+	//				}
 
-					// сила и момент из полученных деформаций
-					Vec3 force = -linear_vstrains * _dampingFactorLinear - linear_strains * _elasticFactorLinear;
-					Vec3 torque = -angular_vstrains * _dampingFactorAngular - angular_strains * _elasticFactorAngular;
+	//				// сила и момент из полученных деформаций
+	//				Vec3 force = -linear_vstrains * _dampingFactorLinear - linear_strains * _elasticFactorLinear;
+	//				Vec3 torque = -angular_vstrains * _dampingFactorAngular - angular_strains * _elasticFactorAngular;
 
-					// отладочный вывод деформаций
-					df[0] = -strains[0];
-					df[1] = -strains[1];
-					df[2] = -strains[2];
-					df[3] = -strains[0 + vecStride];
-					df[4] = -strains[1 + vecStride];
-					df[5] = -strains[2 + vecStride];
-					df[6] = force.X();
-					df[7] = force.Y();
-					df[8] = force.Z();
-					df[9] = torque.X();
-					df[10] = torque.Y();
-					df[11] = torque.Z();
-
-
-					Vec3 vAcc;
-					if (vecStride == 4)
-					{
-						Mat3x4 matA01(GetRotationMatrix(elementId1));
-						vAcc = matA01*force;
-					}
-					else
-					{
-						Mat3 matA01(GetRotationMatrix(elementId1));
-						vAcc = matA01*force;
-					}
-
-					Vec3Ref vR = MakeVec3(GetRadiusVector(side));
-					Vec3 forceTorque = vR.Cross(force);
-					Vec3 vM = forceTorque + torque;
-
-					//MakeVec3(GetElementAcceleration(elementId1)) += vAcc;
-					//MakeVec3(GetElementAccelerationAngular(elementId1)) += vM;
+	//				// отладочный вывод деформаций
+	//				df[0] = -strains[0];
+	//				df[1] = -strains[1];
+	//				df[2] = -strains[2];
+	//				df[3] = -strains[0 + vecStride];
+	//				df[4] = -strains[1 + vecStride];
+	//				df[5] = -strains[2 + vecStride];
+	//				df[6] = force.X();
+	//				df[7] = force.Y();
+	//				df[8] = force.Z();
+	//				df[9] = torque.X();
+	//				df[10] = torque.Y();
+	//				df[11] = torque.Z();
 
 
-					for (int i = 0; i < 3; i++)
-					{
-						accelerationVector[i] += vAcc[i];
-						accelerationVector[i + vecStride] += vM[i];
-					}
+	//				Vec3 vAcc;
+	//				if (vecStride == 4)
+	//				{
+	//					Mat3x4 matA01(GetRotationMatrix(elementId1));
+	//					vAcc = matA01*force;
+	//				}
+	//				else
+	//				{
+	//					Mat3 matA01(GetRotationMatrix(elementId1));
+	//					vAcc = matA01*force;
+	//				}
 
-				}
-			}
-			_testTimer.Stop(5);
+	//				Vec3Ref vR = MakeVec3(GetRadiusVector(side));
+	//				Vec3 forceTorque = vR.Cross(force);
+	//				Vec3 vM = forceTorque + torque;
 
-			//Vec3Ref force = MakeVec3(&forces[0]);
-			//Vec3Ref torque = MakeVec3(&forces[0] + vecStride);
+	//				//MakeVec3(GetElementAcceleration(elementId1)) += vAcc;
+	//				//MakeVec3(GetElementAccelerationAngular(elementId1)) += vM;
 
-		}
-		ApplyBoundary(); // модифицирует силы и моменты
-		ApplyMass();	 // вычисляет ускорения делением сил на массы и моментов на моменты инерции
-	}
+
+	//				for (int i = 0; i < 3; i++)
+	//				{
+	//					accelerationVector[i] += vAcc[i];
+	//					accelerationVector[i + vecStride] += vM[i];
+	//				}
+
+	//			}
+	//		}
+	//		_testTimer.Stop(5);
+
+	//		//Vec3Ref force = MakeVec3(&forces[0]);
+	//		//Vec3Ref torque = MakeVec3(&forces[0] + vecStride);
+
+	//	}
+	//	ApplyBoundary(); // модифицирует силы и моменты
+	//	ApplyMass();	 // вычисляет ускорения делением сил на массы и моментов на моменты инерции
+	//}
 }
 
 #endif
