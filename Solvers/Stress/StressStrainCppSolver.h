@@ -19,6 +19,7 @@ namespace Stress
 	{
 	public:
 
+		void PrintTime();
 		// создает объект с заданными параметрами
 		StressStrainCppSolver
 			(
@@ -77,13 +78,10 @@ namespace Stress
 			const int bcNumber,
 			const int bcParamNumber
 			);
-
 		virtual
-			float UpdateBuffer
-			(
-			double scale
-			);
-
+			void UpdateBuffer();
+		virtual
+			float UpdateBufferWithOutput();
 #pragma endregion
 
 		//protected:

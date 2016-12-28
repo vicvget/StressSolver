@@ -61,6 +61,16 @@ namespace Stress
 
 #define MAX(x, y) ((x) > (y) ? x : y)
 
+void StressStrainCppSolver::PrintTime()
+{
+	std::cout << "\n-----------------------------------\n";
+	double t1 = _testTimer.Print(1, "Rotations: ");
+	double t2 = _testTimer.Print(2, "Forces: ");
+	double t3 = _testTimer.Print(3, "Integration: ");
+
+	std::cout << std::setw(15) << "Summ: " << t1 + t2 + t3 << std::endl;
+	//_testTimer.Print(0, "Total: ");
+}
 
 StressStrainCppSolver::StressStrainCppSolver
 	(
@@ -361,32 +371,29 @@ double StressStrainCppSolver::GetBoundaryParam
 }
 
 // virtual
-float StressStrainCppSolver::UpdateBuffer
-	(
-		double scale
-	)
+void StressStrainCppSolver::UpdateBuffer()
 {
-	int id = 0;
-
 	GetScalarParameter(_data);
 	GetVectorParameter(_dataVector);
-	float maxScalar = _data[0];
-	double sum = 0, metric;
-	for (int i = 0; i < _nElements; i++)
-	{
-		sum += _data[i];
-	}
-	sum /= _nElements;
-	//for (int i = 0; i < _nElements; i++)
-	//{
-	//	metric += ((sum - _data[i])*(sum - _data[i]));
-	//	if (_data[i] > maxScalar) maxScalar = _data[i];
-	//}
-	//maxScalar = (float)sqrt(metric)/_nElements;
-	maxScalar = sum;
-	return maxScalar;
 }
 
+float StressStrainCppSolver::UpdateBufferWithOutput()
+{
+	UpdateBuffer();
+	float maxScalar = _data[0];
+	float minScalar = _data[0];
+	float avgScalar = _data[0] / _nElements;
+	for (int i = 1; i < _nElements; i++)
+	{
+		avgScalar += _data[i] / _nElements;
+		if (_data[i] > maxScalar) maxScalar = _data[i];
+		if (_data[i] < minScalar) minScalar = _data[i];
+	}
+	std::cout << "max = " << maxScalar << " ";
+	std::cout << "min = " << minScalar << " ";
+	std::cout << "avg = " << avgScalar << " ";
+	return maxScalar;
+}
 
 double* StressStrainCppSolver::GetRadiusVector(size_t side) const
 {

@@ -155,6 +155,7 @@
       <WarningLevel>Level3</WarningLevel>
       <DisableSpecificWarnings>4351</DisableSpecificWarnings>
       <AdditionalOptions>/D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
+      <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
     </ClCompile>
     <Lib>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
@@ -174,6 +175,7 @@
       <WarningLevel>Level3</WarningLevel>
       <DisableSpecificWarnings>4351</DisableSpecificWarnings>
       <AdditionalOptions>/D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
+      <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
     </ClCompile>
     <Lib>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
@@ -191,6 +193,7 @@
       <WarningLevel>Level3</WarningLevel>
       <DisableSpecificWarnings>4351</DisableSpecificWarnings>
       <AdditionalOptions>/D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
+      <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
     </ClCompile>
     <Lib>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
@@ -211,6 +214,7 @@
       <DisableSpecificWarnings>4351</DisableSpecificWarnings>
       <AdditionalOptions>/D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
       <Cpp0xSupport>true</Cpp0xSupport>
+      <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
     </ClCompile>
     <Lib>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
@@ -227,6 +231,7 @@
       <WarningLevel>Level3</WarningLevel>
       <DisableSpecificWarnings>4351</DisableSpecificWarnings>
       <AdditionalOptions>/D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
+      <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
     </ClCompile>
     <Lib>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
@@ -238,6 +243,7 @@
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <DisableSpecificWarnings>4351</DisableSpecificWarnings>
       <AdditionalOptions>/D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
+      <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
     </ClCompile>
     <Lib />
   </ItemDefinitionGroup>
@@ -252,6 +258,7 @@
       <WarningLevel>Level3</WarningLevel>
       <DisableSpecificWarnings>4351</DisableSpecificWarnings>
       <AdditionalOptions>/D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
+      <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
     </ClCompile>
     <Lib>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
@@ -263,6 +270,7 @@
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <DisableSpecificWarnings>4351</DisableSpecificWarnings>
       <AdditionalOptions>/D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
+      <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
     </ClCompile>
     <Lib />
   </ItemDefinitionGroup>
