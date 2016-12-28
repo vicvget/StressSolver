@@ -19,7 +19,7 @@ namespace SpecialSolversTest
 
 	namespace StressStrainStuff
 	{
-		void Test1xXxXa(int solverType, float plateSideLength, float plateWidth, int sideElements)
+		void Test1xXxXa(int solverType, float plateSideLength, float plateWidth, int sideElements, int nSubiterations)
 		{
 			float gridStep = (float)(plateSideLength / sideElements);
 			float stressScalingFactor = (float)(gridStep/plateWidth);
@@ -41,8 +41,8 @@ namespace SpecialSolversTest
 				.Damping(0.1f)
 				.ScaleFactor(1.f)
 
-				.IterationsCount(1)
-				.SubIterationsCount(10000)
+				.IterationsCount(100)
+				.SubIterationsCount(nSubiterations)
 				.TimeStep(timeStep)
 
 				.GridStep(gridStep)
@@ -77,7 +77,7 @@ namespace SpecialSolversTest
 					_hsolver,
 					factory.IntegrationParams()
 					);
-				pc.Print("Solving time: ", true);
+				pc.Print("Total: ", true);
 
 				Stress::ReleaseMemory((void* &)_hsolver);
 			}

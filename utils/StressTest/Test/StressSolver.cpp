@@ -108,7 +108,17 @@ namespace SpecialSolvers
 			for (int i = 0; i < integrationParams._nIterations; i++)
 			{
 				Stress::Solve(hSolver, integrationParams._nSubIterations);
-				float maxstress = Stress::UpdateBuffer(hSolver);
+
+				if (i*100. / integrationParams._nIterations > progress)
+				{
+					std::cout << std::endl << progress << "% " << std::flush;
+					progress++;
+					Stress::UpdateBufferWithOutput(hSolver);
+				}
+				else
+				{
+					Stress::UpdateBuffer(hSolver);
+				}
 				float time = (1 + iteration) * integrationParams._timeStep * integrationParams._nSubIterations;
 				#ifndef DISABLE_OUTPUT
 				mprExporter->WriteFrame(time);
@@ -116,13 +126,9 @@ namespace SpecialSolvers
 				chartsExporter->WriteFrame(time);
 				frameChartsExporter->WriteFrame(time);
 				#endif
-				if (i*100. / integrationParams._nIterations > progress)
-				{
-					std::cout << progress << "% stress=" << maxstress << std::endl << std::flush;
-					progress++;
-				}
 				iteration++;
 			}
+			Stress::PrintTime(hSolver);
 
 			mprExporter->WriteFrame(0);
 			mprExporter->Finalize();

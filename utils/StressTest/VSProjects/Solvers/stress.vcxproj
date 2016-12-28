@@ -86,6 +86,7 @@
       <OpenMPSupport>false</OpenMPSupport>
       <DisableSpecificWarnings>4351;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>
+      <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(MKLROOT)\lib\ia32;$(MKLROOT)\..\compiler\lib\ia32;%(AdditionalLibraryDirectories);$(BinaryPath)</AdditionalLibraryDirectories>
@@ -115,6 +116,7 @@
       <LevelOfStaticAnalysis>Verbose</LevelOfStaticAnalysis>
       <ModeOfStaticAnalysis>Full</ModeOfStaticAnalysis>
       <UseProcessorExtensions>HOST</UseProcessorExtensions>
+      <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(MKLROOT)\lib\intel64;$(MKLROOT)\..\compiler\lib\intel64;%(AdditionalLibraryDirectories);$(BinaryPath)</AdditionalLibraryDirectories>
@@ -135,6 +137,7 @@
       <PrecompiledHeader />
       <WarningLevel>Level3</WarningLevel>
       <DisableSpecificWarnings>4351;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(MKLROOT)\lib\ia32;$(MKLROOT)\..\compiler\lib\ia32;%(AdditionalLibraryDirectories);$(BinaryPath)</AdditionalLibraryDirectories>
@@ -160,6 +163,7 @@
       <OpenMP>GenerateParallelCode</OpenMP>
       <Cpp0xSupport>true</Cpp0xSupport>
       <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>
+      <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(MKLROOT)\lib\intel64;$(MKLROOT)\..\compiler\lib\intel64;%(AdditionalLibraryDirectories);$(BinaryPath)</AdditionalLibraryDirectories>

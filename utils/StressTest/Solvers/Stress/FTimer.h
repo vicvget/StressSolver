@@ -86,7 +86,7 @@ public:
 	double Print(const char* tag, bool isStop = false)
 	{
 		double current_time = Get(isStop);
-		std::cout << std::setw(10) << tag << std::setprecision(20) << current_time << std::endl;
+		std::cout << std::setw(15) << tag << std::setprecision(15) << current_time << std::endl;
 		return current_time;
 	}
 };
@@ -121,7 +121,7 @@ public:
 	double Print(const char* tag, bool isStop = false)
 	{
 		double current_time = Get(isStop);
-		std::cout << std::setw(10) << tag << std::setprecision(20) << current_time << std::endl;
+		std::cout << std::setw(15) << tag << std::setprecision(15) << current_time << std::endl;
 		return current_time;
 	}
 };

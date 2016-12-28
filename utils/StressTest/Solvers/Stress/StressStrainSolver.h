@@ -162,11 +162,10 @@ public:
 		= 0;
 
 	virtual
-	float UpdateBuffer
-		(
-			double scale = 1
-		)
-		= 0;
+	float UpdateBufferWithOutput() = 0;
+
+	virtual
+	void UpdateBuffer() = 0;
 
 	/** Расчет начального времени
 	*/

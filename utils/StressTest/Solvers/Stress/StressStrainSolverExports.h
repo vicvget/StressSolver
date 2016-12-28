@@ -194,10 +194,14 @@ namespace Stress
 	* @param scaleFactor - масштабный коэффициент
 	*/
 	DLL_FUNCTION
-	float UpdateBuffer
+	void UpdateBuffer
 		(
-			const void* hsolver,
-			double scaleFactor = 1.0
+			const void* hsolver
+		);
+	DLL_FUNCTION
+		float UpdateBufferWithOutput
+		(
+		const void* hsolver
 		);
 
 	DLL_FUNCTION
@@ -275,6 +279,11 @@ namespace Stress
 			int dir,
 			int type
 		);
+
+	DLL_FUNCTION
+		void PrintTime(const void* hsolver);
+		
+
 
 	//DLL_FUNCTION
 	//void SolveSystemOfLinearEquationsForStiffness();

@@ -156,15 +156,15 @@ void StressStrainCppIterativeSolver::SolveFull(const int nIterations)
 		CheckVelocitySumm();
 	}
 #ifndef NOTIMER
-	const int width = 16;
-	//	_testTimer.SetWidth(width);
-	std::cout << "-----------------------------------\n";
-	double t1 = _testTimer.Print(1, "Rotations: ");
-	double t2 = _testTimer.Print(2, "Forces: ");
-	double t3 = _testTimer.Print(3, "Integration: ");
+	//const int width = 16;
+	////	_testTimer.SetWidth(width);
+	//std::cout << "-----------------------------------\n";
+	//double t1 = _testTimer.Print(1, "Rotations: ");
+	//double t2 = _testTimer.Print(2, "Forces: ");
+	//double t3 = _testTimer.Print(3, "Integration: ");
 
-	std::cout << std::setw(width) << "Summ: " << t1 + t2 + t3 << std::endl;
-	_testTimer.Print(0, "Total: ");
+	//std::cout << std::setw(width) << "Summ: " << t1 + t2 + t3 << std::endl;
+	//_testTimer.Print(0, "Total: ");
 #endif
 }
 

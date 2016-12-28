@@ -325,18 +325,28 @@ namespace Stress
 	/**
 	* Обновить буфер
 	* @param hsolver - дескриптор решателя
-	* @param scaleFactor - масштабный коэффициент
 	*/
 	DLL_FUNCTION
-	float UpdateBuffer
+	void UpdateBuffer
 		(
-			const void* hsolver,
-			double scaleFactor
+			const void* hsolver
 		)
 	{
-		return ((StressStrainSolver*)hsolver)->UpdateBuffer(scaleFactor);
+		((StressStrainSolver*)hsolver)->UpdateBuffer();
 	}
 
+	/**
+	* Обновить буфер
+	* @param hsolver - дескриптор решателя
+	*/
+	DLL_FUNCTION
+		float UpdateBufferWithOutput
+		(
+		const void* hsolver
+		)
+	{
+		return ((StressStrainSolver*)hsolver)->UpdateBufferWithOutput();
+	}
 
 	/** Расчет начальноо времени
 	* @param nIterations - количество итераций
@@ -441,30 +451,10 @@ namespace Stress
 			);
 	}
 
-
-	//DLL_FUNCTION
-	//void SolveSystemOfLinearEquationsForStiffness()
-	//{
-	//	try
-	//	{
-	//		StiffnessMatrixPackedInCSCFormat stiffnessMatrixCSC;
-
-	//		stiffnessMatrixCSC.ReadFromBinaryFile(StiffnessMatrixFileName + ".bin");
-
-	//		StiffnessRHSVector stiffnessRHSVector = ReadStiffnessRHSVectorFromBinaryFile(StiffnessRHSFileName + ".bin");
-	//		StiffnessRHSVector stiffnessResultsVector =
-	//			StressStrainFortranStaticSolver2::SolveSystemOfLinearEquationsForStiffness
-	//				(
-	//					stiffnessMatrixCSC,
-	//					stiffnessRHSVector
-	//				);
-
-	//		WriteStiffnessRHSVectorToTextFile("Results.txt", stiffnessResultsVector);
-	//	}
-	//	catch (const exceptions::CoreException& exception)
-	//	{
-	//		std::cout << exception.ToString() << std::endl;
-	//	}
-	//}
+	DLL_FUNCTION
+		void PrintTime(const void* hsolver)
+	{
+		((StressStrainCppSolver*)hsolver)->PrintTime();
+	}
 
 }
