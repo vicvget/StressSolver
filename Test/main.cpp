@@ -2,12 +2,12 @@
 #include "ComparativeTest.h"
 #include "StressSolverTest.h"
 #include "TestFactory.h"
+#include <sstream>
 
-int main()
+int main(int argc, char *argv[])
 {
 	// RHS calculation based on random data test
 	//std::cout << (ComparativeTest() ? "PASSED!\n" : "NOT PASSED\n");
-
 
 	// Solver  test
 	using namespace SpecialSolversTest;
@@ -29,7 +29,28 @@ int main()
 	//Test1xXxXa(0, 0.8, 0.01, 80);
 	//Test1xXxXa(0, 0.8, 0.01, 1000);
 	//Test1xXxXa(1, 0.8, 0.01, 50);
-	Test1xXxXa(0, 0.8, 0.01, 20, 100);
-	//Test1xXxXa(0, 0.8, 0.01, 100);
+
+	std::stringstream stringstr;
+	int solverType = 3;
+	int numberOfElements = 50;
+	int numberOfSubiterations = 10;
+	if (argc == 2)
+	{
+		stringstr << argv[1];
+		stringstr >> numberOfElements;
+	}
+	else
+	if (argc == 3)
+	{
+		stringstr << argv[1] << ' ' << argv[2];
+		stringstr >> numberOfElements >> numberOfSubiterations;
+	}
+	else
+	if (argc == 4)
+	{
+		stringstr << argv[1] << ' ' << argv[2] << ' ' << argv[3]; 
+		stringstr >> numberOfElements >> numberOfSubiterations >> solverType;
+	}
+	Test1xXxXa(solverType, 0.8, 0.01, numberOfElements, numberOfSubiterations);
 	return 0;
 }
