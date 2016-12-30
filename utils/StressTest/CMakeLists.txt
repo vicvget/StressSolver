@@ -20,22 +20,24 @@ endif (NOT CMAKE_BUILD_TYPE)
 
 
 # FFLAGS depend on the compiler
-
+message("USE_AVX and USE_KNC params are available")
 if(MSVC) # MSVC compiler (Win32 only)
 	# Display more warnings
 	set(CMAKE_CXX_FLAGS "/W3")
+	add_compile_options(-DNOMPI -DGNU_CPP)
 elseif(UNIX OR CMAKE_COMPILER_IS_GNUCXX) # Clang OR Gcc (Linux, Mac OS or Win32 with MingW)
 	# Enable C++11 and displays all warnings
 	#set(CMAKE_CXX_FLAGS "-Wall -std=c++11 -Wextra -o3")
-# uncomment for KNC
-	set(CMAKE_CXX_FLAGS "-mmic -std=c++11 -qopenmp -fPIC -Wall -Wextra -pedantic -Wno-variadic-macros -Wno-unknown-pragmas -Wno-sign-compare -Wno-switch -O2")
-# uncomment for CPU
-#	set(CMAKE_CXX_FLAGS "-mavx -std=c++11 -qopenmp -fPIC  -Wall -Wextra -pedantic -Wno-variadic-macros -Wno-unknown-pragmas -Wno-sign-compare -Wno-switch -O2")
+	set(CMAKE_CXX_FLAGS "-DNOMPI -DGNU_CPP -std=c++11 -qopenmp -fPIC -Wall -Wextra -pedantic -Wno-variadic-macros -Wno-unknown-pragmas -Wno-sign-compare -Wno-switch -O2")
+	if(USE_KNC)
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mmic -DUSE_KNC")
+		message("USE_KNC - build for XeonPhi")
+	elseif(USE_AVX)
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mavx")
+		message("USE_AVX - build for CPU with avx")
+	endif()
+	message(${CMAKE_CXX_FLAGS})
 endif()
-# uncomment for KNC
-add_definitions(-DNOMPI -DGNUCPP -DGFORTRAN -DGNU_CPP -DUSE_KNC)
-# uncomment for CPU
-#add_definitions(-DNOMPI -DGNUCPP -DGFORTRAN -DGNU_CPP)
 
 #include_directories($(PROJECT_SOURCE_DIR)/fcore/wrappers)
 
