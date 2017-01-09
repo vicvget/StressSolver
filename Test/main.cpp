@@ -51,6 +51,13 @@ int main(int argc, char *argv[])
 		stringstr << argv[1] << ' ' << argv[2] << ' ' << argv[3]; 
 		stringstr >> numberOfElements >> numberOfSubiterations >> solverType;
 	}
+	std::cout << "------------------------------" << std::endl
+		<< "    STRESS TEST" << std::endl
+		<< "------------------------------" << std::endl;
+	std::cout << "\nElements:" << numberOfElements << 'x' << numberOfElements
+		<< "\nIterations:" << numberOfSubiterations << 'x' << 100
+		<< "\nSolver Type:" << solverType << std::endl;
+
 	Test1xXxXa(solverType, 0.8, 0.01, numberOfElements, numberOfSubiterations);
 	return 0;
 }
