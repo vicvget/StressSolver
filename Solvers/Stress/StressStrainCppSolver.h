@@ -175,6 +175,7 @@ namespace Stress
 			double stressScalingFactorZ);
 
 		virtual void CalculateForces();
+		void CalculateForcesOmp();
 		virtual void ApplyBoundary();
 		virtual void ApplyMass();
 	};

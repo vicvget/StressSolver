@@ -11,8 +11,7 @@ using std::vector;
 namespace Stress
 {
 
-	__declspec(align(32)) class StressStrainCppIterativeSolverAVX
-		:
+	class StressStrainCppIterativeSolverAVX:
 		public StressStrainCppIterativeSolver
 	{
 		const int regSize = 4;
