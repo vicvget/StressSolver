@@ -260,11 +260,11 @@ namespace Stress
 		double tanY = tan(angles[1]);
 		double sinZ = sin(angles[2]);
 		double cosZ = cos(angles[2]);
+#endif
+
 		double wx = elementW[0];
 		double wy = elementW[1];
 		double wz = elementW[2];
-#endif
-
 
 
 		// Проверки сходимости

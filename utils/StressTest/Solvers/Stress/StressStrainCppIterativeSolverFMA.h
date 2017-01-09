@@ -11,8 +11,7 @@ using std::vector;
 namespace Stress
 {
 
-	class StressStrainCppIterativeSolverFMA
-		:
+	class StressStrainCppIterativeSolverFMA:
 		public StressStrainCppIterativeSolver
 	{
 	public:

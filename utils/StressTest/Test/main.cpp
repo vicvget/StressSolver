@@ -54,7 +54,10 @@ int main(int argc, char *argv[])
 	std::cout << "------------------------------" << std::endl
 		<< "    STRESS TEST" << std::endl
 		<< "------------------------------" << std::endl;
-	std::cout << "\nElements:" << numberOfElements << 'x' << numberOfElements
+#ifdef INTEL_AVX
+	std::cout << "INTEL AVX\n";
+#endif
+	std::cout << "Elements:" << numberOfElements << 'x' << numberOfElements
 		<< "\nIterations:" << numberOfSubiterations << 'x' << 100
 		<< "\nSolver Type:" << solverType << std::endl;
 

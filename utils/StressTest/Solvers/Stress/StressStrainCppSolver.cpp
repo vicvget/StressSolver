@@ -774,6 +774,93 @@ void StressStrainCppSolver::CalculateForces()
 	ApplyMass();	 // вычисляет ускорения делением сил на массы и моментов на моменты инерции
 }
 
+
+void StressStrainCppSolver::CalculateForcesOmp()
+{
+	_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
+	static int it = 0;
+
+	__declspec(align(32)) double strains[8], velocityStrains[8];
+
+	for (int elementId1 = 0; elementId1 < _nElements; elementId1++)
+	{
+		memset(GetElementAcceleration(elementId1), 0u, sizeof(double)*vecStride2);
+		memset(GetElementStress(elementId1), 0u, sizeof(double)*vecStride2);
+	}
+
+#pragma omp parallel for private (strains, velocityStrains)// num_threads(_numThreads)
+	for (int elementId1 = 0; elementId1 < _nElements; elementId1++)
+	{
+
+		//memset(GetElementAcceleration(elementId1), 0u, sizeof(double)*vecStride2);
+		//memset(GetElementStress(elementId1), 0u, sizeof(double)*vecStride2);
+		const int exclusive_dofs[][2] = { { 1, 2 }, { 0, 2 }, { 1, 3 } };
+
+		// обход 6 связанных элементов x-,y-,z-,x+,y+,z+
+		int dofFactors[3] = { 0 };
+		for (size_t side = 0; side < 6; side++)
+		{
+			int dof = side % 3;
+			dofFactors[dof]++;
+			size_t elementId2 = _linkedElements[6 * elementId1 + side];
+			if (elementId2)
+			{
+				elementId2--;
+				CalculateStrains(side, strains, velocityStrains, elementId1, elementId2);
+
+				Vec3Ref linear_strains = MakeVec3(&strains[0]);
+				Vec3Ref angular_strains = MakeVec3(&strains[0] + vecStride);
+				Vec3Ref linear_vstrains = MakeVec3(&velocityStrains[0]);
+				Vec3Ref angular_vstrains = MakeVec3(&velocityStrains[0] + vecStride);
+				size_t component = dof;
+				int signFactor = (side < 3) ? 1 : -1;
+				// нормальные напряжения
+				GetElementStress(elementId1)[dof] += signFactor * linear_strains[dof] * GetElementStressFactors(elementId1)[dof] * _stressScalingFactors[dof];
+
+				// степени свободы смещений, участвующих в создании касательных напряжений
+				int dof0 = exclusive_dofs[dof][0];
+				int dof1 = exclusive_dofs[dof][1];
+
+				GetElementStressAngular(elementId1)[dof0] += signFactor * linear_strains[dof1] * GetElementStressFactors(elementId1)[dof] * _stressScalingFactors[dof];
+				GetElementStressAngular(elementId1)[dof1] += signFactor * linear_strains[dof0] * GetElementStressFactors(elementId1)[dof] * _stressScalingFactors[dof];
+
+				if (side > 3)
+				{
+					GetElementStress(elementId1)[dof] /= dofFactors[dof];
+					GetElementStressAngular(elementId1)[dof0] /= dofFactors[dof];
+					GetElementStressAngular(elementId1)[dof1] /= dofFactors[dof];
+				}
+
+				// сила и момент из полученных деформаций
+				Vec3 force = -linear_vstrains * _dampingFactorLinear - linear_strains * _elasticFactorLinear;
+				Vec3 torque = -angular_vstrains * _dampingFactorAngular - angular_strains * _elasticFactorAngular;
+
+				Vec3 vAcc;
+				if (vecStride == 4)
+				{
+					Mat3x4 matA01(GetRotationMatrix(elementId1));
+					vAcc = matA01*force;
+				}
+				else
+				{
+					Mat3 matA01(GetRotationMatrix(elementId1));
+					vAcc = matA01*force;
+				}
+
+				Vec3Ref vR = MakeVec3(GetRadiusVector(side));
+				Vec3 forceTorque = vR.Cross(force);
+				Vec3 vM = forceTorque + torque;
+
+				MakeVec3(GetElementAcceleration(elementId1)) += vAcc;
+				MakeVec3(GetElementAccelerationAngular(elementId1)) += vM;
+			}
+		}
+	}
+	ApplyBoundary(); // модифицирует силы и моменты
+	ApplyMass();	 // вычисляет ускорения делением сил на массы и моментов на моменты инерции
+}
+
+
 void StressStrainCppSolver::ApplyBoundary()
 {
 	//работает с типами из frm_provider
