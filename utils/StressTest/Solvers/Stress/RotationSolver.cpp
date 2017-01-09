@@ -1,4 +1,5 @@
 #include <cstring>
+#include <immintrin.h>
 
 #include "RotationSolver.h"
 #include "Common.h"
@@ -52,6 +53,16 @@ namespace Stress
 		return _wPointer + elementId * _vecStride2;
 	}
 
+	double* RotationSolver::GetCos(size_t elementId) const
+	{
+		return _coscache + elementId * _vecStride;
+	}
+
+	double* RotationSolver::GetSin(size_t elementId) const
+	{
+		return _sincache + elementId * _vecStride;
+	}
+
 	bool RotationSolver::IsSingularityAngle(size_t elementId) const
 	{
 		double angle = GetAngles(elementId)[1];
@@ -95,6 +106,9 @@ namespace Stress
 		_hDR3 = (double*)aligned_alloc(varSize, ALIGNMENT);
 		_varR = (double*)aligned_alloc(varSize, ALIGNMENT);
 		_initR = (double*)aligned_alloc(varSize, ALIGNMENT);
+		
+		_sincache = (double*)aligned_alloc(varSize, ALIGNMENT);
+		_coscache = (double*)aligned_alloc(varSize, ALIGNMENT);
 
 		_rframeMtx = (double*)aligned_alloc(matSize, ALIGNMENT);
 		
@@ -108,7 +122,19 @@ namespace Stress
 		// если изначально были не нулевые повороты, то будут не единичные матрицы
 		memcpy(_rframeMtx, mtxPointer, matSize);
 	}
-
+#ifdef INTEL_AVX
+	void RotationSolver::FillSinCosCaches()
+	{
+		for (int elementId = 0; elementId < _nRVariables; elementId += _vecStride)
+		{
+			__m256d args = _mm256_load_pd(GetAngles(elementId));
+			__m256d sins = _mm256_sin_pd(args);
+			__m256d coss = _mm256_cos_pd(args);
+			_mm256_store_pd(_sincache + elementId * _vecStride, sins);
+			_mm256_store_pd(_coscache + elementId * _vecStride, coss);
+		}
+	}
+#endif
 	RotationSolver::~RotationSolver()
 	{
 		aligned_free(_varR);
@@ -118,6 +144,8 @@ namespace Stress
 		aligned_free(_hDR2);
 		aligned_free(_hDR3);
 		aligned_free(_rframeMtx);
+		aligned_free(_coscache);
+		aligned_free(_sincache);
 	}
 
 	void RotationSolver::MakeZeroVectors(size_t elementId) const
@@ -129,76 +157,15 @@ namespace Stress
 		memset(_hDR3 + offset, 0, sizeof(double) * _vecStride);
 		memset(_varR + offset, 0, sizeof(double) * _vecStride);
 		memset(_initR + offset, 0, sizeof(double) * _vecStride);
+		memset(_coscache + offset, 0, sizeof(double) * _vecStride);
+		memset(_sincache + offset, 1, sizeof(double) * _vecStride);
 	}
-
-// corrected
-	//void RotationSolver::InitIteration() const
-	//{
-	//	memcpy(_initR, _varR, sizeof(double)*_nRVariables);
-
-	//	// _hDR1 = k1*h = _varDR
-	//	memcpy(_hDR1, _varDR, sizeof(double)*_nRVariables);
-	//}
-
-	//void RotationSolver::Solve1()
-	//{
-	//	for (size_t i = 0; i < _nRVariables; i++)
-	//		_varR[i] = _initR[i] + _hDR1[i] * 0.5;
-	//	CalculateRHS(); // k2 = f(t+h/2,y+k1*h/2)
-	//	// _hDR2 = k2*h
-	//	memcpy(_hDR2, _varDR, sizeof(double)*_nRVariables);
-	//	UpdateMtxs();
-	//}
-
-	//void RotationSolver::Solve2()
-	//{
-	//	for (size_t i = 0; i < _nRVariables; i++)
-	//		_varR[i] = _initR[i] + _hDR2[i] * 0.5;
-	//	CalculateRHS(); // k3 = f(t+h/2,y+k2*h/2)
-	//	// _hDR3 = k3*h
-	//	memcpy(_hDR3, _varDR, sizeof(double)*_nRVariables);
-	//	UpdateMtxs();
-	//}
-
-	//void RotationSolver::Solve3()
-	//{
-
-	//	for (size_t i = 0; i < _nRVariables; i++)
-	//		_varR[i] = _initR[i] + _hDR3[i];
-	//	CalculateRHS();// k3 = f(t+h/2,y+k2*h/2)
-	//	memcpy(_hDR3, _varDR, sizeof(double)*_nRVariables);
-	//	UpdateMtxs();
-	//}
-
-	//void RotationSolver::Solve4()
-	//{
-	//	CalculateRHS();// k4 = f(t+h/2,y+k3*h)
-	//	for (size_t i = 0; i < _nRVariables; i++)
-	//	{
-	//		//_varR[i] = _initR[i] + (_hDR1[i] + 2 * (_hDR2[i] + _hDR3[i]) + _varDR[i]) / 6.0;
-	//		_varR[i] = _initR[i] + (_hDR1[i] + (_hDR2[i] + _hDR3[i])) / 6.0;
-	//	}
-	 
-	//	// проверка сингулярности
-	//	for (size_t _elementId = 0; _elementId < _nElements; _elementId++)
-	//	{
-	//		double* elementMtx = GetRotationMtx(_elementId);
-	//		double* rframeMtx = GetRframeMtx(_elementId);
-	//		if (IsSingularityAngle(_elementId))
-	//		{
-	//			MakeZeroVectors(_elementId);
-	//			memcpy(rframeMtx, elementMtx, _matStride*sizeof(double));
-	//		}
-	//		UpdateMtx(_elementId);
-	//	}
-	//}
 
 	void RotationSolver::InitialSolve()
 	{
 		CalculateRHS();
 		UpdateMtxs();
 	}
-
 
 	void RotationSolver::InitIteration() const
 	{
@@ -278,6 +245,17 @@ namespace Stress
 		double* angles = GetAngles(elementId);
 		double* elementW = GetAngularVelocity(elementId);
 
+#ifdef INTEL_AVX
+		__m256d args = _mm256_load_pd(angles);
+		__m256d sins = _mm256_sin_pd(args);
+		__m256d coss = _mm256_cos_pd(args);
+		_mm256_store_pd(_sincache + elementId * _vecStride, sins);
+		_mm256_store_pd(_coscache + elementId * _vecStride, coss);
+		double cosY = GetCos(elementId)[1];
+		double tanY = GetSin(elementId)[1]/GetCos(elementId)[1];
+		double sinZ = GetSin(elementId)[2];
+		double cosZ = GetCos(elementId)[2];
+#else
 		double cosY = cos(angles[1]);
 		double tanY = tan(angles[1]);
 		double sinZ = sin(angles[2]);
@@ -285,6 +263,8 @@ namespace Stress
 		double wx = elementW[0];
 		double wy = elementW[1];
 		double wz = elementW[2];
+#endif
+
 
 
 		// Проверки сходимости
@@ -305,9 +285,9 @@ namespace Stress
 
 		double* derivatives = GetDerivatives(elementId);
 
-		derivatives[0] = (wx*cosZ - wy*sinZ) / cosY*_timeStep;
-		derivatives[1] = (wx*sinZ + wy*cosZ)*_timeStep;
-		derivatives[2] = ((wy*sinZ - wx*cosZ)*tanY + wz)*_timeStep;
+		derivatives[0] = (-wy*sinZ + wx*cosZ) / cosY * _timeStep;
+		derivatives[1] = ( wx*sinZ + wy*cosZ) *_timeStep;
+		derivatives[2] = ((wy*sinZ - wx*cosZ) * tanY + wz) * _timeStep;
 		return result;
 	}
 
@@ -319,7 +299,11 @@ namespace Stress
 		if (_vecStride == 4)
 		{
 			Mat3x4 rframe(rframeMtx);
+#ifdef INTEL_AVX
+			Mat3x4 newMtx = Mat3x4::MakeXYZRotationMtx01(GetSin(elementId), GetCos(elementId));
+#else
 			Mat3x4 newMtx = Mat3x4::MakeXYZRotationMtx01(GetAngles(elementId));
+#endif
 			(rframe*newMtx).Export(rotationMtx);
 		}
 		else
