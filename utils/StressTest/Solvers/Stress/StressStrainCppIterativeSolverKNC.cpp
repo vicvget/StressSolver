@@ -304,7 +304,7 @@ namespace Stress
 			memcpy(_initDX, _varDX, sizeof(double)*_nVariables);
 
 			_testTimer.Start(3);
-#pragma omp parallel for num_threads(_numThreads)
+#pragma omp parallel for num_threads(_numThreads) private(timeStep,timeStep2,timeStep4,constantD2,constantD6, Xtmp, DXtmp, DDXtmp, tmp)
 			for (int j = 0; j < _nVariables; j += regSize)
 			{
 				//_hDDX1[j] = _varDDX[j] * _timeStep;
@@ -328,7 +328,7 @@ namespace Stress
 			MeasuredRun(2, CalculateForces());
 
 			_testTimer.Start(3);
-#pragma omp parallel for num_threads(_numThreads)
+#pragma omp parallel for num_threads(_numThreads) private(timeStep,timeStep2,timeStep4,constantD2,constantD6, Xtmp, DXtmp, DDXtmp, tmp)
 			for (int j = 0; j < _nVariables; j += regSize)
 			{
 				//_hDDX2[j] = _varDDX[j] * _timeStep;
@@ -353,7 +353,7 @@ namespace Stress
 			MeasuredRun(2, CalculateForces());
 
 			_testTimer.Start(3);
-#pragma omp parallel for num_threads(_numThreads)
+#pragma omp parallel for num_threads(_numThreads) private(timeStep,timeStep2,timeStep4,constantD2,constantD6, Xtmp, DXtmp, DDXtmp, tmp)
 			for (int j = 0; j < _nVariables; j += regSize)
 			{
 				//_hDDX3[j] = _varDDX[j] * _timeStep;
@@ -378,7 +378,7 @@ namespace Stress
 			MeasuredRun(2, CalculateForces());
 
 			_testTimer.Start(3);
-#pragma omp parallel for num_threads(_numThreads)
+#pragma omp parallel for num_threads(_numThreads) private(timeStep,timeStep2,timeStep4,constantD2,constantD6, Xtmp, DXtmp, DDXtmp, tmp)
 			for (int j = 0; j < _nVariables; j += regSize)
 			{
 				//float sDDX = _hDDX2[j] + _hDDX3[j];
@@ -408,17 +408,17 @@ namespace Stress
 
 		}
 		_testTimer.Stop(0);
-#ifndef NOTIMER
-		const int width = 16;
-		//	_testTimer.SetWidth(width);
-		std::cout << "-----------------------------------\n";
-		double t1 = _testTimer.Print(1, "Rotations: ");
-		double t2 = _testTimer.Print(2, "Forces: ");
-		double t3 = _testTimer.Print(3, "Integration: ");
-		//_testTimer.Print(5, "Linksh:");
-		//std::cout << std::setw(width) << "Summ: " << t1 + t2 + t3 << std::endl;
-		_testTimer.Print(0, "Total: ");
-#endif
+//#ifndef NOTIMER
+//		const int width = 16;
+//		//	_testTimer.SetWidth(width);
+//		std::cout << "-----------------------------------\n";
+//		double t1 = _testTimer.Print(1, "Rotations: ");
+//		double t2 = _testTimer.Print(2, "Forces: ");
+//		double t3 = _testTimer.Print(3, "Integration: ");
+//		//_testTimer.Print(5, "Linksh:");
+//		//std::cout << std::setw(width) << "Summ: " << t1 + t2 + t3 << std::endl;
+//		_testTimer.Print(0, "Total: ");
+//#endif
 #endif
 	}
 
@@ -487,11 +487,6 @@ namespace Stress
 #ifdef USE_KNC
 
 		_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
-		__m512d timeStep = _mm512_set1_pd(_timeStep);
-		__m512d timeStep2 = _mm512_set1_pd(_timeStep2);
-		__m512d timeStep4 = _mm512_set1_pd(_timeStep4);
-		__m512d constantD2 = _mm512_set1_pd(0.5);
-		__m512d constantD6 = _mm512_set1_pd(1 / 6.0);
 
 		memcpy(_initX, _varX, sizeof(double)*_nVariables);
 		memcpy(_initDX, _varDX, sizeof(double)*_nVariables);
@@ -503,6 +498,10 @@ namespace Stress
 			//_hDDX1[j] = _varDDX[j] * _timeStep;
 			//_varX[j] += _varDX[j] * _timeStep2;
 			//_varDX[j] += _hDDX1[j] * 0.5;
+
+			__m512d timeStep = _mm512_set1_pd(_timeStep);
+			__m512d timeStep2 = _mm512_set1_pd(_timeStep2);
+			__m512d constantD2 = _mm512_set1_pd(0.5);
 
 			__m512d Xtmp = _mm512_load_pd(_varX + j);
 			__m512d DXtmp = _mm512_load_pd(_varDX + j);
@@ -532,12 +531,6 @@ namespace Stress
 
 		_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
 
-		__m512d timeStep = _mm512_set1_pd(_timeStep);
-		__m512d timeStep2 = _mm512_set1_pd(_timeStep2);
-		__m512d timeStep4 = _mm512_set1_pd(_timeStep4);
-		__m512d constantD2 = _mm512_set1_pd(0.5);
-		__m512d constantD6 = _mm512_set1_pd(1 / 6.0);
-
 		_testTimer.Start(3);
 #pragma omp parallel for num_threads(_numThreads)
 		for (int j = 0; j < _nVariables; j += regSize)
@@ -545,6 +538,10 @@ namespace Stress
 			//_hDDX2[j] = _varDDX[j] * _timeStep;
 			//_varX[j] += _hDDX1[j] * _timeStep4;
 			//_varDX[j] = _initDX[j] + _hDDX2[j] * 0.5;
+
+			__m512d timeStep = _mm512_set1_pd(_timeStep);
+			__m512d timeStep4 = _mm512_set1_pd(_timeStep4);
+			__m512d constantD2 = _mm512_set1_pd(0.5);
 
 			__m512d Xtmp = _mm512_load_pd(_varX + j);
 			__m512d DXtmp = _mm512_load_pd(_initDX + j);
@@ -575,12 +572,6 @@ namespace Stress
 
 		_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
 
-		__m512d timeStep = _mm512_set1_pd(_timeStep);
-		__m512d timeStep2 = _mm512_set1_pd(_timeStep2);
-		__m512d timeStep4 = _mm512_set1_pd(_timeStep4);
-		__m512d constantD2 = _mm512_set1_pd(0.5);
-		__m512d constantD6 = _mm512_set1_pd(1 / 6.0);
-
 		_testTimer.Start(3);
 #pragma omp parallel for num_threads(_numThreads)
 		for (int j = 0; j < _nVariables; j += regSize)
@@ -588,6 +579,9 @@ namespace Stress
 			//_hDDX3[j] = _varDDX[j] * _timeStep;
 			//_varX[j] = _initX[j] + (_initDX[j] + _hDDX2[j] * 0.5) * _timeStep;
 			//_varDX[j] = _initDX[j] + _hDDX3[j];
+
+			__m512d timeStep = _mm512_set1_pd(_timeStep);
+			__m512d constantD2 = _mm512_set1_pd(0.5);
 
 			__m512d Xtmp = _mm512_load_pd(_initX + j);
 			__m512d DXtmp = _mm512_load_pd(_initDX + j);
@@ -617,12 +611,6 @@ namespace Stress
 
 		_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
 
-		__m512d timeStep = _mm512_set1_pd(_timeStep);
-		__m512d timeStep2 = _mm512_set1_pd(_timeStep2);
-		__m512d timeStep4 = _mm512_set1_pd(_timeStep4);
-		__m512d constantD2 = _mm512_set1_pd(0.5);
-		__m512d constantD6 = _mm512_set1_pd(1 / 6.0);
-
 		_testTimer.Start(3);
 #pragma omp parallel for num_threads(_numThreads)
 		for (int j = 0; j < _nVariables; j += regSize)
@@ -630,6 +618,9 @@ namespace Stress
 			//float sDDX = _hDDX2[j] + _hDDX3[j];
 			//_varX[j] = _initX[j] + (_initDX[j] + sDDX / 6.0) * _timeStep;
 			//_varDX[j] = _initDX[j] + (_hDDX1[j] + sDDX + sDDX + _varDDX[j] * _timeStep) / 6.0;
+
+			__m512d timeStep = _mm512_set1_pd(_timeStep);
+			__m512d constantD6 = _mm512_set1_pd(1 / 6.0);
 
 			__m512d Xtmp = _mm512_load_pd(_initX + j);
 			__m512d DXtmp = _mm512_load_pd(_initDX + j);

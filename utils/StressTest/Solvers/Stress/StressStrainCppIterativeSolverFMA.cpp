@@ -81,7 +81,7 @@ void StressStrainCppIterativeSolverFMA::SolveFull(const int nIterations)
 		memcpy(_initDX, _varDX, sizeof(double)*_nVariables);
 
 		_testTimer.Start(3);
-#pragma omp parallel for num_threads(_numThreads)  private(Xtmp,DXtmp,DDXtmp,hDDX1,tmp)
+#pragma omp parallel for num_threads(_numThreads)  private(Xtmp, DXtmp, DDXtmp, hDDX1, tmp, timeStep, timeStep2, constantD2)
 		for (int j = 0; j < _nVariables; j += regSize)
 		{
 			//_hDDX1[j] = _varDDX[j] * _timeStep;
@@ -107,7 +107,7 @@ void StressStrainCppIterativeSolverFMA::SolveFull(const int nIterations)
 		MeasuredRun(2, CalculateForces());
 
 		_testTimer.Start(3);
-#pragma omp parallel for num_threads(_numThreads) private(Xtmp,DXtmp,DDXtmp,hDDX1,tmp,hDDX2)
+#pragma omp parallel for num_threads(_numThreads) private(Xtmp, DXtmp, DDXtmp, hDDX1, hDDX2, tmp, timeStep, timeStep4, constantD2)
 		for (int j = 0; j < _nVariables; j += regSize)
 		{
 			//_hDDX2[j] = _varDDX[j] * _timeStep;
@@ -134,7 +134,7 @@ void StressStrainCppIterativeSolverFMA::SolveFull(const int nIterations)
 		MeasuredRun(2, CalculateForces());
 
 		_testTimer.Start(3);
-#pragma omp parallel for num_threads(_numThreads) private(Xtmp,DXtmp,DDXtmp,hDDX3,tmp,hDDX2)
+#pragma omp parallel for num_threads(_numThreads) private(Xtmp, DXtmp, DDXtmp, hDDX3, hDDX2, tmp, timeStep, constantD2)
 		for (int j = 0; j < _nVariables; j += regSize)
 		{
 			//_hDDX3[j] = _varDDX[j] * _timeStep;
@@ -161,7 +161,7 @@ void StressStrainCppIterativeSolverFMA::SolveFull(const int nIterations)
 		MeasuredRun(2, CalculateForces());
 
 		_testTimer.Start(3);
-#pragma omp parallel for num_threads(_numThreads) private(Xtmp,DXtmp,DDXtmp,hDDX1,tmp,hDDX2,hDDX3,sDDX)
+#pragma omp parallel for num_threads(_numThreads) private(Xtmp, DXtmp, DDXtmp, hDDX1, hDDX2, hDDX3, sDDX, tmp, timeStep, constantD6)
 		for (int j = 0; j < _nVariables; j += regSize)
 		{
 			//float sDDX = _hDDX2[j] + _hDDX3[j];
@@ -220,7 +220,6 @@ void StressStrainCppIterativeSolverFMA::Solve(const int nIterations)
 		_iterationNumber++;
 		_nIteration++;
 		
-		//Solve1() used only in initialization
 		Solve2();
 		Solve3();
 		Solve4();

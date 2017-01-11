@@ -686,12 +686,12 @@ void StressStrainCppSolver::FindStressStrainMatrix()
 	}
 }
 
-void StressStrainCppSolver::CalculateForces()
+void StressStrainCppSolver::CalculateForcesOmp()
 {
 	_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
 	static int it = 0;
 
-	__declspec(align(32)) double strains[8], velocityStrains[8];
+	__declspec(align(64)) double strains[8], velocityStrains[8];
 
 	for (int elementId1 = 0; elementId1 < _nElements; elementId1++)
 	{
@@ -775,12 +775,12 @@ void StressStrainCppSolver::CalculateForces()
 }
 
 
-void StressStrainCppSolver::CalculateForcesOmp()
+void StressStrainCppSolver::CalculateForces()
 {
 	_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
 	static int it = 0;
 
-	__declspec(align(32)) double strains[8], velocityStrains[8];
+	__declspec(align(64)) double strains[8], velocityStrains[8];
 
 	for (int elementId1 = 0; elementId1 < _nElements; elementId1++)
 	{
@@ -797,11 +797,9 @@ void StressStrainCppSolver::CalculateForcesOmp()
 		const int exclusive_dofs[][2] = { { 1, 2 }, { 0, 2 }, { 1, 3 } };
 
 		// обход 6 связанных элементов x-,y-,z-,x+,y+,z+
-		int dofFactors[3] = { 0 };
 		for (size_t side = 0; side < 6; side++)
 		{
 			int dof = side % 3;
-			dofFactors[dof]++;
 			size_t elementId2 = _linkedElements[6 * elementId1 + side];
 			if (elementId2)
 			{
@@ -824,28 +822,21 @@ void StressStrainCppSolver::CalculateForcesOmp()
 				GetElementStressAngular(elementId1)[dof0] += signFactor * linear_strains[dof1] * GetElementStressFactors(elementId1)[dof] * _stressScalingFactors[dof];
 				GetElementStressAngular(elementId1)[dof1] += signFactor * linear_strains[dof0] * GetElementStressFactors(elementId1)[dof] * _stressScalingFactors[dof];
 
-				if (side > 3)
-				{
-					GetElementStress(elementId1)[dof] /= dofFactors[dof];
-					GetElementStressAngular(elementId1)[dof0] /= dofFactors[dof];
-					GetElementStressAngular(elementId1)[dof1] /= dofFactors[dof];
-				}
-
 				// сила и момент из полученных деформаций
 				Vec3 force = -linear_vstrains * _dampingFactorLinear - linear_strains * _elasticFactorLinear;
 				Vec3 torque = -angular_vstrains * _dampingFactorAngular - angular_strains * _elasticFactorAngular;
 
 				Vec3 vAcc;
-				if (vecStride == 4)
+//				if (vecStride == 4)
 				{
 					Mat3x4 matA01(GetRotationMatrix(elementId1));
 					vAcc = matA01*force;
 				}
-				else
-				{
-					Mat3 matA01(GetRotationMatrix(elementId1));
-					vAcc = matA01*force;
-				}
+				//else
+				//{
+				//	Mat3 matA01(GetRotationMatrix(elementId1));
+				//	vAcc = matA01*force;
+				//}
 
 				Vec3Ref vR = MakeVec3(GetRadiusVector(side));
 				Vec3 forceTorque = vR.Cross(force);
