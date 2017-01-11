@@ -59,8 +59,8 @@ StressStrainCppIterativeSolver::~StressStrainCppIterativeSolver()
 
 void StressStrainCppIterativeSolver::Solve(const int nIterations)
 {
-	SolveFull(nIterations);
-		return;
+	//SolveFull(nIterations);
+//		return;
 	_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
 
 	_iterationNumber = 0;
@@ -69,7 +69,7 @@ void StressStrainCppIterativeSolver::Solve(const int nIterations)
 	{
 		_iterationNumber++;
 		_nIteration++;
-		//Solve1() used only in initialization
+
 		Solve2();
 		Solve3();
 		Solve4();
@@ -183,8 +183,8 @@ void StressStrainCppIterativeSolver::InitialSolve()
 void StressStrainCppIterativeSolver::Solve1()
 {
 	_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
-	_rotationSolver->Solve1();
-	CalculateForces();
+	MeasuredRun(1, _rotationSolver->Solve1());
+	MeasuredRun(2, CalculateForces());
 }
 
 /**
@@ -194,6 +194,9 @@ void StressStrainCppIterativeSolver::Solve1()
 void StressStrainCppIterativeSolver::Solve2()
 {
 	_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
+
+	_testTimer.Start(3);
+
 	memcpy(_initX, _varX, sizeof(double)*_nVariables);
 	memcpy(_initDX, _varDX, sizeof(double)*_nVariables);
 
@@ -205,9 +208,12 @@ void StressStrainCppIterativeSolver::Solve2()
 		_varX[j] += _varDX[j] * _timeStep * 0.5;
 		_varDX[j] += _hDDX1[j] * 0.5;       
 	}
+	_testTimer.Stop(3);
+
+
 //	_stageRK = 2;
-	_rotationSolver->Solve2();
-	CalculateForces();
+	MeasuredRun(1, _rotationSolver->Solve2());
+	MeasuredRun(2, CalculateForces());
 }
 
 /**
@@ -218,6 +224,8 @@ void StressStrainCppIterativeSolver::Solve3()
 {
 	_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
 
+	_testTimer.Start(3);
+
 	// RK4 step 2
 #pragma omp parallel for num_threads(_numThreads)
 	for (int j = 0; j < _nVariables; j++)
@@ -226,9 +234,11 @@ void StressStrainCppIterativeSolver::Solve3()
 		_varX[j] += _hDDX1[j] * _timeStep * 0.25;
 		_varDX[j] = _initDX[j] + _hDDX2[j] * 0.5;
 	}
+	_testTimer.Stop(3);
+
 //	_stageRK = 3;
-	_rotationSolver->Solve3();
-	CalculateForces();
+	MeasuredRun(1, _rotationSolver->Solve3());
+	MeasuredRun(2, CalculateForces());
 }
 
 /**
@@ -238,7 +248,8 @@ void StressStrainCppIterativeSolver::Solve3()
 void StressStrainCppIterativeSolver::Solve4()
 {
 	_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
-//	_time = _timeTmp + _timeStep;
+
+	_testTimer.Start(3);
 
 	// RK4 step 3
 #pragma omp parallel for num_threads(_numThreads)
@@ -248,9 +259,11 @@ void StressStrainCppIterativeSolver::Solve4()
 		_varX[j] = _initX[j] + (_initDX[j] + _hDDX2[j] * 0.5) * _timeStep;
 		_varDX[j] = _initDX[j] + _hDDX3[j];
 	}
+	_testTimer.Stop(3);
+
 //	_stageRK = 4;
-	_rotationSolver->Solve4();
-	CalculateForces();
+	MeasuredRun(1, _rotationSolver->Solve4());
+	MeasuredRun(2, CalculateForces());
 }
 
 /**
@@ -261,6 +274,8 @@ void StressStrainCppIterativeSolver::Solve5()
 {
 	_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
 
+	_testTimer.Start(3);
+
 	// RK4 step 4
 #pragma omp parallel for num_threads(_numThreads)
 	for (int j = 0; j < _nVariables; j++)
@@ -269,8 +284,10 @@ void StressStrainCppIterativeSolver::Solve5()
 		_varX[j] = _initX[j] + (_initDX[j] + (_hDDX1[j] + sDDX) / 6.0) * _timeStep;
 		_varDX[j] = _initDX[j] + (_hDDX1[j] + sDDX + sDDX + _varDDX[j] * _timeStep) / 6.0;
 	}
-	_rotationSolver->Solve1();
-	CalculateForces();
+	_testTimer.Stop(3);
+
+	MeasuredRun(1, _rotationSolver->Solve1());
+	MeasuredRun(2, CalculateForces());
 
 	CheckVelocitySumm();
 }
