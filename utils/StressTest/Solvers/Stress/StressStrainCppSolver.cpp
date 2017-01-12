@@ -686,7 +686,8 @@ void StressStrainCppSolver::FindStressStrainMatrix()
 	}
 }
 
-void StressStrainCppSolver::CalculateForcesOmp()
+#ifndef OMP_SOLVE
+void StressStrainCppSolver::CalculateForces()
 {
 	_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
 	static int it = 0;
@@ -701,7 +702,6 @@ void StressStrainCppSolver::CalculateForcesOmp()
 
 	const int exclusive_dofs[][2] = { { 1, 2 }, { 0, 2 }, { 1, 3 } };
 
-	//#pragma omp parallel for private (strains, velocityStrains) num_threads(_numThreads)
 	for (int elementId1 = 0; elementId1 < _nElements; elementId1++)
 	{
 		// обход x-,y-,z-
@@ -774,7 +774,7 @@ void StressStrainCppSolver::CalculateForcesOmp()
 	ApplyMass();	 // вычисляет ускорения делением сил на массы и моментов на моменты инерции
 }
 
-
+#else
 void StressStrainCppSolver::CalculateForces()
 {
 	_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
@@ -788,7 +788,9 @@ void StressStrainCppSolver::CalculateForces()
 		memset(GetElementStress(elementId1), 0u, sizeof(double)*vecStride2);
 	}
 
-//#pragma omp parallel for private (strains, velocityStrains)// num_threads(_numThreads)
+#ifdef OMP_SOLVE
+#pragma omp parallel for private (strains, velocityStrains) num_threads(_numThreads)
+#endif
 	for (int elementId1 = 0; elementId1 < _nElements; elementId1++)
 	{
 
@@ -850,7 +852,7 @@ void StressStrainCppSolver::CalculateForces()
 	ApplyBoundary(); // модифицирует силы и моменты
 	ApplyMass();	 // вычисляет ускорения делением сил на массы и моментов на моменты инерции
 }
-
+#endif
 
 void StressStrainCppSolver::ApplyBoundary()
 {
@@ -889,7 +891,9 @@ void StressStrainCppSolver::ApplyMass()
 
 	//double* accelerations = GetElementAcceleration(0); // debug
 	//std::cout << "Num threads = " << _numThreads << std::endl;
+#ifdef OMP_SOLVE
 #pragma omp parallel for num_threads(_numThreads)
+#endif
 	for (int elementId = 0; elementId < _nElements; elementId++)
 	{
 		MakeVec3(GetElementAcceleration(elementId)) /= _cellMass;

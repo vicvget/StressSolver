@@ -95,7 +95,9 @@ void StressStrainCppIterativeSolver::SolveFull(const int nIterations)
 
 		_testTimer.Start(3);
 		// RK4 step 1
+#ifdef OMP_SOLVE
 #pragma omp parallel for num_threads(_numThreads)
+#endif
 		for (int j = 0; j < _nVariables; j++)
 		{
 			_hDDX1[j] = _varDDX[j] * _timeStep;
@@ -110,7 +112,9 @@ void StressStrainCppIterativeSolver::SolveFull(const int nIterations)
 
 		_testTimer.Start(3);
 		// RK4 step 2
+#ifdef OMP_SOLVE
 #pragma omp parallel for num_threads(_numThreads)
+#endif
 		for (int j = 0; j < _nVariables; j++)
 		{
 			_hDDX2[j] = _varDDX[j] * _timeStep;
@@ -127,7 +131,9 @@ void StressStrainCppIterativeSolver::SolveFull(const int nIterations)
 
 		_testTimer.Start(3);
 		// RK4 step 3
+#ifdef OMP_SOLVE
 #pragma omp parallel for num_threads(_numThreads)
+#endif
 		for (int j = 0; j < _nVariables; j++)
 		{
 			_hDDX3[j] = _varDDX[j] * _timeStep;
@@ -142,7 +148,9 @@ void StressStrainCppIterativeSolver::SolveFull(const int nIterations)
 
 		// RK4 step 4
 		_testTimer.Start(3);
+#ifdef OMP_SOLVE
 #pragma omp parallel for num_threads(_numThreads)
+#endif
 		for (int j = 0; j < _nVariables; j++)
 		{
 			double sDDX = _hDDX2[j] + _hDDX3[j];
@@ -155,17 +163,6 @@ void StressStrainCppIterativeSolver::SolveFull(const int nIterations)
 
 		CheckVelocitySumm();
 	}
-#ifndef NOTIMER
-	//const int width = 16;
-	////	_testTimer.SetWidth(width);
-	//std::cout << "-----------------------------------\n";
-	//double t1 = _testTimer.Print(1, "Rotations: ");
-	//double t2 = _testTimer.Print(2, "Forces: ");
-	//double t3 = _testTimer.Print(3, "Integration: ");
-
-	//std::cout << std::setw(width) << "Summ: " << t1 + t2 + t3 << std::endl;
-	//_testTimer.Print(0, "Total: ");
-#endif
 }
 
 	// virtual
@@ -201,7 +198,9 @@ void StressStrainCppIterativeSolver::Solve2()
 	memcpy(_initDX, _varDX, sizeof(double)*_nVariables);
 
 	// RK4 step 1
-	#pragma omp parallel for num_threads(_numThreads)
+#ifdef OMP_SOLVE
+#pragma omp parallel for num_threads(_numThreads)
+#endif
 	for (int j = 0; j < _nVariables; j++)
 	{
 		_hDDX1[j] = _varDDX[j] * _timeStep;
@@ -227,7 +226,9 @@ void StressStrainCppIterativeSolver::Solve3()
 	_testTimer.Start(3);
 
 	// RK4 step 2
+#ifdef OMP_SOLVE
 #pragma omp parallel for num_threads(_numThreads)
+#endif
 	for (int j = 0; j < _nVariables; j++)
 	{      
 		_hDDX2[j] = _varDDX[j] * _timeStep;
@@ -252,7 +253,9 @@ void StressStrainCppIterativeSolver::Solve4()
 	_testTimer.Start(3);
 
 	// RK4 step 3
+#ifdef OMP_SOLVE
 #pragma omp parallel for num_threads(_numThreads)
+#endif
 	for (int j = 0; j < _nVariables; j++)
 	{      
 		_hDDX3[j] = _varDDX[j] * _timeStep;
@@ -277,7 +280,9 @@ void StressStrainCppIterativeSolver::Solve5()
 	_testTimer.Start(3);
 
 	// RK4 step 4
+#ifdef OMP_SOLVE
 #pragma omp parallel for num_threads(_numThreads)
+#endif
 	for (int j = 0; j < _nVariables; j++)
 	{  
 		double sDDX = _hDDX2[j]+_hDDX3[j];
@@ -385,7 +390,9 @@ void StressStrainCppIterativeSolver::GetStressesByFirstTheoryOfStrength
 // virtual
 void StressStrainCppIterativeSolver::GetStressesX(float* data)
 {
+#ifdef OMP_SOLVE
 #pragma omp parallel for num_threads(_numThreads)
+#endif
 	for (int elementId = 0; elementId < _nElements; elementId++)
 	{
 		data[elementId] = (float)(GetElementStress(elementId)[0] * _elasticFactorLinear / (_gridStep *_gridStep));
@@ -398,7 +405,9 @@ void StressStrainCppIterativeSolver::GetStressesX(float* data)
 // virtual
 void StressStrainCppIterativeSolver::GetStressesY(float* data)
 {
+#ifdef OMP_SOLVE
 #pragma omp parallel for num_threads(_numThreads)
+#endif
 	for (int elementId = 0; elementId < _nElements; elementId++)
 	{
 		data[elementId] = (float)(GetElementStress(elementId)[1] * _elasticFactorLinear / (_gridStep *_gridStep));
@@ -411,7 +420,9 @@ void StressStrainCppIterativeSolver::GetStressesY(float* data)
 // virtual
 void StressStrainCppIterativeSolver::GetStressesZ(float* data)
 {
+#ifdef OMP_SOLVE
 #pragma omp parallel for num_threads(_numThreads)
+#endif
 	for (int elementId = 0; elementId < _nElements; elementId++)
 	{
 		data[elementId] = (float)(GetElementStress(elementId)[2] * _elasticFactorLinear / (_gridStep *_gridStep));
@@ -424,7 +435,9 @@ void StressStrainCppIterativeSolver::GetStressesZ(float* data)
 // virtual
 void StressStrainCppIterativeSolver::GetStressesXY(float* data)
 {
+#ifdef OMP_SOLVE
 #pragma omp parallel for num_threads(_numThreads)
+#endif
 	for (int elementId = 0; elementId < _nElements; elementId++)
 	{
 		// TODO: scalingFactorX и scalingFactorY для 2 компонент!
@@ -438,7 +451,9 @@ void StressStrainCppIterativeSolver::GetStressesXY(float* data)
 // virtual
 void StressStrainCppIterativeSolver::GetStressesXZ(float* data)
 {
+#ifdef OMP_SOLVE
 #pragma omp parallel for num_threads(_numThreads)
+#endif
 	for (int elementId = 0; elementId < _nElements; elementId++)
 	{
 		data[elementId] = (float)(GetElementStressAngular(elementId)[1] * _elasticFactorLinear / 2. / (1. + 0.28) / (_gridStep * _gridStep)); // костыль для толщины в 10 мм
@@ -451,7 +466,9 @@ void StressStrainCppIterativeSolver::GetStressesXZ(float* data)
 // virtual
 void StressStrainCppIterativeSolver::GetStressesYZ(float* data)
 {
+#ifdef OMP_SOLVE
 #pragma omp parallel for num_threads(_numThreads)
+#endif
 	for (int elementId = 0; elementId < _nElements; elementId++)
 	{
 		data[elementId] = (float)(GetElementStressAngular(elementId)[0] * _elasticFactorLinear / 2. / (1. + 0.28) / (_gridStep * _gridStep)); // костыль для толщины в 10 мм
@@ -476,7 +493,9 @@ void StressStrainCppIterativeSolver::GetStressesByVonMises
 	float* sigma5 = data + _nElements*5;
 	float* sigma6 = data + _nElements*6;
 
+#ifdef OMP_SOLVE
 #pragma omp parallel for num_threads(_numThreads)
+#endif
 	for (int elementId = 0; elementId < _nElements; elementId++)
 	{	
 		data[elementId] = (float)sqrt

@@ -48,6 +48,29 @@ namespace Stress
 
 	}
 
+	void StressStrainCppIterativeSolverAVX::Solve(const int nIterations)
+	{
+		SolveFull(nIterations);
+		return;
+
+		_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
+
+		_iterationNumber = 0;
+		_testTimer.Start(0);
+		while (_iterationNumber != nIterations && _rotationSolver->IsValid())
+		{
+			_iterationNumber++;
+			_nIteration++;
+
+			Solve2();
+			Solve3();
+			Solve4();
+			Solve5();
+			CheckVelocitySumm();
+		}
+	}
+
+
 	// AVX-версия
 	void StressStrainCppIterativeSolverAVX::SolveFull(const int nIterations)
 	{
@@ -60,6 +83,14 @@ namespace Stress
 		__m256d Xtmp, DXtmp, DDXtmp, tmp;
 		__m256d hDDX1, hDDX2, hDDX3, sDDX;
 
+#ifndef OMP_SOLVE
+		__m256d timeStep = _mm256_set1_pd(_timeStep);
+		__m256d timeStep2 = _mm256_set1_pd(_timeStep2);
+		__m256d timeStep4 = _mm256_set1_pd(_timeStep4);
+		__m256d constantD2 = _mm256_set1_pd(0.5);
+		__m256d constantD6 = _mm256_set1_pd(1 / 6.0);
+#endif
+
 		while (_iterationNumber != nIterations && _rotationSolver->IsValid())
 		{
 			_iterationNumber++;
@@ -70,18 +101,20 @@ namespace Stress
 			memcpy(_initDX, _varDX, sizeof(double)*_nVariables);
 
 			_testTimer.Start(3);
-
+#ifdef OMP_SOLVE
 #pragma omp parallel for num_threads(_numThreads)  private(Xtmp, DXtmp, DDXtmp, hDDX1, tmp)
+#endif			
 			for (int j = 0; j < _nVariables; j += regSize)
 			{
 				//_hDDX1[j] = _varDDX[j] * _timeStep;
 				//_varX[j] += _varDX[j] * _timeStep2;
 				//_varDX[j] += _hDDX1[j] * 0.5;
 
+#ifdef OMP_SOLVE
 				__m256d timeStep = _mm256_set1_pd(_timeStep);
 				__m256d timeStep2 = _mm256_set1_pd(_timeStep2);
 				__m256d constantD2 = _mm256_set1_pd(0.5);
-
+#endif
 				Xtmp = _mm256_load_pd(_varX + j);
 				DXtmp = _mm256_load_pd(_varDX + j);
 				DDXtmp = _mm256_load_pd(_varDDX + j);
@@ -99,16 +132,20 @@ namespace Stress
 			MeasuredRun(2, CalculateForces());
 
 			_testTimer.Start(3);
+#ifdef OMP_SOLVE
 #pragma omp parallel for num_threads(_numThreads)  private(Xtmp, DXtmp, DDXtmp, hDDX1, tmp)
+#endif
 			for (int j = 0; j < _nVariables; j += regSize)
 			{
 				//_hDDX2[j] = _varDDX[j] * _timeStep;
 				//_varX[j] += _hDDX1[j] * _timeStep4;
 				//_varDX[j] = _initDX[j] + _hDDX2[j] * 0.5;
 
+#ifdef OMP_SOLVE
 				__m256d timeStep = _mm256_set1_pd(_timeStep);
 				__m256d timeStep4 = _mm256_set1_pd(_timeStep4);
 				__m256d constantD2 = _mm256_set1_pd(0.5);
+#endif
 
 				Xtmp = _mm256_load_pd(_varX + j);
 				DXtmp = _mm256_load_pd(_initDX + j);
@@ -128,15 +165,19 @@ namespace Stress
 			MeasuredRun(2, CalculateForces());
 
 			_testTimer.Start(3);
+#ifdef OMP_SOLVE
 #pragma omp parallel for num_threads(_numThreads) private(Xtmp, DXtmp, DDXtmp, hDDX3, hDDX2, tmp)
+#endif
 			for (int j = 0; j < _nVariables; j += regSize)
 			{
 				//_hDDX3[j] = _varDDX[j] * _timeStep;
 				//_varX[j] = _initX[j] + (_initDX[j] + _hDDX2[j] * 0.5) * _timeStep;
 				//_varDX[j] = _initDX[j] + _hDDX3[j];
 
+#ifdef OMP_SOLVE
 				__m256d timeStep = _mm256_set1_pd(_timeStep);
 				__m256d constantD2 = _mm256_set1_pd(0.5);
+#endif
 
 				Xtmp = _mm256_load_pd(_initX + j);
 				DXtmp = _mm256_load_pd(_initDX + j);
@@ -156,15 +197,19 @@ namespace Stress
 			MeasuredRun(2, CalculateForces());
 
 			_testTimer.Start(3);
+#ifdef OMP_SOLVE
 #pragma omp parallel for num_threads(_numThreads) private(Xtmp, DXtmp, DDXtmp, hDDX1, hDDX2, hDDX3, sDDX, tmp)
+#endif
 			for (int j = 0; j < _nVariables; j += regSize)
 			{
 				//float sDDX = _hDDX2[j] + _hDDX3[j];
 				//_varX[j] = _initX[j] + (_initDX[j] + sDDX / 6.0) * _timeStep;
 				//_varDX[j] = _initDX[j] + (_hDDX1[j] + sDDX + sDDX + _varDDX[j] * _timeStep) / 6.0;
 
+#ifdef OMP_SOLVE
 				__m256d timeStep = _mm256_set1_pd(_timeStep);
 				__m256d constantD6 = _mm256_set1_pd(1 / 6.0);
+#endif
 
 				Xtmp = _mm256_load_pd(_initX + j);
 				DXtmp = _mm256_load_pd(_initDX + j);
@@ -192,27 +237,6 @@ namespace Stress
 		_testTimer.Stop(0);
 	}
 
-
-	void StressStrainCppIterativeSolverAVX::Solve(const int nIterations)
-	{
-		//SolveFull(nIterations);
-		//return;
-
-		_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
-
-		_iterationNumber = 0;
-		_testTimer.Start(0);
-		while (_iterationNumber != nIterations && _rotationSolver->IsValid())
-		{
-			_iterationNumber++;
-			_nIteration++;
-
-			Solve2();
-			Solve3();
-			Solve4();
-			Solve5();
-		}
-	}
 
 	// virtual
 	void StressStrainCppIterativeSolverAVX::InitialSolve()
@@ -243,24 +267,22 @@ namespace Stress
 
 		_testTimer.Start(3);
 
-		__m256d timeStep;
-		__m256d timeStep2;
-		__m256d constantD2;
-
-		timeStep = _mm256_set1_pd(_timeStep);
-		timeStep2 = _mm256_set1_pd(_timeStep2);
-		constantD2 = _mm256_set1_pd(0.5);
-
 
 		memcpy(_initX, _varX, sizeof(double)*_nVariables);
 		memcpy(_initDX, _varDX, sizeof(double)*_nVariables);
 
+#ifdef OMP_SOLVE
 #pragma omp parallel for num_threads(_numThreads)
+#endif
 		for (int j = 0; j < _nVariables; j += regSize)
 		{
 			//_hDDX1[j] = _varDDX[j] * _timeStep;
 			//_varX[j] += _varDX[j] * _timeStep2;
 			//_varDX[j] += _hDDX1[j] * 0.5;
+
+			__m256d timeStep = _mm256_set1_pd(_timeStep);
+			__m256d timeStep2 = _mm256_set1_pd(_timeStep2);
+			__m256d constantD2 = _mm256_set1_pd(0.5);
 
 			__m256d Xtmp = _mm256_load_pd(_varX + j);
 			__m256d DXtmp = _mm256_load_pd(_varDX + j);
@@ -290,20 +312,18 @@ namespace Stress
 
 		_testTimer.Start(3);
 
-		__m256d timeStep;
-		__m256d timeStep4;
-		__m256d constantD2;
 
-		timeStep = _mm256_set1_pd(_timeStep);
-		timeStep4 = _mm256_set1_pd(_timeStep4);
-		constantD2 = _mm256_set1_pd(0.5);
-
+#ifdef OMP_SOLVE
 #pragma omp parallel for num_threads(_numThreads)
+#endif
 		for (int j = 0; j < _nVariables; j += regSize)
 		{
 			//_hDDX2[j] = _varDDX[j] * _timeStep;
 			//_varX[j] += _hDDX1[j] * _timeStep4;
 			//_varDX[j] = _initDX[j] + _hDDX2[j] * 0.5;
+			__m256d timeStep = _mm256_set1_pd(_timeStep);
+			__m256d timeStep4 = _mm256_set1_pd(_timeStep4);
+			__m256d constantD2 = _mm256_set1_pd(0.5);
 
 			__m256d Xtmp = _mm256_load_pd(_varX + j);
 			__m256d DXtmp = _mm256_load_pd(_initDX + j);
@@ -333,19 +353,18 @@ namespace Stress
 
 		_testTimer.Start(3);
 
-		__m256d timeStep;
-		__m256d constantD2;
 
-		timeStep = _mm256_set1_pd(_timeStep);
-		constantD2 = _mm256_set1_pd(0.5);
-
+#ifdef OMP_SOLVE
 #pragma omp parallel for num_threads(_numThreads)
+#endif
 		for (int j = 0; j < _nVariables; j += regSize)
 		{
 			//_hDDX3[j] = _varDDX[j] * _timeStep;
 			//_varX[j] = _initX[j] + (_initDX[j] + _hDDX2[j] * 0.5) * _timeStep;
 			//_varDX[j] = _initDX[j] + _hDDX3[j];
 
+			__m256d timeStep = _mm256_set1_pd(_timeStep);
+			__m256d constantD2 = _mm256_set1_pd(0.5);
 			__m256d Xtmp = _mm256_load_pd(_initX + j);
 			__m256d DXtmp = _mm256_load_pd(_initDX + j);
 			__m256d DDXtmp = _mm256_load_pd(_varDDX + j);
@@ -374,18 +393,17 @@ namespace Stress
 
 		_testTimer.Start(3);
 
-		__m256d timeStep;
-		__m256d constantD6;
 
-		timeStep = _mm256_set1_pd(_timeStep);
-		constantD6 = _mm256_set1_pd(1 / 6.0);
-
+#ifdef OMP_SOLVE
 #pragma omp parallel for num_threads(_numThreads)
+#endif
 		for (int j = 0; j < _nVariables; j += regSize)
 		{
 			//float sDDX = _hDDX2[j] + _hDDX3[j];
 			//_varX[j] = _initX[j] + (_initDX[j] + sDDX / 6.0) * _timeStep;
 			//_varDX[j] = _initDX[j] + (_hDDX1[j] + sDDX + sDDX + _varDDX[j] * _timeStep) / 6.0;
+			__m256d timeStep = _mm256_set1_pd(_timeStep);
+			__m256d constantD6 = _mm256_set1_pd(1 / 6.0);
 
 			__m256d Xtmp = _mm256_load_pd(_initX + j);
 			__m256d DXtmp = _mm256_load_pd(_initDX + j);
@@ -554,8 +572,6 @@ namespace Stress
 		x2 = _mm256_load_pd(GetElementVelocityAngular(nodeId2));
 		_mm256_store_pd(velocityStrains + vecStride, _mm256_sub_pd(x1, x2));
 	}
-
-
 }
 
 #endif
