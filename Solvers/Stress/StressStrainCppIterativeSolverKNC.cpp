@@ -1,4 +1,5 @@
 //#ifdef USE_KNC
+//#define USE_KNC
 
 #include "StressStrainCppIterativeSolverKNC.h"
 #include "../../AdditionalModules/fmath/Matrix3x3.h"

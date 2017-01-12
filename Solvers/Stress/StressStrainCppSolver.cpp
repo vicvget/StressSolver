@@ -788,7 +788,7 @@ void StressStrainCppSolver::CalculateForces()
 		memset(GetElementStress(elementId1), 0u, sizeof(double)*vecStride2);
 	}
 
-#pragma omp parallel for private (strains, velocityStrains)// num_threads(_numThreads)
+//#pragma omp parallel for private (strains, velocityStrains)// num_threads(_numThreads)
 	for (int elementId1 = 0; elementId1 < _nElements; elementId1++)
 	{
 

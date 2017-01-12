@@ -254,15 +254,6 @@ void StressStrainCppIterativeSolverFMA::Solve2()
 {
 	_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
 
-	__m256d timeStep;
-	__m256d timeStep2;
-	__m256d constantD2;
-
-	timeStep = _mm256_set1_pd(_timeStep);
-	timeStep2 = _mm256_set1_pd(_timeStep2);
-	constantD2 = _mm256_set1_pd(0.5);
-
-
 	memcpy(_initX, _varX, sizeof(double)*_nVariables);
 	memcpy(_initDX, _varDX, sizeof(double)*_nVariables);
 
@@ -273,6 +264,10 @@ void StressStrainCppIterativeSolverFMA::Solve2()
 		//_hDDX1[j] = _varDDX[j] * _timeStep;
 		//_varX[j] += _varDX[j] * _timeStep2;
 		//_varDX[j] += _hDDX1[j] * 0.5;
+
+		__m256d timeStep = _mm256_set1_pd(_timeStep);
+		__m256d timeStep2 = _mm256_set1_pd(_timeStep2);
+		__m256d constantD2 = _mm256_set1_pd(0.5);
 
 		__m256d Xtmp = _mm256_load_pd(_varX + j);
 		__m256d DXtmp = _mm256_load_pd(_varDX + j);
@@ -302,14 +297,6 @@ void StressStrainCppIterativeSolverFMA::Solve3()
 {
 	_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
 
-	__m256d timeStep;
-	__m256d timeStep4;
-	__m256d constantD2;
-
-	timeStep = _mm256_set1_pd(_timeStep);
-	timeStep4 = _mm256_set1_pd(_timeStep4);
-	constantD2 = _mm256_set1_pd(0.5);
-
 	_testTimer.Start(3);
 #pragma omp parallel for num_threads(_numThreads)
 	for (int j = 0; j < _nVariables; j += regSize)
@@ -317,6 +304,9 @@ void StressStrainCppIterativeSolverFMA::Solve3()
 		//_hDDX2[j] = _varDDX[j] * _timeStep;
 		//_varX[j] += _hDDX1[j] * _timeStep4;
 		//_varDX[j] = _initDX[j] + _hDDX2[j] * 0.5;
+		__m256d timeStep = _mm256_set1_pd(_timeStep);
+		__m256d timeStep4 = _mm256_set1_pd(_timeStep4);
+		__m256d constantD2 = _mm256_set1_pd(0.5);
 
 		__m256d Xtmp = _mm256_load_pd(_varX + j);
 		__m256d DXtmp = _mm256_load_pd(_initDX + j);
@@ -346,12 +336,6 @@ void StressStrainCppIterativeSolverFMA::Solve4()
 {
 	_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
 
-	__m256d timeStep;
-	__m256d constantD2;
-
-	timeStep = _mm256_set1_pd(_timeStep);
-	constantD2 = _mm256_set1_pd(0.5);
-
 	_testTimer.Start(3);
 #pragma omp parallel for num_threads(_numThreads)
 	for (int j = 0; j < _nVariables; j += regSize)
@@ -359,6 +343,9 @@ void StressStrainCppIterativeSolverFMA::Solve4()
 		//_hDDX3[j] = _varDDX[j] * _timeStep;
 		//_varX[j] = _initX[j] + (_initDX[j] + _hDDX2[j] * 0.5) * _timeStep;
 		//_varDX[j] = _initDX[j] + _hDDX3[j];
+
+		__m256d timeStep = _mm256_set1_pd(_timeStep);
+		__m256d constantD2 = _mm256_set1_pd(0.5);
 
 		__m256d Xtmp = _mm256_load_pd(_initX + j);
 		__m256d DXtmp = _mm256_load_pd(_initDX + j);
@@ -388,12 +375,6 @@ void StressStrainCppIterativeSolverFMA::Solve5()
 {
 	_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
 
-	__m256d timeStep;
-	__m256d constantD6;
-
-	timeStep = _mm256_set1_pd(_timeStep);
-	constantD6 = _mm256_set1_pd(1 / 6.0);
-
 	_testTimer.Start(3);
 #pragma omp parallel for num_threads(_numThreads)
 	for (int j = 0; j < _nVariables; j += regSize)
@@ -401,6 +382,8 @@ void StressStrainCppIterativeSolverFMA::Solve5()
 		//float sDDX = _hDDX2[j] + _hDDX3[j];
 		//_varX[j] = _initX[j] + (_initDX[j] + sDDX / 6.0) * _timeStep;
 		//_varDX[j] = _initDX[j] + (_hDDX1[j] + sDDX + sDDX + _varDDX[j] * _timeStep) / 6.0;
+		__m256d timeStep = _mm256_set1_pd(_timeStep);
+		__m256d constantD6 = _mm256_set1_pd(1 / 6.0);
 
 		__m256d Xtmp = _mm256_load_pd(_initX + j);
 		__m256d DXtmp = _mm256_load_pd(_initDX + j);
