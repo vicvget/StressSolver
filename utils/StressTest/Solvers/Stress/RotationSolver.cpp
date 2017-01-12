@@ -177,7 +177,8 @@ namespace Stress
 	void RotationSolver::Solve1()
 	{		
 		InitIteration();
-		for (size_t i = 0; i < _nRVariables; i++)
+//#pragma omp parallel for
+		for (int i = 0; i < _nRVariables; i++)
 			_varR[i] = _initR[i] + _hDR1[i] * 0.5;
 		CalculateRHS(); // k2 = f(t+h/2,y+k1*h/2)
 		// _hDR2 = k2*h
@@ -187,7 +188,8 @@ namespace Stress
 
 	void RotationSolver::Solve2()
 	{
-		for (size_t i = 0; i < _nRVariables; i++)
+//#pragma omp parallel for
+		for (int i = 0; i < _nRVariables; i++)
 			_varR[i] = _initR[i] + _hDR2[i] * 0.5;
 		CalculateRHS(); // k3 = f(t+h/2,y+k2*h/2)
 		// _hDR3 = k3*h
@@ -197,8 +199,8 @@ namespace Stress
 
 	void RotationSolver::Solve3()
 	{
-		
-		for (size_t i = 0; i < _nRVariables; i++)
+//#pragma omp parallel for
+		for (int i = 0; i < _nRVariables; i++)
 			_varR[i] = _initR[i] + _hDR3[i];
 		CalculateRHS();// k4 = f(t+h,y+k3*h)
 		//memcpy(_hDR4, _varDR, sizeof(double)*_nRVariables);
@@ -208,7 +210,8 @@ namespace Stress
 	void RotationSolver::Solve4()
 	{
 		//CalculateRHS();// k4 = f(t+h/2,y+k3*h)
-		for (size_t i = 0; i < _nRVariables; i++)
+//#pragma omp parallel for
+		for (int i = 0; i < _nRVariables; i++)
 		{
 			_varR[i] = _initR[i] + (_hDR1[i] + 2 * (_hDR2[i] + _hDR3[i]) + _varDR[i]) / 6.0;
 			//_varR[i] = _initR[i] + (_hDR1[i] + (_hDR2[i] + _hDR3[i])) / 6.0;
@@ -230,13 +233,15 @@ namespace Stress
 
 	void RotationSolver::CalculateRHS()
 	{
-		for (size_t elementId = 0; elementId < _nElements; elementId++)
+//#pragma omp parallel for
+		for (int elementId = 0; elementId < _nElements; elementId++)
 		{
-			if (!UpdateRHS(elementId))
-			{
-				_isValid = false;
-				break;
-			}
+			UpdateRHS(elementId);
+			//if (!UpdateRHS(elementId))
+			//{
+			//	_isValid = false;
+			//	break;
+			//}
 		}
 	}
 
