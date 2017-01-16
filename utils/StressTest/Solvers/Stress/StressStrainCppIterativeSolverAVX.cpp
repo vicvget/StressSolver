@@ -70,7 +70,7 @@ namespace Stress
 		}
 	}
 
-
+#ifndef DIRECT_INT
 	// AVX-версия
 	void StressStrainCppIterativeSolverAVX::SolveFull(const int nIterations)
 	{
@@ -81,7 +81,7 @@ namespace Stress
 		_testTimer.Start(0);
 
 		__m256d Xtmp, DXtmp, DDXtmp, tmp;
-		__m256d hDDX1, hDDX2, hDDX3, sDDX;
+		__m256d hDDX1, hDDX2, hDDX3, sDDX, hpsDDX1;
 
 #ifndef OMP_SOLVE
 		__m256d timeStep = _mm256_set1_pd(_timeStep);
@@ -198,7 +198,7 @@ namespace Stress
 
 			_testTimer.Start(3);
 #ifdef OMP_SOLVE
-#pragma omp parallel for num_threads(_numThreads) private(Xtmp, DXtmp, DDXtmp, hDDX1, hDDX2, hDDX3, sDDX, tmp)
+#pragma omp parallel for num_threads(_numThreads) private(Xtmp, DXtmp, DDXtmp, hDDX1, hDDX2, hDDX3, sDDX, hpsDDX1, tmp)
 #endif
 			for (int j = 0; j < _nVariables; j += regSize)
 			{
@@ -215,14 +215,17 @@ namespace Stress
 				DXtmp = _mm256_load_pd(_initDX + j);
 				DDXtmp = _mm256_load_pd(_varDDX + j);
 				hDDX1 = _mm256_load_pd(_hDDX1 + j);
+
 				hDDX2 = _mm256_load_pd(_hDDX2 + j);
 				hDDX3 = _mm256_load_pd(_hDDX3 + j);
-
 				sDDX = _mm256_add_pd(hDDX2, hDDX3);
-				tmp = _mm256_add_pd(_mm256_mul_pd(sDDX, constantD6), DXtmp);
+				hpsDDX1 = _mm256_add_pd(hDDX1, sDDX);
+
+				tmp = _mm256_add_pd(_mm256_mul_pd(hpsDDX1, constantD6), DXtmp);
 				tmp = _mm256_add_pd(_mm256_mul_pd(tmp, timeStep), Xtmp);
 				_mm256_store_pd(_varX + j, tmp);
-				tmp = _mm256_add_pd(_mm256_add_pd(hDDX1, sDDX), sDDX);
+
+				tmp = _mm256_add_pd(hpsDDX1, sDDX);
 				tmp = _mm256_add_pd(_mm256_mul_pd(DDXtmp, timeStep), tmp);
 				tmp = _mm256_add_pd(_mm256_mul_pd(tmp, constantD6), DXtmp);
 				_mm256_store_pd(_varDX + j, tmp);
@@ -236,7 +239,7 @@ namespace Stress
 		}
 		_testTimer.Stop(0);
 	}
-
+#endif
 
 	// virtual
 	void StressStrainCppIterativeSolverAVX::InitialSolve()

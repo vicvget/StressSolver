@@ -48,7 +48,8 @@ namespace Stress
 
 	}
 
-	// AVX-версия
+#ifndef DIRECT_INT
+	// FMA-версия
 	void StressStrainCppIterativeSolverFMA::SolveFull(const int nIterations)
 	{
 		_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
@@ -220,7 +221,7 @@ namespace Stress
 		}
 		_testTimer.Stop(0);
 	}
-
+#endif
 
 	void StressStrainCppIterativeSolverFMA::Solve(const int nIterations)
 	{

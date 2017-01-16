@@ -88,18 +88,12 @@ StressStrainCppSolver::StressStrainCppSolver
 		StressStrainSolver(nElements, stride),
 		_isStiffnessOverriden(false),
 		_isFirstSolution(true),
-		//_isFirstIteration(true),
 		_nIteration(0),
 		_poissonRatio(0.),
-		//_stageRK(0),                // этап вычисления итерации РК4 (0-3)
-		//_time(0),					// время
 		_timeStep(timeStep),		// шаг интегрирования
 		_timeStep2(timeStep*0.5),   // половина шага интегрирования
 		_timeStep4(timeStep*0.25),  // четверть шага интегрирования
 		_gridStep(gridStep),		// шаг сетки
-		//_elasticModulus(params[0]),	// модуль упругости
-		//_dampingFactor(params[1]),	// коэффициент демпфирования
-		//_density(params[2]),		// плотность материала
 		_stiffScale(params[3])
 
 {
