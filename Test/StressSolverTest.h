@@ -157,30 +157,30 @@ namespace SpecialSolversTest
 
 
 		void Test();
-		void Test1x1x3(int solverType, ECode code);
-		void Test10x1x3(int solverType, ECode code);
-		void Test10x3x1(int solverType, ECode code);
-		void Test10x3x3(int solverType, ECode code);
-		void Test10x1x1(int solverType, ECode code);
-		void Test10x5x5(int solverType, ECode code);
-		void Test10x5x5_2(int solverType, ECode code);
-		void Test50x5x5(int solverType, ECode code);
-		void Test50x5x5_2(int solverType, ECode code);
-		void Test10x7x7(int solverType, ECode code);
-		void Test1x10x10(int solverType, ECode code);
-		void Test1x100x100a(int solverType, ECode code);
-		void Test1x22x22a(int solverType, ECode code);
-		void Test1x44x44a(int solverType, ECode code);
-		//void Test1x66x66a(int solverType, ECode code);
-		//void Test1x88x88a(int solverType, ECode code);
-		//void Test1x110x110a(int solverType, ECode code);
-		void Test1x11x11(int solverType, ECode code);
-		void Test1x51x51(int solverType, ECode code);
+		//void Test1x1x3(int solverType, ECode code);
+		//void Test10x1x3(int solverType, ECode code);
+		//void Test10x3x1(int solverType, ECode code);
+		//void Test10x3x3(int solverType, ECode code);
+		//void Test10x1x1(int solverType, ECode code);
+		//void Test10x5x5(int solverType, ECode code);
+		//void Test10x5x5_2(int solverType, ECode code);
+		//void Test50x5x5(int solverType, ECode code);
+		//void Test50x5x5_2(int solverType, ECode code);
+		//void Test10x7x7(int solverType, ECode code);
+		//void Test1x10x10(int solverType, ECode code);
+		//void Test1x100x100a(int solverType, ECode code);
+		//void Test1x22x22a(int solverType, ECode code);
+		//void Test1x44x44a(int solverType, ECode code);
+		////void Test1x66x66a(int solverType, ECode code);
+		////void Test1x88x88a(int solverType, ECode code);
+		////void Test1x110x110a(int solverType, ECode code);
+		//void Test1x11x11(int solverType, ECode code);
+		//void Test1x51x51(int solverType, ECode code);
 
-		void Test1x2x10(int solverType, ECode code);
-		void Test2x1x10(int solverType, ECode code);
-		void Test3x3x10(int solverType, ECode code);
-		void Test2x2x5(int solverType,  ECode code);
+		//void Test1x2x10(int solverType, ECode code);
+		//void Test2x1x10(int solverType, ECode code);
+		//void Test3x3x10(int solverType, ECode code);
+		//void Test2x2x5(int solverType,  ECode code);
 		void TestSolveSystemOfLinearEquationsForStiffness();
 
 		void Test1xXxXa(int solverType, float plateSideLength, float plateWidth, int sideElements, int nSubiterations);

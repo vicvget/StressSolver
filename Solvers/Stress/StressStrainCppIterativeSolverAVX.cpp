@@ -1,5 +1,5 @@
 #ifndef USE_KNC
-
+//#define OMP_SOLVE
 #include "StressStrainCppIterativeSolverAVX.h"
 #include "../../AdditionalModules/fmath/Matrix3x3.h"
 #include "../../AdditionalModules/fmath/Matrix3x4.h"
@@ -133,7 +133,7 @@ namespace Stress
 
 			_testTimer.Start(3);
 #ifdef OMP_SOLVE
-#pragma omp parallel for num_threads(_numThreads)  private(Xtmp, DXtmp, DDXtmp, hDDX1, tmp)
+#pragma omp parallel for num_threads(_numThreads)  private(Xtmp, DXtmp, DDXtmp, hDDX1, hDDX2, tmp)
 #endif
 			for (int j = 0; j < _nVariables; j += regSize)
 			{
@@ -573,5 +573,6 @@ namespace Stress
 		_mm256_store_pd(velocityStrains + vecStride, _mm256_sub_pd(x1, x2));
 	}
 }
+//#undef OMP_SOLVE
 
 #endif
