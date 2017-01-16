@@ -39,7 +39,9 @@ namespace Stress
 		virtual	void InitialSolve();
 
 		virtual void Solve(const int nIteratons);
+#ifndef DIRECT_INT
 		virtual	void SolveFull(const int nIteratons);
+#endif
 
 		/**
 		* Расчет первой стадии метода Рунге-Кутты
