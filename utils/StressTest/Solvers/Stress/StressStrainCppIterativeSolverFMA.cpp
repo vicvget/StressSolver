@@ -111,7 +111,7 @@ namespace Stress
 
 			_testTimer.Start(3);
 #ifdef OMP_SOLVE
-#pragma omp parallel for num_threads(_numThreads)  private(Xtmp, DXtmp, DDXtmp, hDDX1, tmp)
+#pragma omp parallel for num_threads(_numThreads)  private(Xtmp, DXtmp, DDXtmp, hDDX1, hDDX2, tmp)
 #endif
 			for (int j = 0; j < _nVariables; j += regSize)
 			{
