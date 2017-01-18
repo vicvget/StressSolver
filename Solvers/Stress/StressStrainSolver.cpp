@@ -72,6 +72,13 @@ StressStrainSolver::StressStrainSolver
 	memset(_dataInternal, 0, dataInternalSize);
 	memset(_elementStressFactorCache, 0, vecStride*_nElements*sizeof(double));
 
+	memset(_velocitySum, 0, 3 * sizeof(double));
+	memset(_velocitySumSingle, 0, 3 * sizeof(double));
+	memset(_velocitySumX, 0, 3 * sizeof(double));
+	memset(_velocitySumY, 0, 3 * sizeof(double));
+	memset(_velocitySumZ, 0, 3 * sizeof(double));
+
+
 	// единичные матрицы поворота
 	for(size_t i = 0; i < _nElements; i++)
 	{
@@ -110,38 +117,38 @@ void StressStrainSolver::SetZeroVelocitiesZ()
 	}
 }
 
-
-bool StressStrainSolver::Check(double* _velocitySum)
+inline bool IsMaxVelocity(double* velocitySum)
 {
-	_velocitySum[2] = _velocitySum[1];
-	_velocitySum[1] = _velocitySum[0];
-	_velocitySum[0] = GetSquareSummOfVelocities();
-	if (_velocitySum[1] > _velocitySum[0] && _velocitySum[1] > _velocitySum[0])
+	if(velocitySum[1] > velocitySum[0] && velocitySum[1] > velocitySum[2]);
 	{
-		_velocitySum[0] = 0;
-		_velocitySum[1] = 0;
-		_velocitySum[2] = 0;
+		memset(velocitySum, 0, 3 * sizeof(double));
 		return true;
 	}
 	return false;
+
+}
+
+inline void ShiftVelocity(double* velocitySum)
+{
+	velocitySum[2] = velocitySum[1];
+	velocitySum[1] = velocitySum[0];
+}
+
+bool StressStrainSolver::Check(double* _velocitySum)
+{
+	ShiftVelocity(_velocitySum);
+	_velocitySum[0] = GetSquareSummOfVelocities();
+	return IsMaxVelocity(_velocitySum);
 }
 
 void StressStrainSolver::CheckVelocitySumm()
 {
-	_velocitySum[2] = _velocitySum[1];
-	_velocitySum[1] = _velocitySum[0];
+	ShiftVelocity(_velocitySum);
+	ShiftVelocity(_velocitySumSingle);
+	ShiftVelocity(_velocitySumX);
+	ShiftVelocity(_velocitySumY);
+	ShiftVelocity(_velocitySumZ);
 
-	_velocitySumSingle[2] = _velocitySumSingle[1];
-	_velocitySumSingle[1] = _velocitySumSingle[0];
-
-	_velocitySumX[2] = _velocitySumX[1];
-	_velocitySumX[1] = _velocitySumX[0];
-	
-	_velocitySumY[2] = _velocitySumY[1];
-	_velocitySumY[1] = _velocitySumY[0];
-	
-	_velocitySumZ[2] = _velocitySumZ[1];
-	_velocitySumZ[1] = _velocitySumZ[0];
 	GetSquareSummOfVelocities();
 
 	//if (_velocitySumSingle[1] > _velocitySumSingle[0] && _velocitySumSingle[1] > _velocitySumSingle[0])
@@ -151,48 +158,10 @@ void StressStrainSolver::CheckVelocitySumm()
 	//	_velocitySumSingle[1] = 0;
 	//	_velocitySumSingle[2] = 0;
 	//}
-	bool modified = false;
-
-	{
-		if (_velocitySumX[1] > _velocitySumX[0] && _velocitySumX[1] > _velocitySumX[0])
-		{
-			//SetZeroVelocitiesX();
-			SetZeroVelocities();
-			_velocitySumX[0] = 0;
-			_velocitySumX[1] = 0;
-			_velocitySumX[2] = 0;
-			modified = true;
-		}
-
-		else if (_velocitySumY[1] > _velocitySumY[0] && _velocitySumY[1] > _velocitySumY[0])
-		{
-			//SetZeroVelocitiesY();
-			SetZeroVelocities();
-			_velocitySumY[0] = 0;
-			_velocitySumY[1] = 0;
-			_velocitySumY[2] = 0;
-			modified = true;
-		}
-
-		else if (_velocitySumZ[1] > _velocitySumZ[0] && _velocitySumZ[1] > _velocitySumZ[0])
-		{
-			//SetZeroVelocitiesZ();
-			SetZeroVelocities();
-			_velocitySumZ[0] = 0;
-			_velocitySumZ[1] = 0;
-			_velocitySumZ[2] = 0;
-			modified = true;
-		}
-	}
-
-	//if (!modified && _velocitySum[1] > _velocitySum[0] && _velocitySum[1] > _velocitySum[0])
-	//{
-	//	SetZeroVelocities();
-	//	_velocitySum[0] = 0;
-	//	_velocitySum[1] = 0;
-	//	_velocitySum[2] = 0;
-	//}
-
+	bool modified = IsMaxVelocity(_velocitySumX);
+	if (!modified) modified = IsMaxVelocity(_velocitySumY);
+	if (!modified) modified = IsMaxVelocity(_velocitySumZ);
+	//if (!modified) modified = IsMaxVelocity(_velocitySum);
 }
 
 double StressStrainSolver::GetSquareSummOfVelocities()

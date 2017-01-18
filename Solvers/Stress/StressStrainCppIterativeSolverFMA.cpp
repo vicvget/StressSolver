@@ -59,7 +59,7 @@ namespace Stress
 		_testTimer.Start(0);
 
 		__m256d Xtmp, DXtmp, DDXtmp, tmp;
-		__m256d hDDX1, hDDX2, hDDX3, sDDX;
+		__m256d hDDX1, hDDX2, hDDX3, sDDX, hpsDDX;
 
 #ifndef OMP_SOLVE
 		__m256d timeStep = _mm256_set1_pd(_timeStep);
@@ -179,7 +179,7 @@ namespace Stress
 
 			_testTimer.Start(3);
 #ifdef OMP_SOLVE
-#pragma omp parallel for num_threads(_numThreads) private(Xtmp, DXtmp, DDXtmp, hDDX1, hDDX2, hDDX3, sDDX, tmp)
+#pragma omp parallel for num_threads(_numThreads) private(Xtmp, DXtmp, DDXtmp, hDDX1, hDDX2, hDDX3, sDDX, hpsDDX, tmp)
 #endif
 			for (int j = 0; j < _nVariables; j += regSize)
 			{
@@ -199,7 +199,8 @@ namespace Stress
 				hDDX3 = _mm256_load_pd(_hDDX3 + j);
 
 				sDDX = _mm256_add_pd(hDDX2, hDDX3);
-				tmp = _mm256_fmadd_pd(sDDX, constantD6, DXtmp);
+				hpsDDX1 = _mm256_add_pd(hDDX1, sDDX);
+				tmp = _mm256_fmadd_pd(hpsDDX1, constantD6, DXtmp);
 				//tmp = _mm256_add_pd(_mm256_mul_pd(sDDX, constant), DXtmp);
 				tmp = _mm256_fmadd_pd(tmp, timeStep, Xtmp);
 				//tmp = _mm256_add_pd(_mm256_mul_pd(tmp, timeStep), Xtmp);
