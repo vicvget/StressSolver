@@ -1,5 +1,5 @@
 #ifndef USE_KNC
-
+//#define OMP_SOLVE
 #include "StressStrainCppIterativeSolverFMA.h"
 #include "../../AdditionalModules/fmath/Matrix3x3.h"
 #include "../../AdditionalModules/fmath/Matrix3x4.h"
@@ -46,6 +46,28 @@ namespace Stress
 	StressStrainCppIterativeSolverFMA::~StressStrainCppIterativeSolverFMA()
 	{
 
+	}
+
+	void StressStrainCppIterativeSolverFMA::Solve(const int nIterations)
+	{
+		SolveFull(nIterations);
+		return;
+
+		_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
+
+		_iterationNumber = 0;
+		_testTimer.Start(0);
+		while (_iterationNumber != nIterations && _rotationSolver->IsValid())
+		{
+			_iterationNumber++;
+			_nIteration++;
+
+			Solve2();
+			Solve3();
+			Solve4();
+			Solve5();
+			CheckVelocitySumm();
+		}
 	}
 
 #ifndef DIRECT_INT
@@ -199,8 +221,8 @@ namespace Stress
 				hDDX3 = _mm256_load_pd(_hDDX3 + j);
 
 				sDDX = _mm256_add_pd(hDDX2, hDDX3);
-				hpsDDX1 = _mm256_add_pd(hDDX1, sDDX);
-				tmp = _mm256_fmadd_pd(hpsDDX1, constantD6, DXtmp);
+				hpsDDX = _mm256_add_pd(hDDX1, sDDX);
+				tmp = _mm256_fmadd_pd(hpsDDX, constantD6, DXtmp);
 				//tmp = _mm256_add_pd(_mm256_mul_pd(sDDX, constant), DXtmp);
 				tmp = _mm256_fmadd_pd(tmp, timeStep, Xtmp);
 				//tmp = _mm256_add_pd(_mm256_mul_pd(tmp, timeStep), Xtmp);
@@ -224,27 +246,6 @@ namespace Stress
 	}
 #endif
 
-	void StressStrainCppIterativeSolverFMA::Solve(const int nIterations)
-	{
-		SolveFull(nIterations);
-		return;
-
-		_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
-
-		_iterationNumber = 0;
-		_testTimer.Start(0);
-		while (_iterationNumber != nIterations && _rotationSolver->IsValid())
-		{
-			_iterationNumber++;
-			_nIteration++;
-
-			Solve2();
-			Solve3();
-			Solve4();
-			Solve5();
-CheckVelocitySumm();
-		}
-	}
 
 	// virtual
 	void StressStrainCppIterativeSolverFMA::InitialSolve()
@@ -496,20 +497,20 @@ CheckVelocitySumm();
 		matA21row3 = _mm256_fmadd_pd(matA01row3, matA02el3, matA21row3);
 		// Матрица A_{21} сформирована
 
-		double*  vc1 = GetRadiusVector(side);
-		__m256d ivecC1 = _mm256_load_pd(vc1);
+		double* rv = GetRadiusVector(side);
+		__m256d ivecC1 = _mm256_load_pd(rv);
 		__m256d vecDP = _mm256_sub_pd(
 			_mm256_load_pd(GetElementShift(nodeId1)),
 			_mm256_load_pd(GetElementShift(nodeId2))); // P1-P2
 
-		matA02el1 = _mm256_set1_pd(vc1[0]);
-		matA02el2 = _mm256_set1_pd(vc1[1]);
-		matA02el3 = _mm256_set1_pd(vc1[2]);
+		matA02el1 = _mm256_set1_pd(rv[0]);
+		matA02el2 = _mm256_set1_pd(rv[1]);
+		matA02el3 = _mm256_set1_pd(rv[2]);
 
-		__m256d
-			res = _mm256_fmadd_pd(matA21row1, matA02el1, ivecC1);
+		__m256d res;
+		res = _mm256_fmadd_pd(matA21row1, matA02el1, ivecC1);
 		res = _mm256_fmadd_pd(matA21row2, matA02el2, res);
-		res = _mm256_fmadd_pd(matA21row2, matA02el2, res);
+		res = _mm256_fmadd_pd(matA21row3, matA02el3, res);
 
 		__declspec(align(32)) double tmp[4];
 		_mm256_store_pd(tmp, vecDP);
@@ -546,7 +547,7 @@ CheckVelocitySumm();
 
 		res = _mm256_fmadd_pd(matA21row1, matA02el1, res);
 		res = _mm256_fmadd_pd(matA21row2, matA02el2, res);
-		res = _mm256_fmadd_pd(matA21row2, matA02el2, res);
+		res = _mm256_fmadd_pd(matA21row3, matA02el3, res);
 
 		_mm256_store_pd(tmp, vecDV);
 		matA02el1 = _mm256_set1_pd(tmp[0]);

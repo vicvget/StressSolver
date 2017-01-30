@@ -72,12 +72,7 @@ StressStrainSolver::StressStrainSolver
 	memset(_dataInternal, 0, dataInternalSize);
 	memset(_elementStressFactorCache, 0, vecStride*_nElements*sizeof(double));
 
-	memset(_velocitySum, 0, 3 * sizeof(double));
-	memset(_velocitySumSingle, 0, 3 * sizeof(double));
-	memset(_velocitySumX, 0, 3 * sizeof(double));
-	memset(_velocitySumY, 0, 3 * sizeof(double));
-	memset(_velocitySumZ, 0, 3 * sizeof(double));
-
+	SetZeroVelocitiesCache();
 
 	// единичные матрицы поворота
 	for(size_t i = 0; i < _nElements; i++)
@@ -86,6 +81,15 @@ StressStrainSolver::StressStrainSolver
 		_dataRotationMtx[i * matStride + vecStride + 1] = 1.;
 		_dataRotationMtx[i * matStride + vecStride2 + 2] = 1.;
 	}
+}
+
+void StressStrainSolver::SetZeroVelocitiesCache()
+{
+	memset(_velocitySum, 0, 3 * sizeof(double));
+	memset(_velocitySumSingle, 0, 3 * sizeof(double));
+	memset(_velocitySumX, 0, 3 * sizeof(double));
+	memset(_velocitySumY, 0, 3 * sizeof(double));
+	memset(_velocitySumZ, 0, 3 * sizeof(double));
 }
 
 void StressStrainSolver::SetZeroVelocities()
@@ -161,7 +165,13 @@ void StressStrainSolver::CheckVelocitySumm()
 	bool modified = IsMaxVelocity(_velocitySumX);
 	if (!modified) modified = IsMaxVelocity(_velocitySumY);
 	if (!modified) modified = IsMaxVelocity(_velocitySumZ);
-	//if (!modified) modified = IsMaxVelocity(_velocitySum);
+	if (!modified) modified = IsMaxVelocity(_velocitySum);
+
+	if (modified) 
+	{
+		SetZeroVelocities();
+		SetZeroVelocitiesCache();
+	}
 }
 
 double StressStrainSolver::GetSquareSummOfVelocities()
