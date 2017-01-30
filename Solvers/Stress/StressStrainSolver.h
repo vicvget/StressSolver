@@ -50,7 +50,7 @@ public:
 			int stride
 		);
 
-
+	void SetZeroVelocitiesCache();
 	void SetZeroVelocities();
 	void SetZeroVelocitiesX();
 	void SetZeroVelocitiesY();

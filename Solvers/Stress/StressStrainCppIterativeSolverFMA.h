@@ -14,8 +14,9 @@ namespace Stress
 	class StressStrainCppIterativeSolverFMA:
 		public StressStrainCppIterativeSolver
 	{
-	public:
 		const int regSize = 4;
+
+	public:
 
 		// создает объект с заданными параметрами
 		StressStrainCppIterativeSolverFMA
