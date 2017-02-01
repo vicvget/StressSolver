@@ -22,8 +22,11 @@ namespace Stress
 		double* _hDR2; // вспомогательные переменные (RK4)
 		double* _hDR3; // вспомогательные переменные (RK4)
 
+// Кэш синусов и косинусов для вычисления через регистры
+#ifdef USE_SVML
 		double* _sincache;
 		double* _coscache;
+#endif
 
 		// матрица для изменения системы кординат отсчета углов при приближении к сингулярности
 		// для выбранной системы углов (x,y,z) при abs(y % pi) близком к pi/2 матрица 
@@ -39,7 +42,7 @@ namespace Stress
 		size_t _matStride;
 
 		bool _isValid;
-
+		int _maxRegSize;
 	public:
 
 		bool IsSingularityAngle(size_t elementId) const;
@@ -64,7 +67,6 @@ namespace Stress
 				double* wPointer,
 				double* mtxPointer
 			);
-		void FillSinCosCaches();
 		~RotationSolver();
 
 	protected:
@@ -87,8 +89,12 @@ namespace Stress
 		double* GetAngles(size_t elementId) const;
 		double* GetDerivatives(size_t elementId) const;
 		double* GetAngularVelocity(size_t elementId) const;
+
+#ifdef USE_SVML
+		void FillSinCosCaches();
 		double* GetCos(size_t elementId) const;
 		double* GetSin(size_t elementId) const;
+#endif
 	};
 
 };

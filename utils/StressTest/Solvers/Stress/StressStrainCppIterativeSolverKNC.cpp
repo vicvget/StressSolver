@@ -233,7 +233,7 @@ namespace Stress
 
 			_testTimer.Start(3);
 #ifdef OMP_SOLVE
-#pragma omp parallel for num_threads(_numThreads) private(Xtmp, DXtmp, DDXtmp, hDDX1, hDDX2, hDDX3, sDDX, tmp)
+#pragma omp parallel for num_threads(_numThreads) private(Xtmp, DXtmp, DDXtmp, hDDX1, hDDX2, hDDX3, sDDX, hpsDDX, tmp)
 #endif
 			for (int j = 0; j < _nVariables; j += regSize)
 			{
@@ -509,11 +509,9 @@ namespace Stress
 		//std::cout << "Loaded matrix col elements" << std::endl << std::flush;
 
 		// matA01.TMul(matA02)
-		matA02el1 = _mm512_mul_pd(matA01row1, matA02el1);
-		matA02el2 = _mm512_mul_pd(matA01row2, matA02el2);
-		matA02el3 = _mm512_mul_pd(matA01row3, matA02el3);
-
-		matA21row1 = _mm512_add_pd(matA02el1, _mm512_add_pd(matA02el2, matA02el3));
+		matA21row1 = _mm512_mul_pd(matA01row1, matA02el1);
+		matA21row1 = _mm512_fmadd_pd(matA01row2, matA02el2, matA21row1);
+		matA21row1 = _mm512_fmadd_pd(matA01row3, matA02el3, matA21row1);
 
 		//std::cout << "Multiply add" << std::endl << std::flush;
 
@@ -523,11 +521,9 @@ namespace Stress
 		matA02el3 = _mm512_set1_pd(pmatA02[vecStride2 + 1]);
 
 		// matA01.TMul(matA02)
-		matA02el1 = _mm512_mul_pd(matA01row1, matA02el1);
-		matA02el2 = _mm512_mul_pd(matA01row2, matA02el2);
-		matA02el3 = _mm512_mul_pd(matA01row3, matA02el3);
-
-		matA21row2 = _mm512_add_pd(matA02el1, _mm512_add_pd(matA02el2, matA02el3));
+		matA21row2 = _mm512_mul_pd(matA01row1, matA02el1);
+		matA21row2 = _mm512_fmadd_pd(matA01row2, matA02el2, matA21row2);
+		matA21row2 = _mm512_fmadd_pd(matA01row3, matA02el3, matA21row2);
 
 		// matA02 column 3/3
 		matA02el1 = _mm512_set1_pd(pmatA02[2]);
@@ -535,50 +531,35 @@ namespace Stress
 		matA02el3 = _mm512_set1_pd(pmatA02[vecStride2 + 2]);
 
 		// matA01.TMul(matA02)
-		matA02el1 = _mm512_mul_pd(matA01row1, matA02el1);
-		matA02el2 = _mm512_mul_pd(matA01row2, matA02el2);
-		matA02el3 = _mm512_mul_pd(matA01row3, matA02el3);
+		matA21row3 = _mm512_mul_pd(matA01row1, matA02el1);
+		matA21row3 = _mm512_fmadd_pd(matA01row2, matA02el2, matA21row3);
+		matA21row3 = _mm512_fmadd_pd(matA01row3, matA02el3, matA21row3);
 
-		matA21row3 = _mm512_add_pd(matA02el1, _mm512_add_pd(matA02el2, matA02el3));
 		// Матрица A_{21} сформирована
-
-		//std::cout << "Multiply add completed" << std::endl << std::flush;
 
 		double* vecC1 = GetRadiusVector(side);
 		__m512d ivecC1 = _mm512_loadu_pd(vecC1);
 		__m512d vecDP = _mm512_sub_pd(
 			_mm512_load_pd(GetElementShift(nodeId1)),
 			_mm512_load_pd(GetElementShift(nodeId2))); // P1-P2
-		//std::cout << "Radius vector loaded" << std::endl << std::flush;
-
-
-		//__declspec(align(64)) double tmp[8]
-		//double tmp[8]  __attribute__((aligned(64)));
-		double* tmp = _buffer;
-		_mm512_store_pd(tmp, ivecC1);
-		//std::cout << "Stored to tmp" << std::endl << std::flush;
 
 		matA02el1 = _mm512_set1_pd(vecC1[0]);
 		matA02el2 = _mm512_set1_pd(vecC1[1]);
 		matA02el3 = _mm512_set1_pd(vecC1[2]);
 
-		matA02el1 = _mm512_mul_pd(matA21row1, matA02el1);
-		matA02el2 = _mm512_mul_pd(matA21row2, matA02el2);
-		matA02el3 = _mm512_mul_pd(matA21row3, matA02el3);
+		__m512d res;
+		res = _mm512_fmadd_pd(matA21row1, matA02el1, ivecC1);
+		res = _mm512_fmadd_pd(matA21row2, matA02el2, res);
+		res = _mm512_fmadd_pd(matA21row3, matA02el3, res);
 
-		__m512d mul1 = _mm512_add_pd(_mm512_add_pd(matA02el1, matA02el2), matA02el3);
-
+		__declspec(align(64)) double tmp[8] = { 0 };
 		_mm512_store_pd(tmp, vecDP);
 		matA02el1 = _mm512_set1_pd(tmp[0]);
 		matA02el2 = _mm512_set1_pd(tmp[1]);
-		matA02el3 = _mm512_set1_pd(tmp[2]);
 
-		matA02el1 = _mm512_mul_pd(matA01row1, matA02el1);
-		matA02el2 = _mm512_mul_pd(matA01row2, matA02el2);
-		matA02el3 = _mm512_mul_pd(matA01row3, matA02el3);
-
-		__m512d mul2 = _mm512_add_pd(_mm512_add_pd(matA02el1, matA02el2), matA02el3);
-		__m512d res = _mm512_add_pd(_mm512_add_pd(ivecC1, mul1), mul2);
+		res = _mm512_fmadd_pd(matA01row1, matA02el1, res);
+		res = _mm512_fmadd_pd(matA01row2, matA02el2, res);
+		res = _mm512_fmadd_pd(matA01row3, matA02el3, res);
 
 		_mm512_store_pd(shiftStrains, res); // получено SL, линейные компоненты
 
@@ -588,17 +569,13 @@ namespace Stress
 		// vecC2 = -vecC1
 		// vecC2.Cross(vecW1) = -vecC1.Cross(vecW1)
 
-		//__declspec(align(64)) double cp1[8];
-		//__declspec(align(64)) double cp2[8];
+		__declspec(align(64)) double cp1[8] = { 0 };
+		__declspec(align(64)) double cp2[8] = { 0 };
 
-		//double cp1[8] __attribute__((aligned(64)));
-		//double cp2[8] __attribute__((aligned(64)));
-		double* cp1 = _buffer + 8;
-		double* cp2 = _buffer + 16;
 		CrossProduct(GetElementVelocityAngular(nodeId1), GetRadiusVector(side), cp1);	// [w1 x c1]
 		CrossProduct(GetElementVelocityAngular(nodeId2), GetRadiusVector(side), cp2);	// -[w2 x c2] = [w2 x c1]
 
-		__m512d cp1r = _mm512_load_pd(&cp1[0]);
+		res = _mm512_load_pd(&cp1[0]);
 		__m512d vecDV = _mm512_sub_pd(
 			_mm512_load_pd(GetElementVelocity(nodeId1)),
 			_mm512_load_pd(GetElementVelocity(nodeId2))); // V1-V2
@@ -607,24 +584,18 @@ namespace Stress
 		matA02el2 = _mm512_set1_pd(cp2[1]);
 		matA02el3 = _mm512_set1_pd(cp2[2]);
 
-		matA02el1 = _mm512_mul_pd(matA21row1, matA02el1);
-		matA02el2 = _mm512_mul_pd(matA21row2, matA02el2);
-		matA02el3 = _mm512_mul_pd(matA21row3, matA02el3);
-
-		mul1 = _mm512_add_pd(_mm512_add_pd(matA02el1, matA02el2), matA02el3);
+		res = _mm512_fmadd_pd(matA21row1, matA02el1, res);
+		res = _mm512_fmadd_pd(matA21row2, matA02el2, res);
+		res = _mm512_fmadd_pd(matA21row3, matA02el3, res);
 
 		_mm512_store_pd(tmp, vecDV);
 		matA02el1 = _mm512_set1_pd(tmp[0]);
 		matA02el2 = _mm512_set1_pd(tmp[1]);
 		matA02el3 = _mm512_set1_pd(tmp[2]);
 
-		matA02el1 = _mm512_mul_pd(matA01row1, matA02el1);
-		matA02el2 = _mm512_mul_pd(matA01row2, matA02el2);
-		matA02el3 = _mm512_mul_pd(matA01row3, matA02el3);
-
-		mul2 = _mm512_add_pd(_mm512_add_pd(matA02el1, matA02el2), matA02el3);
-
-		res = _mm512_add_pd(_mm512_add_pd(cp1r, mul1), mul2);
+		res = _mm512_fmadd_pd(matA01row1, matA02el1, res);
+		res = _mm512_fmadd_pd(matA01row2, matA02el2, res);
+		res = _mm512_fmadd_pd(matA01row3, matA02el3, res);
 
 		_mm512_store_pd(velocityStrains, res); // получено VL, линейные компоненты
 
