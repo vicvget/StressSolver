@@ -121,10 +121,8 @@ namespace Stress
 				hDDX1 = _mm256_mul_pd(DDXtmp, timeStep);
 				_mm256_store_pd(_hDDX1 + j, hDDX1);
 				tmp = _mm256_fmadd_pd(DXtmp, timeStep2, Xtmp);
-				//tmp = _mm256_add_pd(_mm256_mul_pd(DXtmp, timeStep2), Xtmp);
 				_mm256_store_pd(_varX + j, tmp);
 				tmp = _mm256_fmadd_pd(hDDX1, constantD2, DXtmp);
-				//tmp = _mm256_add_pd(_mm256_mul_pd(hDDX1, constant), DXtmp);
 				_mm256_store_pd(_varDX + j, tmp);
 			}
 			_testTimer.Stop(3);
@@ -155,10 +153,8 @@ namespace Stress
 				hDDX2 = _mm256_mul_pd(DDXtmp, timeStep);
 				_mm256_store_pd(_hDDX2 + j, hDDX2);
 				tmp = _mm256_fmadd_pd(hDDX1, timeStep4, Xtmp);
-				//tmp = _mm256_add_pd(_mm256_mul_pd(hDDX1, timeStep4), Xtmp);
 				_mm256_store_pd(_varX + j, tmp);
 				tmp = _mm256_fmadd_pd(hDDX2, constantD2, DXtmp);
-				//tmp = _mm256_add_pd(_mm256_mul_pd(hDDX2, constant), DXtmp);
 				_mm256_store_pd(_varDX + j, tmp);
 			}
 			_testTimer.Stop(3);
@@ -188,9 +184,7 @@ namespace Stress
 				hDDX3 = _mm256_mul_pd(DDXtmp, timeStep);
 				_mm256_store_pd(_hDDX3 + j, hDDX3);
 				tmp = _mm256_fmadd_pd(hDDX2, constantD2, DXtmp);
-				//tmp = _mm256_add_pd(_mm256_mul_pd(hDDX2, constant), DXtmp);
 				tmp = _mm256_fmadd_pd(tmp, timeStep, Xtmp);
-				//tmp = _mm256_add_pd(_mm256_mul_pd(tmp, timeStep), Xtmp);
 				_mm256_store_pd(_varX + j, tmp);
 				_mm256_store_pd(_varDX + j, _mm256_add_pd(DXtmp, hDDX3));
 			}
@@ -223,15 +217,11 @@ namespace Stress
 				sDDX = _mm256_add_pd(hDDX2, hDDX3);
 				hpsDDX = _mm256_add_pd(hDDX1, sDDX);
 				tmp = _mm256_fmadd_pd(hpsDDX, constantD6, DXtmp);
-				//tmp = _mm256_add_pd(_mm256_mul_pd(sDDX, constant), DXtmp);
 				tmp = _mm256_fmadd_pd(tmp, timeStep, Xtmp);
-				//tmp = _mm256_add_pd(_mm256_mul_pd(tmp, timeStep), Xtmp);
 				_mm256_store_pd(_varX + j, tmp);
 				tmp = _mm256_add_pd(_mm256_add_pd(hDDX1, sDDX), sDDX);
 				tmp = _mm256_fmadd_pd(DDXtmp, timeStep, tmp);
-				//tmp = _mm256_add_pd(_mm256_mul_pd(DDXtmp, timeStep), tmp);
 				tmp = _mm256_fmadd_pd(tmp, constantD6, DXtmp);
-				//tmp = _mm256_add_pd(_mm256_mul_pd(tmp, constant), DXtmp);
 				_mm256_store_pd(_varDX + j, tmp);
 			}
 			_testTimer.Stop(3);
@@ -298,10 +288,8 @@ namespace Stress
 			__m256d hDDX1 = _mm256_mul_pd(DDXtmp, timeStep);
 			_mm256_store_pd(_hDDX1 + j, hDDX1);
 			__m256d tmp = _mm256_fmadd_pd(DXtmp, timeStep2, Xtmp);
-			//tmp = _mm256_add_pd(_mm256_mul_pd(DXtmp, timeStep2), Xtmp);
 			_mm256_store_pd(_varX + j, tmp);
 			tmp = _mm256_fmadd_pd(hDDX1, constantD2, DXtmp);
-			//tmp = _mm256_add_pd(_mm256_mul_pd(hDDX1, constant), DXtmp);
 			_mm256_store_pd(_varDX + j, tmp);
 		}
 		_testTimer.Stop(3);
@@ -340,10 +328,8 @@ namespace Stress
 
 			_mm256_store_pd(_hDDX2 + j, hDDX2);
 			__m256d tmp = _mm256_fmadd_pd(hDDX1, timeStep4, Xtmp);
-			//tmp = _mm256_add_pd(_mm256_mul_pd(hDDX1, timeStep4), Xtmp);
 			_mm256_store_pd(_varX + j, tmp);
 			tmp = _mm256_fmadd_pd(hDDX2, constantD2, DXtmp);
-			//tmp = _mm256_add_pd(_mm256_mul_pd(hDDX2, constant), DXtmp);
 			_mm256_store_pd(_varDX + j, tmp);
 		}
 		_testTimer.Stop(3);
@@ -381,9 +367,7 @@ namespace Stress
 			__m256d hDDX3 = _mm256_mul_pd(DDXtmp, timeStep);
 			_mm256_store_pd(_hDDX3 + j, hDDX3);
 			__m256d tmp = _mm256_fmadd_pd(hDDX2, constantD2, DXtmp);
-			//tmp = _mm256_add_pd(_mm256_mul_pd(hDDX2, constant), DXtmp);
 			tmp = _mm256_fmadd_pd(tmp, timeStep, Xtmp);
-			//tmp = _mm256_add_pd(_mm256_mul_pd(tmp, timeStep), Xtmp);
 			_mm256_store_pd(_varX + j, tmp);
 			_mm256_store_pd(_varDX + j, _mm256_add_pd(DXtmp, hDDX3));
 		}
@@ -421,16 +405,13 @@ namespace Stress
 			__m256d hDDX3 = _mm256_load_pd(_hDDX3 + j);
 
 			__m256d sDDX = _mm256_add_pd(hDDX2, hDDX3);
-			__m256d tmp = _mm256_fmadd_pd(sDDX, constantD6, DXtmp);
-			//tmp = _mm256_add_pd(_mm256_mul_pd(sDDX, constant), DXtmp);
+			__m256d hpsDDX = _mm256_add_pd(hDDX1, sDDX);
+			__m256d tmp = _mm256_fmadd_pd(hpsDDX, constantD6, DXtmp);
 			tmp = _mm256_fmadd_pd(tmp, timeStep, Xtmp);
-			//tmp = _mm256_add_pd(_mm256_mul_pd(tmp, timeStep), Xtmp);
 			_mm256_store_pd(_varX + j, tmp);
 			tmp = _mm256_add_pd(_mm256_add_pd(hDDX1, sDDX), sDDX);
 			tmp = _mm256_fmadd_pd(DDXtmp, timeStep, tmp);
-			//tmp = _mm256_add_pd(_mm256_mul_pd(DDXtmp, timeStep), tmp);
 			tmp = _mm256_fmadd_pd(tmp, constantD6, DXtmp);
-			//tmp = _mm256_add_pd(_mm256_mul_pd(tmp, constant), DXtmp);
 			_mm256_store_pd(_varDX + j, tmp);
 		}
 		_testTimer.Stop(3);
