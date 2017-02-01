@@ -133,36 +133,37 @@ namespace Stress
 #ifdef OMP_SOLVE
 #pragma omp parallel for
 #endif
-		for (int elementId = 0; elementId < _nRVariables; elementId += _maxRegSize)
+		for (int id = 0; id < _nRVariables; id += _maxRegSize)
 		{
-			__m512d args = _mm512_load_pd(GetAngles(elementId));
+			__m512d args = _mm512_load_pd(_varR + id);
 			__m512d sins = _mm512_sin_pd(args);
 			__m512d coss = _mm512_cos_pd(args);
-			_mm512_store_pd(_sincache + elementId * _maxRegSize, sins);
-			_mm512_store_pd(_coscache + elementId * _maxRegSize, coss);
+			_mm512_store_pd(_sincache + id, sins);
+			_mm512_store_pd(_coscache + id, coss);
 		}
 #else
 #ifdef OMP_SOLVE
 #pragma omp parallel for
 #endif
-		for (int elementId = 0; elementId < _nRVariables; elementId += _vecStride)
+		for (int id = 0; id < _nRVariables; id += _vecStride)
 		{
-			__m256d args = _mm256_load_pd(GetAngles(elementId));
+			__m256d args = _mm256_load_pd(_varR + id);
 			__m256d sins = _mm256_sin_pd(args);
 			__m256d coss = _mm256_cos_pd(args);
-			_mm256_store_pd(_sincache + elementId * _vecStride, sins);
-			_mm256_store_pd(_coscache + elementId * _vecStride, coss);
+			_mm256_store_pd(_sincache + id, sins);
+			_mm256_store_pd(_coscache + id, coss);
 		}
 #endif
-		for (int elementId = 0; elementId < _nRVariables; elementId += _vecStride)
-		{
-			double* arg = GetAngles(elementId);
-			for (int i = 0; i < 3; i++)
-			{
-				GetSin(elementId)[i] = sin(arg[i]);
-				GetCos(elementId)[i] = cos(arg[i]);
-			}
-		}
+		//for (int elementId = 0; elementId < _nElements; elementId ++)
+		//{
+  //          std::cout << elementId << std::endl;
+		//	for (int i = 0; i < 3; i++)
+		//	{
+		//		std::cout << "sin: " << sin(GetAngles(elementId)[i]) << ' ' << GetSin(elementId)[i] << ' ';
+		//		std::cout << "cos: " << cos(GetAngles(elementId)[i]) << ' ' << GetCos(elementId)[i] << ' ';
+		//	}
+  //          std::cout << std::endl;
+		//}
 	}
 #endif
 	RotationSolver::~RotationSolver()
@@ -325,7 +326,7 @@ namespace Stress
 		double tanY = GetSin(elementId)[1]/GetCos(elementId)[1];
 		double sinZ = GetSin(elementId)[2];
 		double cosZ = GetCos(elementId)[2];
-		std::cout << "tanY=" << tan(angles[1]) << " intr: " << tanY << std::endl;
+		//std::cout << "tanY=" << tan(angles[1]) << " intr: " << tanY << std::endl;
 #else
 		double cosY = cos(angles[1]);
 		double tanY = tan(angles[1]);
@@ -370,12 +371,12 @@ namespace Stress
 		if (_vecStride == 4)
 		{
 			Mat3x4 rframe(rframeMtx);
-//#ifdef USE_SVML
-//			Mat3x4 newMtx = Mat3x4::MakeXYZRotationMtx01(GetSin(elementId), GetCos(elementId));
-//#else
-//			Mat3x4 newMtx = Mat3x4::MakeXYZRotationMtx01(GetAngles(elementId));
-//#endif
+#ifdef USE_SVML
+			Mat3x4 newMtx = Mat3x4::MakeXYZRotationMtx01(GetSin(elementId), GetCos(elementId));
+#else
 			Mat3x4 newMtx = Mat3x4::MakeXYZRotationMtx01(GetAngles(elementId));
+#endif
+			//Mat3x4 newMtx = Mat3x4::MakeXYZRotationMtx01(GetAngles(elementId));
 			(rframe*newMtx).Export(rotationMtx);
 		}
 		else
