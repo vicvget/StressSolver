@@ -1,4 +1,3 @@
-//#ifdef USE_KNC
 #pragma once
 
 #include "StressStrainCppIterativeSolver.h"
@@ -12,28 +11,21 @@ using std::vector;
 namespace Stress
 {
 
-	class StressStrainCppIterativeSolverKNC
-		:
+	class StressStrainCppIterativeSolverKNC:
 		public StressStrainCppIterativeSolver
 	{
-		//__m512d timeStep;
-		//__m512d timeStep2;
-		//__m512d timeStep4;
-		//__m512d constantD2;
-		//__m512d constantD6;
 		const int regSize = 8;
 
 	public:
 
-		//virtual void CalculateStrains(size_t side, double* shiftStrains, double* velocityStrains, size_t nodeId1, size_t nodeId2) const;
 		// создает объект с заданными параметрами
 		StressStrainCppIterativeSolverKNC
 			(
 			double* params,
 			int* links,
 			int nLinks,
-			double *nodes,
-			int nNodes,
+			double *coordinates,
+			int nElements,
 			double gridStep,
 			double timeStep,
 			int numThreads,
@@ -82,12 +74,13 @@ namespace Stress
 		virtual
 			void Solve5();
 
+#ifndef DIRECT_RHS
 		virtual
 			void CalculateStrains(size_t side, double* shiftStrains, double* velocityStrains, size_t nodeId1, size_t nodeId2) const;
+#endif
 
 #pragma endregion
 
 		double df[12]; // debug
 	};
 }
-//#endif
