@@ -1,3 +1,5 @@
+//#define USE_SVML
+
 #include <cstring>
 #include <immintrin.h>
 
@@ -52,6 +54,7 @@ namespace Stress
 	{
 		return _wPointer + elementId * _vecStride2;
 	}
+#ifdef USE_SVML
 
 	double* RotationSolver::GetCos(size_t elementId) const
 	{
@@ -62,7 +65,7 @@ namespace Stress
 	{
 		return _sincache + elementId * _vecStride;
 	}
-
+#endif
 	bool RotationSolver::IsSingularityAngle(size_t elementId) const
 	{
 		double angle = GetAngles(elementId)[1];
@@ -94,9 +97,9 @@ namespace Stress
 	{
 		_nRVariables = nElements*_vecStride;
 		
-		const size_t maxRegSize = 8; // KNC - 8 doubles
-		size_t matCount = ((nElements*_matStride + maxRegSize - 1) / maxRegSize) * maxRegSize;
-		size_t varCount = ((nElements*_vecStride + maxRegSize - 1) / maxRegSize) * maxRegSize;
+		_maxRegSize = 8;
+		size_t matCount = ((nElements*_matStride + _maxRegSize - 1) / _maxRegSize) * _maxRegSize;
+		size_t varCount = ((nElements*_vecStride + _maxRegSize - 1) / _maxRegSize) * _maxRegSize;
 		size_t matSize = matCount*sizeof(double);
 		size_t varSize = varCount*sizeof(double);
 
@@ -107,9 +110,10 @@ namespace Stress
 		_varR = (double*)aligned_alloc(varSize, ALIGNMENT);
 		_initR = (double*)aligned_alloc(varSize, ALIGNMENT);
 		
+#ifdef USE_SVML
 		_sincache = (double*)aligned_alloc(varSize, ALIGNMENT);
 		_coscache = (double*)aligned_alloc(varSize, ALIGNMENT);
-
+#endif
 		_rframeMtx = (double*)aligned_alloc(matSize, ALIGNMENT);
 		
 		memset(_varR, 0, varSize);
@@ -122,9 +126,25 @@ namespace Stress
 		// если изначально были не нулевые повороты, то будут не единичные матрицы
 		memcpy(_rframeMtx, mtxPointer, matSize);
 	}
-#ifdef INTEL_AVX
+#ifdef USE_SVML
 	void RotationSolver::FillSinCosCaches()
 	{
+#ifdef USE_KNC
+#ifdef OMP_SOLVE
+#pragma omp parallel for
+#endif
+		for (int elementId = 0; elementId < _nRVariables; elementId += _maxRegSize)
+		{
+			__m512d args = _mm512_load_pd(GetAngles(elementId));
+			__m512d sins = _mm512_sin_pd(args);
+			__m512d coss = _mm512_cos_pd(args);
+			_mm512_store_pd(_sincache + elementId * _maxRegSize, sins);
+			_mm512_store_pd(_coscache + elementId * _maxRegSize, coss);
+		}
+#else
+#ifdef OMP_SOLVE
+#pragma omp parallel for
+#endif
 		for (int elementId = 0; elementId < _nRVariables; elementId += _vecStride)
 		{
 			__m256d args = _mm256_load_pd(GetAngles(elementId));
@@ -132,6 +152,16 @@ namespace Stress
 			__m256d coss = _mm256_cos_pd(args);
 			_mm256_store_pd(_sincache + elementId * _vecStride, sins);
 			_mm256_store_pd(_coscache + elementId * _vecStride, coss);
+		}
+#endif
+		for (int elementId = 0; elementId < _nRVariables; elementId += _vecStride)
+		{
+			double* arg = GetAngles(elementId);
+			for (int i = 0; i < 3; i++)
+			{
+				GetSin(elementId)[i] = sin(arg[i]);
+				GetCos(elementId)[i] = cos(arg[i]);
+			}
 		}
 	}
 #endif
@@ -144,8 +174,10 @@ namespace Stress
 		aligned_free(_hDR2);
 		aligned_free(_hDR3);
 		aligned_free(_rframeMtx);
+#ifdef USE_SVML
 		aligned_free(_coscache);
 		aligned_free(_sincache);
+#endif
 	}
 
 	void RotationSolver::MakeZeroVectors(size_t elementId) const
@@ -157,8 +189,10 @@ namespace Stress
 		memset(_hDR3 + offset, 0, sizeof(double) * _vecStride);
 		memset(_varR + offset, 0, sizeof(double) * _vecStride);
 		memset(_initR + offset, 0, sizeof(double) * _vecStride);
+#ifdef USE_SVML
 		memset(_coscache + offset, 0, sizeof(double) * _vecStride);
 		memset(_sincache + offset, 1, sizeof(double) * _vecStride);
+#endif
 	}
 
 	void RotationSolver::InitialSolve()
@@ -241,6 +275,9 @@ namespace Stress
 
 	void RotationSolver::CalculateRHS()
 	{
+#ifdef USE_SVML
+		FillSinCosCaches();
+#endif
 #ifdef OMP_SOLVE
 #pragma omp parallel for
 #endif
@@ -260,16 +297,35 @@ namespace Stress
 		double* angles = GetAngles(elementId);
 		double* elementW = GetAngularVelocity(elementId);
 
-#ifdef INTEL_AVX
-		__m256d args = _mm256_load_pd(angles);
-		__m256d sins = _mm256_sin_pd(args);
-		__m256d coss = _mm256_cos_pd(args);
-		_mm256_store_pd(_sincache + elementId * _vecStride, sins);
-		_mm256_store_pd(_coscache + elementId * _vecStride, coss);
+#ifdef USE_SVML
+//#ifdef USE_KNC
+//		if (elementId % 2 == 0)
+//		{
+//			__m512d args = _mm512_load_pd(angles);
+//			__m512d sins = _mm512_sin_pd(args);
+//			__m512d coss = _mm512_cos_pd(args);
+//			_mm512_store_pd(_sincache + elementId * _vecStride, sins);
+//			_mm512_store_pd(_coscache + elementId * _vecStride, coss);
+//		}
+//#else
+//		__m256d args = _mm256_load_pd(angles);
+//		__m256d sins = _mm256_sin_pd(args);
+//		__m256d coss = _mm256_cos_pd(args);
+//		_mm256_store_pd(_sincache + elementId * _vecStride, sins);
+//		_mm256_store_pd(_coscache + elementId * _vecStride, coss);
+//#endif
+
+		//__m256d args = _mm256_load_pd(angles);
+		//__m256d sins = _mm256_sin_pd(args);
+		//__m256d coss = _mm256_cos_pd(args);
+		//_mm256_store_pd(_sincache + elementId * _vecStride, sins);
+		//_mm256_store_pd(_coscache + elementId * _vecStride, coss);
+
 		double cosY = GetCos(elementId)[1];
 		double tanY = GetSin(elementId)[1]/GetCos(elementId)[1];
 		double sinZ = GetSin(elementId)[2];
 		double cosZ = GetCos(elementId)[2];
+		std::cout << "tanY=" << tan(angles[1]) << " intr: " << tanY << std::endl;
 #else
 		double cosY = cos(angles[1]);
 		double tanY = tan(angles[1]);
@@ -314,11 +370,12 @@ namespace Stress
 		if (_vecStride == 4)
 		{
 			Mat3x4 rframe(rframeMtx);
-#ifdef INTEL_AVX
-			Mat3x4 newMtx = Mat3x4::MakeXYZRotationMtx01(GetSin(elementId), GetCos(elementId));
-#else
+//#ifdef USE_SVML
+//			Mat3x4 newMtx = Mat3x4::MakeXYZRotationMtx01(GetSin(elementId), GetCos(elementId));
+//#else
+//			Mat3x4 newMtx = Mat3x4::MakeXYZRotationMtx01(GetAngles(elementId));
+//#endif
 			Mat3x4 newMtx = Mat3x4::MakeXYZRotationMtx01(GetAngles(elementId));
-#endif
 			(rframe*newMtx).Export(rotationMtx);
 		}
 		else
