@@ -1,8 +1,14 @@
 #include "StressStrainSolverExports.h"
 #include "StressStrainCppIterativeSolver.h"
 
-#ifdef USE_KNC
+#ifdef USE_KNL
+#include "StressStrainCppIterativeSolverAVX.h"
+#include "StressStrainCppIterativeSolverFMA.h"
 #include "StressStrainCppIterativeSolverKNC.h"
+#include "StressStrainCppIterativeSolverKNC2.h"
+#elif defined(USE_KNC)
+#include "StressStrainCppIterativeSolverKNC.h"
+#include "StressStrainCppIterativeSolverKNC2.h"
 #else
 #include "StressStrainCppIterativeSolverAVX.h"
 #include "StressStrainCppIterativeSolverFMA.h"
@@ -86,7 +92,8 @@ namespace Stress
 				4
 			);
 			break;
-#else
+#endif
+#if defined(USE_KNC) || defined(USE_KNL)
 		case 3:
 			hsolver = new StressStrainCppIterativeSolverKNC
 			(
@@ -101,8 +108,22 @@ namespace Stress
 				4
 			);
 			break;
+		case 5:
+			hsolver = new StressStrainCppIterativeSolverKNC2
+			(
+				params,
+				links,
+				nLinks,
+				gridElements,
+				nElements,
+				gridStep,
+				timeStep,
+				numThreads,
+				4
+			);
+			break;
 #endif
-		case 4:
+		case 4: // unaligned
 			hsolver = new StressStrainCppIterativeSolver
 				(
 				params,
@@ -117,7 +138,7 @@ namespace Stress
 				);
 			break;
 		default:
-			std::cout << "Unsupported solver type " << std::endl;
+			std::cout << "ERROR: Unsupported solver type " << solverType << std::endl;
 		}
 		if (hsolver)
 			hsolver->SetUid(solverUid);

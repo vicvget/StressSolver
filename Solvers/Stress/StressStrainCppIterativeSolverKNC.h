@@ -83,4 +83,14 @@ namespace Stress
 
 		double df[12]; // debug
 	};
+#ifdef USE_KNC
+	inline __m512d _mm512_loadu_pd(const double* a)
+	{
+		__m512d v_temp = _mm512_setzero_pd();
+		v_temp = _mm512_loadunpacklo_pd(v_temp, &a[0]);
+		v_temp = _mm512_loadunpackhi_pd(v_temp, &a[8]);
+
+		return v_temp;
+	}
+#endif
 }
