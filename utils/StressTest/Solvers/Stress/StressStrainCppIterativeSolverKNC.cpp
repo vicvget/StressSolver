@@ -1,5 +1,3 @@
-//#define USE_KNC
-
 #include "StressStrainCppIterativeSolverKNC.h"
 #include "../../AdditionalModules/fmath/Matrix3x3.h"
 #include "../../AdditionalModules/fmath/Matrix3x4.h"
@@ -10,43 +8,8 @@ using MathHelpers::MakeVec3;
 using MathHelpers::Mat3;
 using MathHelpers::Mat3x4;
 
-
-//__m512i izmm00 = _mm512_load_epi64(pmtx);    //A2A1
-//__m512i izmm01 = _mm512_load_epi64(pmtx+8);	 //B1A3
-//__m512i izmm02 = _mm512_load_epi64(pmtx+16); //B3B2
-//__m512i izmm03 = _mm512_alignr_epi32(izmm00, izmm01, 8); //A1B1
-//__m512i izmm04 = _mm512_alignr_epi32(izmm01, izmm02, 8); //A3B3
-//
-//__m512d zmm00 = (__m512d)_mm512_alignr_epi32(izmm03, izmm03, 8); //B1A1
-//__m512d zmm01 = (__m512d)_mm512_alignr_epi32(izmm02, izmm00, 8); //B2A2
-//__m512d zmm02 = (__m512d)_mm512_alignr_epi32(izmm04, izmm04, 8); //B3A3
-//
-////¬место D1C1,D2C2,D3C3
-////нам надо получить —1B1,C2B2,C3B3
-//
-//izmm03 = _mm512_load_epi64(pmtr);    //C2C1
-//izmm04 = _mm512_load_epi64(pmtr+8);  //D1C3 // D1 не используетс€
-//izmm05 = _mm512_alignr_epi32(izmm02, izmm03, 8); //B2C2
-//
-//zmm03 = (__m512d)_mm512_alignr_epi32(izmm03, izmm01, 8); //C1B1
-//zmm04 = (__m512d)_mm512_alignr_epi32(izmm02, izmm02, 8); //C2B2
-//zmm05 = (__m512d)_mm512_alignr_epi32(izmm04, izmm02, 8); //C3B3
-//
-//// остальна€ часть кода така€ же
-
 namespace Stress
 {
-#ifdef USE_KNC
-	inline __m512d _mm512_loadu_pd(const double* a)
-	{
-		__m512d v_temp = _mm512_setzero_pd();
-		v_temp = _mm512_loadunpacklo_pd(v_temp, &a[0]);
-		v_temp = _mm512_loadunpackhi_pd(v_temp, &a[8]);
-
-		return v_temp;
-	}
-#endif
-
 
 	StressStrainCppIterativeSolverKNC::StressStrainCppIterativeSolverKNC
 	(
@@ -112,7 +75,7 @@ namespace Stress
 	// KNC-верси€
 	void StressStrainCppIterativeSolverKNC::SolveFull(const int nIterations)
 	{
-#ifdef USE_KNC
+#if defined(USE_KNC) || defined(USE_KNL)
 
 		_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
 
@@ -300,7 +263,7 @@ namespace Stress
 	// virtual
 	void StressStrainCppIterativeSolverKNC::Solve2()
 	{
-#ifdef USE_KNC
+#if defined(USE_KNC) || defined(USE_KNL)
 
 		_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
 
@@ -343,7 +306,7 @@ namespace Stress
 	// virtual
 	void StressStrainCppIterativeSolverKNC::Solve3()
 	{
-#ifdef USE_KNC
+#if defined(USE_KNC) || defined(USE_KNL)
 
 		_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
 
@@ -384,7 +347,7 @@ namespace Stress
 	// virtual
 	void StressStrainCppIterativeSolverKNC::Solve4()
 	{
-#ifdef USE_KNC
+#if defined(USE_KNC) || defined(USE_KNL)
 
 		_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
 
@@ -423,7 +386,7 @@ namespace Stress
 	// virtual
 	void StressStrainCppIterativeSolverKNC::Solve5()
 	{
-#ifdef USE_KNC
+#if defined(USE_KNC) || defined(USE_KNL)
 
 		_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
 
@@ -471,7 +434,7 @@ namespace Stress
 		size_t nodeId2					// номер узла 2
 	) const
 	{
-#ifdef USE_KNC
+#if defined(USE_KNC) || defined(USE_KNL)
 
 		// Start AVX code
 		double* pmatA01 = GetRotationMatrix(nodeId1);
@@ -556,6 +519,7 @@ namespace Stress
 		_mm512_store_pd(tmp, vecDP);
 		matA02el1 = _mm512_set1_pd(tmp[0]);
 		matA02el2 = _mm512_set1_pd(tmp[1]);
+		matA02el3 = _mm512_set1_pd(tmp[2]);
 
 		res = _mm512_fmadd_pd(matA01row1, matA02el1, res);
 		res = _mm512_fmadd_pd(matA01row2, matA02el2, res);
