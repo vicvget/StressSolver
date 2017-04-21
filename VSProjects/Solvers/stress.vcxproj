@@ -35,7 +35,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
@@ -65,13 +65,20 @@
   <PropertyGroup>
     <_ProjectFileVersion>11.0.60830.0</_ProjectFileVersion>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <IncludePath>$(MKLIncludeDir);$(IncludePath);;$(CUDA_PATH)/include</IncludePath>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>false</LinkIncremental>
+    <IncludePath>$(MKLIncludeDir);$(IncludePath);;$(CUDA_PATH)/include</IncludePath>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <IncludePath>$(MKLIncludeDir);$(IncludePath);$(CUDA_PATH)/include</IncludePath>
+    <LibraryPath>$(OmpLibDir);$(LibraryPath);</LibraryPath>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <GenerateManifest>false</GenerateManifest>
+    <IncludePath>$(MKLIncludeDir);$(IncludePath);;$(CUDA_PATH)/include</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -178,6 +185,7 @@
     <ClCompile Include="..\..\Solvers\Stress\StressStrainCppIterativeSolverFMA.cpp" />
     <ClCompile Include="..\..\Solvers\Stress\StressStrainCppIterativeSolverKNC.cpp" />
     <ClCompile Include="..\..\Solvers\Stress\StressStrainCppIterativeSolverKNC2.cpp" />
+    <ClCompile Include="..\..\Solvers\Stress\StressStrainCppIterativeSolverOpenCL.cpp" />
     <ClCompile Include="..\..\Solvers\Stress\StressStrainCppSolver.cpp" />
     <ClCompile Include="..\..\Solvers\Stress\StressStrainSolver.cpp" />
     <ClCompile Include="..\..\Solvers\stress\StressStrainSolverExports.cpp" />
@@ -194,6 +202,7 @@
     <ClInclude Include="..\..\Solvers\Stress\StressStrainCppIterativeSolverFMA.h" />
     <ClInclude Include="..\..\Solvers\Stress\StressStrainCppIterativeSolverKNC.h" />
     <ClInclude Include="..\..\Solvers\Stress\StressStrainCppIterativeSolverKNC2.h" />
+    <ClInclude Include="..\..\Solvers\Stress\StressStrainCppIterativeSolverOpenCL.h" />
     <ClInclude Include="..\..\Solvers\Stress\StressStrainCppSolver.h" />
     <ClInclude Include="..\..\Solvers\Stress\StressStrainSolver.h" />
     <ClInclude Include="..\..\Solvers\Stress\StressStrainSolverExports.h" />
@@ -202,6 +211,9 @@
     <ProjectReference Include="..\AdditionalModules\fmath.vcxproj">
       <Project>{b792219a-126f-409c-b039-182ae9625d1b}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\Solvers\Stress\OpenCLSolverKernels.cl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
