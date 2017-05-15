@@ -286,3 +286,11 @@ __pycache__/
 *.btm.cs
 *.odx.cs
 *.xsd.cs
+
+_Release/bin64/
+
+*.rlc
+
+*.mpr
+
+*.tlog
