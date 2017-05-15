@@ -287,10 +287,15 @@ __pycache__/
 *.odx.cs
 *.xsd.cs
 
-_Release/bin64/
+_Release/
+_Debug/
 
 *.rlc
 
 *.mpr
 
 *.tlog
+
+*.agr
+
+*.ico

@@ -128,9 +128,9 @@ namespace SpecialSolvers
 				#endif
 				iteration++;
 			}
+			mprExporter->WriteFrame(0);
 			Stress::PrintTime(hSolver);
 
-			mprExporter->WriteFrame(0);
 			mprExporter->Finalize();
 			blenderExporter->Finalize();
 			chartsExporter->Finalize();

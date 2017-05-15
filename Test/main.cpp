@@ -31,9 +31,9 @@ int main(int argc, char *argv[])
 	//Test1xXxXa(1, 0.8, 0.01, 50);
 
 	std::stringstream stringstr;
-	int solverType = 5;
 	int numberOfElements = 50;
 	int numberOfSubiterations = 10;
+	int solverType = 1;
 	string inputIcoFileName = "in.ico";
 	string outputIcoFileName = "out.ico";
 
@@ -77,9 +77,9 @@ int main(int argc, char *argv[])
 		<< "\nIterations: " << numberOfSubiterations << 'x' << 100
 		<< "\nSolver Type: " << solverType 
 		<< "\nInput ico: " << inputIcoFileName
-		<< "\Output ico: " << outputIcoFileName
+		<< "\nOutput ico: " << outputIcoFileName
 		<< std::endl;
 
-	Test1xXxXa(solverType, 0.8, 0.01, numberOfElements, numberOfSubiterations);
+	Test1xXxXa(solverType, 0.8, 0.01, numberOfElements, numberOfSubiterations, inputIcoFileName, outputIcoFileName);
 	return 0;
 }

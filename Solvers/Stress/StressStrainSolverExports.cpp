@@ -160,36 +160,21 @@ namespace Stress
 		return (void*)hsolver;
 	}
 
-	/** Установить ico
+	/** Считать начальные условия
 	* @param hsolver - дескриптор решателя
 	*/
-	DLL_FUNCTION void InitIco
+	DLL_FUNCTION bool ReadIco
 	(
 		void* hsolver,
-		const char* fileName,
-		bool readIco,
-		bool writeIco
+		const string& fileName
 	)
-	{
-		((StressStrainSolver*)hsolver)->InitIco(fileName, readIco, writeIco, 0);
-	}
-
-	DLL_FUNCTION
-		bool ReadIco
-		(
-			void* hsolver,
-			const char* fileName
-		)
 	{
 		return ((StressStrainSolver*)hsolver)->ReadIco(fileName);
 	}
 
-	DLL_FUNCTION
-		void WriteIco
-		(
-			void* hsolver,
-			const char* fileName
-		)
+	DLL_FUNCTION void WriteIco(
+		void* hsolver,
+		const string& fileName)
 	{
 		((StressStrainSolver*)hsolver)->WriteIco(fileName);
 	}

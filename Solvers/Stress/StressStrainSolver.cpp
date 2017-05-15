@@ -28,8 +28,6 @@ StressStrainSolver::StressStrainSolver
 	:
 		_dataSize(nElements * (3+7)), // вектор координат (3), приведенные напряжения, 6 компонент тензора напряжений (7)
 		_nElements(nElements),
-		_readIco(false),
-		_writeIco(false),
 		vecStride(stride),
 		vecStride2(stride*2),
 		matStride(stride*3)
@@ -211,18 +209,7 @@ StressStrainSolver::~StressStrainSolver()
 	aligned_free(_buffer);
 }
 
-void StressStrainSolver::InitIco ( const string& fileName,
-		bool readIco,
-		bool writeIco,
-		int nWriteIteration)
-{
-	_fileName = fileName;
-	_readIco = readIco;
-	_writeIco = writeIco;
-	_nWriteIteration = nWriteIteration;
-}
-
-bool StressStrainSolver::ReadIco(const char* fileName)
+bool StressStrainSolver::ReadIco(const string& fileName)
 {
 	ifstream ifs(fileName, std::ios_base::binary);
 	int nElements;
@@ -240,7 +227,7 @@ bool StressStrainSolver::ReadIco(const char* fileName)
 	return false;
 }
 
-void StressStrainSolver::WriteIco(const char* fileName) const
+void StressStrainSolver::WriteIco(const string& fileName) const
 {
 	ofstream ofs(fileName, std::ios_base::binary);
 	double* dataPointer = GetDataInternal(DataType::DT_Shifts);

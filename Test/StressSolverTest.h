@@ -155,6 +155,11 @@ namespace SpecialSolversTest
 			double force,
 			EDOF dof);
 
+		bool ReadIco(SolverHandler hStressSolver,
+			const std::string& icoIn);
+
+		void WriteIco(SolverHandler hStressSolver,
+			const std::string& icoOut);
 
 		void Test();
 		//void Test1x1x3(int solverType, ECode code);
@@ -183,7 +188,15 @@ namespace SpecialSolversTest
 		//void Test2x2x5(int solverType,  ECode code);
 		void TestSolveSystemOfLinearEquationsForStiffness();
 
-		void Test1xXxXa(int solverType, float plateSideLength, float plateWidth, int sideElements, int nSubiterations);
+		// Генерирует пластину с закреплением по нижней стороне,
+		// силой, приложенной к верхней четверти правой стороны
+		void Test1xXxXa(int solverType, 
+			float plateSideLength, 
+			float plateWidth, 
+			int sideElements, 
+			int nSubiterations,
+			const std::string& icoIn,
+			const std::string& icoOut);
 
 	}
 

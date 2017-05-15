@@ -19,10 +19,11 @@ namespace SpecialSolversTest
 
 	namespace StressStrainStuff
 	{
-		void Test1xXxXa(int solverType, float plateSideLength, float plateWidth, int sideElements, int nSubiterations)
+
+		void Test1xXxXa(int solverType, float plateSideLength, float plateWidth, int sideElements, int nSubiterations, const string& icoIn, const string& icoOut)
 		{
 			float gridStep = (float)(plateSideLength / sideElements);
-			float stressScalingFactor = (float)(gridStep/plateWidth);
+			float stressScalingFactor = (float)(gridStep / plateWidth);
 
 			//double timeStep = 1e-4;
 			//double stiff = 1e8;
@@ -51,10 +52,10 @@ namespace SpecialSolversTest
 				.Force(1000.f)
 				.ForceDof(dof_x) // для пластины!!!
 				.SolverType(solverType)
-				
+
 				.BuildQuarterPlate();
 
-			
+
 			if (_hsolver != nullptr)
 			{
 				OverrideStiffness(_hsolver,
@@ -70,6 +71,12 @@ namespace SpecialSolversTest
 					stressScalingFactor,
 					1);
 
+				if(ReadIco(_hsolver, icoIn))
+				{
+					std::cout << "ICO is read from file " << icoIn << std::endl;
+				}
+
+
 				PerformanceCounter pc;
 				pc.Start();
 				Solve
@@ -78,6 +85,9 @@ namespace SpecialSolversTest
 					factory.IntegrationParams()
 					);
 				pc.Print("Total: ", true);
+
+				WriteIco(_hsolver, icoOut);
+
 
 				Stress::ReleaseMemory((void* &)_hsolver);
 			}
