@@ -15,6 +15,9 @@
     <Filter Include="Source Files\CpuSolver">
       <UniqueIdentifier>{1425f785-ab45-4c5e-a397-0fdfaa851932}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\GpuSolver">
+      <UniqueIdentifier>{6ef12227-dc14-4987-8e31-6282e004f924}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Solvers\Stress\RotationSolver.cpp">
@@ -45,10 +48,10 @@
       <Filter>Source Files\CpuSolver</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Solvers\Stress\StressStrainCppIterativeSolverKNC2.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\CpuSolver</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Solvers\Stress\StressStrainCppIterativeSolverOpenCL.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\GpuSolver</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -99,6 +102,8 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\Solvers\Stress\OpenCLSolverKernels.cl" />
+    <None Include="..\..\Solvers\Stress\OpenCLSolverKernels.cl">
+      <Filter>Source Files\GpuSolver</Filter>
+    </None>
   </ItemGroup>
 </Project>

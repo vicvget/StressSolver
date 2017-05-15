@@ -27,10 +27,6 @@ class StressStrainSolver
 	//size_t _stride;
 
 protected:
-	string _fileName;
-	bool _readIco;
-	bool _writeIco;
-	int _nWriteIteration;
 
 	double _velocitySum[3];
 	double _velocitySumSingle[3];
@@ -67,8 +63,8 @@ public:
 		bool writeIco,
 		int nWriteIteration);
 
-	bool ReadIco(const char* fileName);
-	void WriteIco(const char* fileName) const;
+	bool ReadIco(const string& fileName);
+	void WriteIco(const string& fileName) const;
 
 	float* GetMemoryPointer() const;
 

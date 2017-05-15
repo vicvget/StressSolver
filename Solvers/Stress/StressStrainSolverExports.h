@@ -53,26 +53,17 @@ namespace Stress
 		);
 
 	DLL_FUNCTION
-	void InitIco
-		(
-			void* hsolver,
-			const char* fileName,
-			bool readIco,
-			bool writeIco
-		);
-
-	DLL_FUNCTION
 	bool ReadIco
 		(
 			void* hsolver,
-			const char* fileName
+			const std::string& fileName
 		);
 
 	DLL_FUNCTION
 	void WriteIco
 		(
 			void* hsolver,
-			const char* fileName
+			const std::string& fileName
 		);
 
 	/** Инициализация без связей

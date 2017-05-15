@@ -580,6 +580,15 @@ namespace SpecialSolversTest
 				);
 		}
 
+		bool ReadIco(SolverHandler hStressSolver, const std::string& icoIn)
+		{
+			return Stress::ReadIco(hStressSolver, icoIn);
+		}
+
+		void WriteIco(SolverHandler hStressSolver, const std::string& icoOut)
+		{
+			Stress::WriteIco(hStressSolver, icoOut);
+		}
 
 		// добавляет 2 силы и одну заделку
 		void SetSealedForceForceBc(
