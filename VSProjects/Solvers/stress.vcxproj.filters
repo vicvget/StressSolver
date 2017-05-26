@@ -100,6 +100,12 @@
     <ClInclude Include="..\..\Solvers\Stress\StressStrainCppIterativeSolverOpenCL.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="CommonDefines.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Solvers\Stress\CommonDefines.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\Solvers\Stress\OpenCLSolverKernels.cl">

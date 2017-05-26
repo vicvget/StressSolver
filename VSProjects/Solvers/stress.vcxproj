@@ -194,6 +194,7 @@
     <ClInclude Include="..\..\Solvers\Stress\AuxiliaryStressStuff.h" />
     <ClInclude Include="..\..\Solvers\Stress\BoundaryParams.h" />
     <ClInclude Include="..\..\Solvers\Stress\Common.h" />
+    <ClInclude Include="..\..\Solvers\Stress\CommonDefines.h" />
     <ClInclude Include="..\..\Solvers\Stress\FTimer.h" />
     <ClInclude Include="..\..\Solvers\Stress\IStressStrainSolver.h" />
     <ClInclude Include="..\..\Solvers\Stress\RotationSolver.h" />
@@ -206,6 +207,7 @@
     <ClInclude Include="..\..\Solvers\Stress\StressStrainCppSolver.h" />
     <ClInclude Include="..\..\Solvers\Stress\StressStrainSolver.h" />
     <ClInclude Include="..\..\Solvers\Stress\StressStrainSolverExports.h" />
+    <ClInclude Include="CommonDefines.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AdditionalModules\fmath.vcxproj">

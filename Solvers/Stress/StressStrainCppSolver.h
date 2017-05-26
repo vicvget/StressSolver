@@ -2,10 +2,10 @@
 
 #include "StressStrainSolver.h"
 #include "BoundaryParams.h"
-#include "RotationSolver.h"
+//#include "RotationSolver.h"
 
 #include <vector>
-#include <string>
+//#include <string>
 #include "FTimer.h"
 
 using std::string;
@@ -106,8 +106,6 @@ namespace Stress
 
 		double* _radiusVectors;
 		int* _linkedElements;
-
-		RotationSolver* _rotationSolver;// структура дл€ интегрировани€ углов Ёйлера
 
 		size_t _nVariables;				// количество неизвестных
 		size_t _nIteration;				// номер итерации

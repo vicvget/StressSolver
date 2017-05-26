@@ -1,18 +1,12 @@
 #pragma once
 #include <iostream>
-
+#include "RotationSolver.h"
+#include "CommonDefines.h"
+using Stress::RotationSolver;
 using std::cout;
 using std::string;
 
-#define SQR(x) ((x) * (x))
-#define MAX(x, y) ((x) > (y) ? x : y)
 
-#define MeasuredRun(TIMER, COMMAND) \
-	_testTimer.Start(TIMER); \
-	COMMAND; \
-	_testTimer.Stop(TIMER);
-
-#define ALIGNMENT 64 // KNC
 
 enum DataType
 {
@@ -39,6 +33,7 @@ public:
 	size_t vecStride;
 	size_t vecStride2;
 	size_t matStride;
+	RotationSolver* _rotationSolver;// структура дл€ интегрировани€ углов Ёйлера
 
 	StressStrainSolver
 		(

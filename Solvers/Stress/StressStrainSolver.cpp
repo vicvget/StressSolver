@@ -7,6 +7,7 @@
 #include "../../AdditionalModules/fmath/Vector3.h"
 #include "../../AdditionalModules/fmath/Matrix3x3.h"
 #include "../../AdditionalModules/fmath/Matrix3x4.h"
+#include <iomanip>
 
 using std::ifstream;
 using std::ofstream;
@@ -218,9 +219,11 @@ bool StressStrainSolver::ReadIco(const string& fileName)
 
 	if(ifs.is_open())
 	{
+		std::cout << "read binary ico: " << fileName.c_str() << std::endl;
 		ifs.read((char*)&nElements, sizeof(int));
-		ifs.read((char*)dataPointer, nElements*sizeof(double)*6);
-		ifs.read((char*)mtxPointer, nElements*sizeof(double)*9);
+		ifs.read((char*)dataPointer, nElements*sizeof(double)*vecStride2);
+		ifs.read((char*)mtxPointer, nElements*sizeof(double)*matStride);
+		_rotationSolver->ReadIco(ifs);
 		ifs.close();
 		return true;
 	}
@@ -232,14 +235,49 @@ void StressStrainSolver::WriteIco(const string& fileName) const
 	ofstream ofs(fileName, std::ios_base::binary);
 	double* dataPointer = GetDataInternal(DataType::DT_Shifts);
 	double* mtxPointer = GetDataRotaionMtx();
+	
 
 	if(ofs.is_open())
 	{
+		std::cout << "write binary ico: " << fileName.c_str() << std::endl;
+
 		ofs.write((char*)&_nElements, sizeof(int));
-		ofs.write((char*)dataPointer, _nElements*sizeof(double)*6);
-		ofs.write((char*)mtxPointer, _nElements*sizeof(double)*9);
+		ofs.write((char*)dataPointer, _nElements*sizeof(double)*vecStride2);
+		ofs.write((char*)mtxPointer, _nElements*sizeof(double)*matStride);
+		_rotationSolver->WriteIco(ofs);
 		ofs.close();
 	}
+
+	std::string fileNameTxt = fileName + ".txt";
+	ofstream tfs(fileNameTxt);
+
+	if (tfs.is_open())
+	{
+		std::cout << "write txt ico: " << fileNameTxt.c_str() << std::endl;
+		for (std::size_t elementId = 0; elementId < _nElements; elementId++)
+		{
+			double* elementData = dataPointer + vecStride2*elementId;
+			double* elementMtx = mtxPointer + matStride*elementId;
+			std::cout << "ico of #" << elementId << std::endl;
+
+			for (std::size_t dof = 0; dof < vecStride2; dof++)
+			{
+				tfs << std::setw(11) << std::setprecision(3) << elementData[dof] << ' ';
+			}
+			tfs << std::endl;
+			for (std::size_t rowId = 0; rowId < 3; rowId++)
+			{
+				for (std::size_t colId = 0; colId < vecStride; colId++)
+				{
+					tfs << std::setw(11) << std::setprecision(3) << elementMtx[rowId * vecStride + colId] << ' ';
+				}
+				tfs << std::endl;
+			}
+			tfs << std::endl;
+		}
+		tfs.close();
+	}
+
 }
 
 

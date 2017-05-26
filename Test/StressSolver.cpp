@@ -17,7 +17,7 @@
 //#define NO_CHARTS
 //#define NO_WRITE_RESULTS
 
-#define DISABLE_OUTPUT
+//#define DISABLE_OUTPUT
 
 namespace Stress{
 	class StressStrainCppIterativeSolver;
@@ -79,11 +79,11 @@ namespace SpecialSolvers
 
 			std::shared_ptr<BaseExporter> mprExporter = std::make_shared<MprExporter>(ssSolver, integrationParams);
 			//std::shared_ptr<BaseExporter> blenderExporter = std::make_shared<BlenderExporter>(ssSolver);
-			//std::vector<size_t> ids = { 483, 484 };
-			//std::shared_ptr<BaseExporter> chartsExporter = std::make_shared<ChartsExporter>(ssSolver, ids);
+			std::vector<size_t> ids = { 11, 15 };
+			std::shared_ptr<BaseExporter> chartsExporter = std::make_shared<ChartsExporter>(ssSolver, ids);
 
 			std::shared_ptr<BaseExporter> blenderExporter = std::make_shared<DummyExporter>(ssSolver);
-			std::shared_ptr<BaseExporter> chartsExporter = std::make_shared<DummyExporter>(ssSolver);
+			//std::shared_ptr<BaseExporter> chartsExporter = std::make_shared<DummyExporter>(ssSolver);
 			std::shared_ptr<BaseExporter> frameChartsExporter = std::make_shared<DummyExporter>(ssSolver);
 			//for (size_t id = 11 * 5; id < 11 * 6; id++)
 			//std::vector<size_t> ids2;
@@ -129,7 +129,7 @@ namespace SpecialSolvers
 				iteration++;
 			}
 			mprExporter->WriteFrame(0);
-			Stress::PrintTime(hSolver);
+  			Stress::PrintTime(hSolver);
 
 			mprExporter->Finalize();
 			blenderExporter->Finalize();

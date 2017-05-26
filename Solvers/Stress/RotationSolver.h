@@ -1,10 +1,10 @@
 #pragma once
 
-#define _USE_MATH_DEFINES
-#include <cmath>
+//#define _USE_MATH_DEFINES
+//#include <cmath>
 #include <vector>
 
-#include "StressStrainSolver.h"
+//#include "StressStrainSolver.h"
 
 
 using std::string;
@@ -54,6 +54,10 @@ namespace Stress
 
 		void InitIteration() const;
 		void InitialSolve();
+
+		void ReadIco(std::ifstream& ifs);
+		void WriteIco(std::ofstream& ofs);
+
 		void Solve1();
 		void Solve2();
 		void Solve3();

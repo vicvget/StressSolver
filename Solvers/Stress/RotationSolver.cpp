@@ -1,14 +1,17 @@
 //#define USE_SVML
 
 #include <cstring>
+#include <fstream>
 #include <immintrin.h>
 
 #include "RotationSolver.h"
 #include "Common.h"
+#include "CommonDefines.h"
 
 #include "../../AdditionalModules/fmath/Vector3.h"
 #include "../../AdditionalModules/fmath/Matrix3x3.h"
 #include "../../AdditionalModules/fmath/Matrix3x4.h"
+#include <iostream>
 
 
 using MathHelpers::Vec3;
@@ -200,6 +203,18 @@ namespace Stress
 	{
 		CalculateRHS();
 		UpdateMtxs();
+	}
+
+	void RotationSolver::ReadIco(std::ifstream& ifs)
+	{
+		ifs.read((char*)_varR, _nRVariables*sizeof(double));
+		ifs.read((char*)_varDR, _nRVariables*sizeof(double));
+	}
+
+	void RotationSolver::WriteIco(std::ofstream& ofs)
+	{
+		ofs.write((char*)_varR, _nRVariables*sizeof(double));
+		ofs.write((char*)_varDR, _nRVariables*sizeof(double));
 	}
 
 	void RotationSolver::InitIteration() const

@@ -69,9 +69,9 @@ void ChartsExporter::WriteFrame(float time)
 					<< std::endl;
 				_ofs.close();
 			}
-			if (_firstTime)
-				_firstTime = false;
 		}
+		if (_firstTime)
+			_firstTime = false;
 }
 
 void ChartsExporter::Finalize()
