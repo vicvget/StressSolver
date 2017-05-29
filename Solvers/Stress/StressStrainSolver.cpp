@@ -122,7 +122,7 @@ void StressStrainSolver::SetZeroVelocitiesZ()
 
 inline bool IsMaxVelocity(double* velocitySum)
 {
-	if(velocitySum[1] > velocitySum[0] && velocitySum[1] > velocitySum[2]);
+	if(velocitySum[1] > velocitySum[0] && velocitySum[1] > velocitySum[2])
 	{
 		memset(velocitySum, 0, 3 * sizeof(double));
 		return true;
@@ -146,6 +146,7 @@ bool StressStrainSolver::Check(double* _velocitySum)
 
 void StressStrainSolver::CheckVelocitySumm()
 {
+	return;
 	ShiftVelocity(_velocitySum);
 	ShiftVelocity(_velocitySumSingle);
 	ShiftVelocity(_velocitySumX);
@@ -154,13 +155,6 @@ void StressStrainSolver::CheckVelocitySumm()
 
 	GetSquareSummOfVelocities();
 
-	//if (_velocitySumSingle[1] > _velocitySumSingle[0] && _velocitySumSingle[1] > _velocitySumSingle[0])
-	//{
-	//	SetZeroVelocities();
-	//	_velocitySumSingle[0] = 0;
-	//	_velocitySumSingle[1] = 0;
-	//	_velocitySumSingle[2] = 0;
-	//}
 	bool modified = IsMaxVelocity(_velocitySumX);
 	if (!modified) modified = IsMaxVelocity(_velocitySumY);
 	if (!modified) modified = IsMaxVelocity(_velocitySumZ);
@@ -221,34 +215,22 @@ bool StressStrainSolver::ReadIco(const string& fileName)
 	{
 		std::cout << "read binary ico: " << fileName.c_str() << std::endl;
 		ifs.read((char*)&nElements, sizeof(int));
-		ifs.read((char*)dataPointer, nElements*sizeof(double)*vecStride2);
+		ifs.read((char*)dataPointer, nElements*sizeof(double)*vecStride2*3);
 		ifs.read((char*)mtxPointer, nElements*sizeof(double)*matStride);
 		_rotationSolver->ReadIco(ifs);
 		ifs.close();
+
+		WriteTextIco(fileName + "read.txt");
 		return true;
 	}
 	return false;
 }
 
-void StressStrainSolver::WriteIco(const string& fileName) const
+void StressStrainSolver::WriteTextIco(std::string fileNameTxt) const
 {
-	ofstream ofs(fileName, std::ios_base::binary);
 	double* dataPointer = GetDataInternal(DataType::DT_Shifts);
 	double* mtxPointer = GetDataRotaionMtx();
-	
 
-	if(ofs.is_open())
-	{
-		std::cout << "write binary ico: " << fileName.c_str() << std::endl;
-
-		ofs.write((char*)&_nElements, sizeof(int));
-		ofs.write((char*)dataPointer, _nElements*sizeof(double)*vecStride2);
-		ofs.write((char*)mtxPointer, _nElements*sizeof(double)*matStride);
-		_rotationSolver->WriteIco(ofs);
-		ofs.close();
-	}
-
-	std::string fileNameTxt = fileName + ".txt";
 	ofstream tfs(fileNameTxt);
 
 	if (tfs.is_open())
@@ -258,7 +240,7 @@ void StressStrainSolver::WriteIco(const string& fileName) const
 		{
 			double* elementData = dataPointer + vecStride2*elementId;
 			double* elementMtx = mtxPointer + matStride*elementId;
-			std::cout << "ico of #" << elementId << std::endl;
+			tfs << "ico of #" << elementId << std::endl;
 
 			for (std::size_t dof = 0; dof < vecStride2; dof++)
 			{
@@ -277,7 +259,26 @@ void StressStrainSolver::WriteIco(const string& fileName) const
 		}
 		tfs.close();
 	}
+}
 
+void StressStrainSolver::WriteIco(const string& fileName) const
+{
+	ofstream ofs(fileName, std::ios_base::binary);
+	double* dataPointer = GetDataInternal(DataType::DT_Shifts);
+	double* mtxPointer = GetDataRotaionMtx();
+	
+
+	if(ofs.is_open())
+	{
+		std::cout << "write binary ico: " << fileName.c_str() << std::endl;
+
+		ofs.write((char*)&_nElements, sizeof(int));
+		ofs.write((char*)dataPointer, _nElements*sizeof(double)*vecStride2*3);
+		ofs.write((char*)mtxPointer, _nElements*sizeof(double)*matStride);
+		_rotationSolver->WriteIco(ofs);
+		ofs.close();
+	}
+	WriteTextIco(fileName + ".txt");
 }
 
 

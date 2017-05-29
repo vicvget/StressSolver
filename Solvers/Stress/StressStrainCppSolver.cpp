@@ -687,6 +687,8 @@ void StressStrainCppSolver::CalculateForces()
 	static int it = 0;
 
 	__declspec(align(64)) double strains[8], velocityStrains[8];
+	memset(strains, 0u, sizeof(double)*vecStride2);
+	memset(velocityStrains, 0u, sizeof(double)*vecStride2);
 
 	for (int elementId1 = 0; elementId1 < _nElements; elementId1++)
 	{
@@ -706,7 +708,24 @@ void StressStrainCppSolver::CalculateForces()
 			if (elementId2)
 			{
 				elementId2--;
+				if (elementId2 == 11 || elementId1 == 11)
+				{
+					int d = 0;
+				}
 				CalculateStrains(dof, strains, velocityStrains, elementId1, elementId2);
+
+				if (elementId2 == 11 || elementId1 == 11)
+				{
+					std::cout << "element1 " << elementId1
+						<< " element2 " << elementId2 << std::endl;
+
+					for (int i = 0; i < vecStride2; i++)
+						std::cout << strains[i] << ' ';
+					std::cout << std::endl;
+					for (int i = 0; i < vecStride2; i++)
+						std::cout << velocityStrains[i] << ' ';
+					std::cout << std::endl;
+				}
 
 				Vec3Ref linear_strains = MakeVec3(&strains[0]);
 				Vec3Ref angular_strains = MakeVec3(&strains[0] + vecStride);

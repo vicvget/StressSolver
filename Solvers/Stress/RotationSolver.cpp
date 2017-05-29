@@ -81,6 +81,17 @@ namespace Stress
 		return _isValid;
 	}
 
+	size_t RotationSolver::GetMatricesSize()
+	{
+		size_t matCount = ((_nElements*_matStride + _maxRegSize - 1) / _maxRegSize) * _maxRegSize;
+		return matCount*sizeof(double);
+	}
+	size_t RotationSolver::GetVectorsSize()
+	{
+		size_t varCount = ((_nElements*_vecStride + _maxRegSize - 1) / _maxRegSize) * _maxRegSize;
+		return varCount*sizeof(double);
+	}
+
 	RotationSolver::RotationSolver
 		(
 			int nElements,
@@ -96,15 +107,13 @@ namespace Stress
 		_vecStride(stride),
 		_vecStride2(stride * 2),
 		_matStride(stride * 3),
-		_isValid(true)
+		_isValid(true),
+		_maxRegSize(8)
 	{
 		_nRVariables = nElements*_vecStride;
-		
-		_maxRegSize = 8;
-		size_t matCount = ((nElements*_matStride + _maxRegSize - 1) / _maxRegSize) * _maxRegSize;
-		size_t varCount = ((nElements*_vecStride + _maxRegSize - 1) / _maxRegSize) * _maxRegSize;
-		size_t matSize = matCount*sizeof(double);
-		size_t varSize = varCount*sizeof(double);
+
+		size_t matSize = GetMatricesSize();
+		size_t varSize = GetVectorsSize();
 
 		_varDR = (double*)aligned_alloc(varSize, ALIGNMENT);
 		_hDR1 = (double*)aligned_alloc(varSize, ALIGNMENT);
@@ -207,14 +216,20 @@ namespace Stress
 
 	void RotationSolver::ReadIco(std::ifstream& ifs)
 	{
-		ifs.read((char*)_varR, _nRVariables*sizeof(double));
-		ifs.read((char*)_varDR, _nRVariables*sizeof(double));
+		size_t matSize = GetMatricesSize();
+		size_t varSize = GetVectorsSize();
+		ifs.read((char*)_varR, varSize);
+		ifs.read((char*)_varDR, varSize);
+		ifs.read((char*)_rframeMtx, matSize);
 	}
 
 	void RotationSolver::WriteIco(std::ofstream& ofs)
 	{
-		ofs.write((char*)_varR, _nRVariables*sizeof(double));
-		ofs.write((char*)_varDR, _nRVariables*sizeof(double));
+		size_t matSize = GetMatricesSize();
+		size_t varSize = GetVectorsSize();
+		ofs.write((char*)_varR, varSize);
+		ofs.write((char*)_varDR, varSize);
+		ofs.write((char*)_rframeMtx, matSize);
 	}
 
 	void RotationSolver::InitIteration() const

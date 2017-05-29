@@ -107,8 +107,8 @@ namespace Stress
 		virtual
 			void CalculateStrainsUa(size_t side, double* shiftStrains, double* velocityStrains, size_t nodeId1, size_t nodeId2) const;
 		/** Получить напряжения по von Mises
-				* @param data - массив для записи напряжений как скалярного параметра
-				*/
+		* @param data - массив для записи напряжений как скалярного параметра
+		*/
 		virtual void GetStressesX(float* data);
 		virtual void GetStressesY(float* data);
 		virtual void GetStressesZ(float* data);

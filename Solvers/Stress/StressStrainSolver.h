@@ -59,6 +59,7 @@ public:
 		int nWriteIteration);
 
 	bool ReadIco(const string& fileName);
+	void WriteTextIco(std::string fileNameTxt) const;
 	void WriteIco(const string& fileName) const;
 
 	float* GetMemoryPointer() const;

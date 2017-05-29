@@ -48,7 +48,7 @@ namespace Stress
 		bool IsSingularityAngle(size_t elementId) const;
 
 		bool IsValid() const;
-
+		void GetMatricesSize(size_t& matSize, size_t& varSize);
 		void Update(size_t elementId, int stageRK = 0);
 		void MakeZeroVectors(size_t elementId) const;
 
@@ -62,6 +62,9 @@ namespace Stress
 		void Solve2();
 		void Solve3();
 		void Solve4();
+
+		size_t GetVectorsSize();
+		size_t GetMatricesSize();
 
 		RotationSolver
 			(
