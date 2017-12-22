@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
 	//Test1xXxXa(1, 0.8, 0.01, 50);
 
 	std::stringstream stringstr;
-	int solverType = 5;
+	int solverType = 4;
 	int numberOfElements = 50;
 	int numberOfSubiterations = 10;
 	if (argc == 2)

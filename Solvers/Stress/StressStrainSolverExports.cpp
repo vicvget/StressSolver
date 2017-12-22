@@ -138,7 +138,8 @@ namespace Stress
 				3
 				);
 			break;
-        case 5: // unaligned
+#ifdef OPENCL
+        case 6: // unaligned
             hsolver = new StressStrainCppIterativeSolverOpenCL
                 (
                     params,
@@ -152,6 +153,7 @@ namespace Stress
                     4
                     );
             break;
+#endif
         default:
 			std::cout << "ERROR: Unsupported solver type " << solverType << std::endl;
 		}

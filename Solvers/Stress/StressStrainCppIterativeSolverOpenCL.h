@@ -1,4 +1,8 @@
+#ifdef OPENCL
 #include <CL\cl.h>
+#endif // OPENCL
+
+
 
 #pragma once
 
@@ -33,7 +37,7 @@ namespace Stress
 	void mulPrivateMV(double * a, double* b, double* res);
 
 	typedef unsigned int uint;
-
+#ifdef OPENCL
 	class StressStrainCppIterativeSolverOpenCL
 		:
 		public StressStrainCppIterativeSolver
@@ -81,7 +85,8 @@ namespace Stress
 	double _dampingFactorLinear,	// приведенный коэффициент линейного демпфирования
 	double _elasticFactorLinear,	// приведенный коэффициент линейной жесткости
 	double _elasticFactorAngular	// приведенный коэффициент угловой жесткости*/
-		__declspec(align(32))cl_mem DataInternalBuffer;
+
+        __declspec(align(32))cl_mem DataInternalBuffer;
 		__declspec(align(32))cl_mem DataRotationMatrixBuffer;
 		__declspec(align(32))cl_mem LinkedElemenetsBuffer;
 		__declspec(align(32))cl_mem RadiusVectorsBuffer;
@@ -203,4 +208,5 @@ namespace Stress
 		void DebugCalculateForces();
 
 };
+#endif //OPENCL
 }

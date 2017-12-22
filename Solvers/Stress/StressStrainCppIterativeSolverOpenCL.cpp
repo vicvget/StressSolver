@@ -1,4 +1,8 @@
+#ifdef OPENCL
 #include <CL\cl.h>
+#endif // OPENCL
+
+
 #include "StressStrainCppIterativeSolverOpenCL.h"
 #include "StressStrainCppSolver.h"
 #include "../../AdditionalModules/fmath/Vector3.h"
@@ -15,10 +19,13 @@
 #else
 #define PLATFROM_NAME "Experimental OpenCL 2.1 CPU Only Platform"
 #endif
-
+#ifdef OPENCL
 using namespace MathHelpers;
 namespace Stress
 {
+
+
+
 
 	Stress::StressStrainCppIterativeSolverOpenCL::StressStrainCppIterativeSolverOpenCL
 	(
@@ -644,3 +651,4 @@ namespace Stress
 		return result;
 	}
 }
+#endif // OPENCL
