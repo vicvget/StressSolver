@@ -75,7 +75,7 @@ namespace Stress
 	{
 		_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
 		static int it = 0;
-        int blockCount = 64;
+        int blockCount = 4;
         static int blockSize = sqrt(_nElements/ blockCount);
        
 
@@ -92,9 +92,9 @@ namespace Stress
         for (int blokIndex = 0; blokIndex < blockCount; blokIndex++)
         {
             //#pragma omp parallel for private (strains, velocityStrains) num_threads(_numThreads)
-            for (int row = 0; row + 1 < blockSize; row++)
+            for (int row = 0; row < blockSize; row++)
             {
-                for (int column = 0; column < blockSize; column += 2)
+                for (int column = 0; column + 1 < blockSize; column += 2)
                 {
                     size_t elementId1 = blokIndex*blockSize*blockSize + row*blockSize + column;
                     // обход x-,y-,z-
@@ -186,7 +186,7 @@ namespace Stress
 			memset(GetElementStress(elementId1), 0u, sizeof(double)*vecStride2);
 		}
 
-#pragma omp parallel for private (strains, velocityStrains) num_threads(_numThreads)
+//#pragma omp parallel for private (strains, velocityStrains) num_threads(_numThreads)
 		for (int elementId1 = 0; elementId1 < _nElements - 1; elementId1 += 2)
 		{
 
