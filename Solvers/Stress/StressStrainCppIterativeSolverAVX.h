@@ -1,7 +1,7 @@
 #pragma once
 
 #include "StressStrainCppIterativeSolver.h"
-
+#include "MathF.h"
 #include <vector>
 #include <immintrin.h>
 
@@ -75,6 +75,7 @@ namespace Stress
 
 		virtual
 			void CalculateStrains(size_t side, double* shiftStrains, double* velocityStrains, size_t nodeId1, size_t nodeId2) const;
+            void CalculateForces();
 #pragma endregion
 
 		double df[12]; // debug

@@ -1,5 +1,7 @@
+#ifdef archOCL
 #include <CL\cl.h>
 #include "StressStrainCppIterativeSolverOpenCL.h"
+
 #include "StressStrainCppSolver.h"
 #include "../../AdditionalModules/fmath/Vector3.h"
 #include "Common.h"
@@ -644,3 +646,4 @@ namespace Stress
 		return result;
 	}
 }
+#endif

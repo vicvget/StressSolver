@@ -50,6 +50,12 @@
     <ClCompile Include="..\..\Solvers\Stress\StressStrainCppIterativeSolverOpenCL.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Solvers\Stress\StressStrainCppIterativeSolverPlain.cpp">
+      <Filter>Source Files\CpuSolver</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Solvers\Stress\MathF.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Solvers\Stress\FTimer.h">
@@ -95,6 +101,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Solvers\Stress\StressStrainCppIterativeSolverOpenCL.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Solvers\Stress\StressStrainCppIterativeSolverPlain.h">
+      <Filter>Header Files\CpuSolver</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Solvers\Stress\MathF.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Solvers\Stress\timeMeasure.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,6 +1,7 @@
 #include "StressStrainSolverExports.h"
 #include "StressStrainCppIterativeSolver.h"
 #include "StressStrainCppIterativeSolverOpenCL.h"
+#include "StressStrainCppIterativeSolverPlain.h"
 
 #ifdef USE_KNL
 #include "StressStrainCppIterativeSolverAVX.h"
@@ -138,6 +139,21 @@ namespace Stress
 				3
 				);
 			break;
+        case 6: // new AVX
+            hsolver = new StressStrainCppIterativeSolverPlain
+            (
+                params,
+                links,
+                nLinks,
+                gridElements,
+                nElements,
+                gridStep,
+                timeStep,
+                numThreads,
+                4
+            );
+            break;
+        #ifdef archOCL
         case 5: // unaligned
             hsolver = new StressStrainCppIterativeSolverOpenCL
                 (
@@ -152,6 +168,7 @@ namespace Stress
                     4
                     );
             break;
+        #endif
         default:
 			std::cout << "ERROR: Unsupported solver type " << solverType << std::endl;
 		}

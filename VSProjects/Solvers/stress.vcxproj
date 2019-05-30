@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -22,25 +22,26 @@
     <ProjectGuid>{5FF4DD83-CDE2-4792-9502-18F13A87E949}</ProjectGuid>
     <RootNamespace>stress</RootNamespace>
     <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -179,6 +180,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Solvers\Stress\BoundaryParams.cpp" />
+    <ClCompile Include="..\..\Solvers\Stress\MathF.cpp" />
     <ClCompile Include="..\..\Solvers\Stress\RotationSolver.cpp" />
     <ClCompile Include="..\..\Solvers\Stress\StressStrainCppIterativeSolver.cpp" />
     <ClCompile Include="..\..\Solvers\Stress\StressStrainCppIterativeSolverAVX.cpp" />
@@ -186,6 +188,7 @@
     <ClCompile Include="..\..\Solvers\Stress\StressStrainCppIterativeSolverKNC.cpp" />
     <ClCompile Include="..\..\Solvers\Stress\StressStrainCppIterativeSolverKNC2.cpp" />
     <ClCompile Include="..\..\Solvers\Stress\StressStrainCppIterativeSolverOpenCL.cpp" />
+    <ClCompile Include="..\..\Solvers\Stress\StressStrainCppIterativeSolverPlain.cpp" />
     <ClCompile Include="..\..\Solvers\Stress\StressStrainCppSolver.cpp" />
     <ClCompile Include="..\..\Solvers\Stress\StressStrainSolver.cpp" />
     <ClCompile Include="..\..\Solvers\stress\StressStrainSolverExports.cpp" />
@@ -196,6 +199,7 @@
     <ClInclude Include="..\..\Solvers\Stress\Common.h" />
     <ClInclude Include="..\..\Solvers\Stress\FTimer.h" />
     <ClInclude Include="..\..\Solvers\Stress\IStressStrainSolver.h" />
+    <ClInclude Include="..\..\Solvers\Stress\MathF.h" />
     <ClInclude Include="..\..\Solvers\Stress\RotationSolver.h" />
     <ClInclude Include="..\..\Solvers\Stress\StressStrainCppIterativeSolver.h" />
     <ClInclude Include="..\..\Solvers\Stress\StressStrainCppIterativeSolverAVX.h" />
@@ -203,9 +207,11 @@
     <ClInclude Include="..\..\Solvers\Stress\StressStrainCppIterativeSolverKNC.h" />
     <ClInclude Include="..\..\Solvers\Stress\StressStrainCppIterativeSolverKNC2.h" />
     <ClInclude Include="..\..\Solvers\Stress\StressStrainCppIterativeSolverOpenCL.h" />
+    <ClInclude Include="..\..\Solvers\Stress\StressStrainCppIterativeSolverPlain.h" />
     <ClInclude Include="..\..\Solvers\Stress\StressStrainCppSolver.h" />
     <ClInclude Include="..\..\Solvers\Stress\StressStrainSolver.h" />
     <ClInclude Include="..\..\Solvers\Stress\StressStrainSolverExports.h" />
+    <ClInclude Include="..\..\Solvers\Stress\timeMeasure.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AdditionalModules\fmath.vcxproj">

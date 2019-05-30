@@ -1,3 +1,4 @@
+#ifdef archOCL
 #include <CL\cl.h>
 
 #pragma once
@@ -204,3 +205,4 @@ namespace Stress
 
 };
 }
+#endif

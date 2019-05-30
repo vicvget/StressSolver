@@ -3,6 +3,7 @@
 #include "../../AdditionalModules/fmath/Matrix3x3.h"
 #include "../../AdditionalModules/fmath/Matrix3x4.h"
 #include "Common.h"
+#include "MathF.h"
 
 #include <cstring>
 #include <immintrin.h>
@@ -686,13 +687,12 @@ void StressStrainCppSolver::CalculateForces()
 	_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
 	static int it = 0;
 
-	__declspec(align(64)) double strains[8], velocityStrains[8];
+	__declspec(align(64)) double strains[8], velocityStrains[8],force0[4],force1[4], force2[4],torque[4];
 
-	for (int elementId1 = 0; elementId1 < _nElements; elementId1++)
-	{
-		memset(GetElementAcceleration(elementId1), 0u, sizeof(double)*vecStride2);
-		memset(GetElementStress(elementId1), 0u, sizeof(double)*vecStride2);
-	}
+
+	memset(_dataInternal + (_nElements * vecStride2 * 2), 0u, sizeof(double)*vecStride2*_nElements);
+	memset(_stress, 0u, sizeof(double)*vecStride2*_nElements);
+//#define timeMeas
 
 	const int exclusive_dofs[][2] = { { 1, 2 }, { 0, 2 }, { 1, 3 } };
 
@@ -706,31 +706,69 @@ void StressStrainCppSolver::CalculateForces()
 			if (elementId2)
 			{
 				elementId2--;
+#ifdef timeMeas
+                size_t timer1 = __rdtsc();
+#endif
+
 				CalculateStrains(dof, strains, velocityStrains, elementId1, elementId2);
+#ifdef timeMeas
+                size_t timer2 = __rdtsc();
+#endif
 
 				Vec3Ref linear_strains = MakeVec3(&strains[0]);
 				Vec3Ref angular_strains = MakeVec3(&strains[0] + vecStride);
 				Vec3Ref linear_vstrains = MakeVec3(&velocityStrains[0]);
 				Vec3Ref angular_vstrains = MakeVec3(&velocityStrains[0] + vecStride);
-
+                
+                double * stressFactors = _elementStressFactorCache + (elementId1 * vecStride);
+                double * elementStress = _stress + (elementId1 * vecStride2);
+                double * elementStressAngularId1 = _stress + (elementId1 * vecStride2 + vecStride);
+                double * elementStressAngularId2 = _stress + (elementId2 * vecStride2 + vecStride);
+                
 				// нормальные напряжения
-				GetElementStress(elementId1)[dof] += linear_strains[dof] * GetElementStressFactors(elementId1)[dof] * _stressScalingFactors[dof];
-				GetElementStress(elementId2)[dof] += linear_strains[dof] * GetElementStressFactors(elementId2)[dof] * _stressScalingFactors[dof];
+				elementStress[dof] += strains[dof] * stressFactors[dof] * _stressScalingFactors[dof];
+				elementStress[dof] += strains[dof] * stressFactors[dof] * _stressScalingFactors[dof];
 
 				// степени свободы смещений, участвующих в создании касательных напряжений
 				int dof0 = exclusive_dofs[dof][0];
 				int dof1 = exclusive_dofs[dof][1];
 
-				GetElementStressAngular(elementId1)[dof0] += linear_strains[dof1] * GetElementStressFactors(elementId1)[dof] * _stressScalingFactors[dof];
-				GetElementStressAngular(elementId1)[dof1] += linear_strains[dof0] * GetElementStressFactors(elementId1)[dof] * _stressScalingFactors[dof];
+				elementStressAngularId1[dof0] += strains[dof1] * GetElementStressFactors(elementId1)[dof] * _stressScalingFactors[dof];
+				elementStressAngularId1[dof1] += strains[dof0] * GetElementStressFactors(elementId1)[dof] * _stressScalingFactors[dof];
 
-				GetElementStressAngular(elementId2)[dof0] += linear_strains[dof1] * GetElementStressFactors(elementId2)[dof] * _stressScalingFactors[dof];
-				GetElementStressAngular(elementId2)[dof1] += linear_strains[dof0] * GetElementStressFactors(elementId2)[dof] * _stressScalingFactors[dof];
+				elementStressAngularId2[dof0] += strains[dof1] * (_elementStressFactorCache + (elementId2 * vecStride))[dof] * _stressScalingFactors[dof];
+				elementStressAngularId2[dof1] += strains[dof0] * (_elementStressFactorCache + (elementId2 * vecStride))[dof] * _stressScalingFactors[dof];
 
 				// сила и момент из полученных деформаций
-				Vec3 vForce1 = -linear_vstrains * _dampingFactorLinear - linear_strains * _elasticFactorLinear;
-				Vec3 vTorque = -angular_vstrains * _dampingFactorAngular - angular_strains * _elasticFactorAngular;
+                double dfl = -_dampingFactorLinear;
+                double dfa = -_dampingFactorAngular;
+				Vec3 vForce1 = linear_vstrains * dfl - linear_strains * _elasticFactorLinear;
+				Vec3 vTorque = angular_vstrains * dfa - angular_strains * _elasticFactorAngular;
+                //vecDoubleMulSub(4U, velocityStrains, strains, _dampingFactorLinear, _elasticFactorLinear, force1);
+                //vecDoubleMulSub(4U, velocityStrains + vecStride, strains + vecStride, _dampingFactorAngular, _elasticFactorAngular, torque);
+                
+                
+                //for (size_t i = 0; i < 3; i++)
+                //{
+                //    force1[i] = velocityStrains[i] * dfl - strains[i] * _elasticFactorLinear;
+                //    torque[i] = (velocityStrains + vecStride)[i] * dfa - (strains + vecStride)[i] * _elasticFactorAngular;
+                //}                
 
+                /*
+                double * matA01 = _dataRotationMtx + (elementId1 * matStride);
+                double * matA02 = _dataRotationMtx + (elementId2 * matStride);
+                double * accel1 = _dataInternal + (_nElements * vecStride2 * 2 + elementId1 * vecStride2);
+                double * accel2 = _dataInternal + (_nElements * vecStride2 * 2 + elementId2 * vecStride2);
+                matVecMul3x4(matA01,force1,force0);
+                matVecTMul3x4(matA02, force0, force2);
+                
+                for (size_t i = 0; i < 3; i++)
+                {
+                    accel1[i] += force0[i];
+                    accel2[i] -= force0[i];
+                }*/
+
+                
 				Vec3 vForce0; // сила в СК0
 				Vec3 vForce2; // сила в СК второго тела
 
@@ -748,7 +786,25 @@ void StressStrainCppSolver::CalculateForces()
 					vForce0 = matA01*vForce1;
 					vForce2 = matA02.Tmul(vForce0);
 				}
+                MakeVec3(GetElementAcceleration(elementId1)) += vForce0;
+                MakeVec3(GetElementAcceleration(elementId2)) -= vForce0;
+                
+                
+                /*
+                double * vR = _radiusVectors + dof * vecStride;
+                double * AccelAngul1 = _dataInternal + (_nElements * vecStride2 * 2 + elementId1 * vecStride2 + vecStride);
+                double * AccelAngul2 = _dataInternal + (_nElements * vecStride2 * 2 + elementId2 * vecStride2 + vecStride);
+                
+                AccelAngul1[0] +=  vR[1] * force1[2] - vR[2] * force1[1] + torque[0];
+                AccelAngul1[1] += -vR[0] * force1[2] + vR[2] * force1[0] + torque[1];
+                AccelAngul1[2] +=  vR[0] * force1[1] - vR[1] * force1[0] + torque[2];
 
+                AccelAngul2[0] +=  vR[1] * force2[2] - vR[2] * force2[1] - torque[0];
+                AccelAngul2[1] += -vR[0] * force2[2] + vR[2] * force2[0] - torque[1];
+                AccelAngul2[2] +=  vR[0] * force2[1] - vR[1] * force2[0] - torque[2];
+                */
+
+                
 				Vec3Ref vR = MakeVec3(GetRadiusVector(dof));
 				Vec3 vForce1Torque = vR.Cross(vForce1);
 				Vec3 vForce2Torque = vR.Cross(vForce2); //(-R and -vForce2 gives +vForce2Torque)
@@ -757,10 +813,14 @@ void StressStrainCppSolver::CalculateForces()
 				Vec3 vTorque1 = vForce1Torque + vTorque;
 				Vec3 vTorque2 = vForce2Torque - vTorque;
 
-				MakeVec3(GetElementAcceleration(elementId1)) += vForce0;
 				MakeVec3(GetElementAccelerationAngular(elementId1)) += vTorque1;
-				MakeVec3(GetElementAcceleration(elementId2)) -= vForce0;
 				MakeVec3(GetElementAccelerationAngular(elementId2)) += vTorque2;
+                
+#ifdef timeMeas
+                size_t timer3 = __rdtsc();
+                std::cout << "Strains time\t" << timer2 - timer1 << std::endl;
+                std::cout << "Force time\t"   << timer3 - timer2 << std::endl;
+#endif
 			}
 		}
 	}

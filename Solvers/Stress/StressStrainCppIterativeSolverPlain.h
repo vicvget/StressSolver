@@ -1,0 +1,129 @@
+#pragma once
+
+#include "StressStrainCppSolver.h"
+
+#include <cmath>
+#include <iomanip>
+#include <string>
+#include <vector>
+#include <algorithm>
+#include <cstring>
+#include <immintrin.h>
+
+
+using std::string;
+using std::vector;
+
+namespace Stress
+{
+
+	class StressStrainCppIterativeSolverPlain
+		:
+		public StressStrainCppSolver
+	{
+	public:
+
+		// создает объект с заданными параметрами
+		StressStrainCppIterativeSolverPlain
+			(
+			double* params,
+			int* links,
+			int nLinks,
+			double *coordinates,
+			int nElements,
+			double gridStep,
+			double timeStep,
+			int numThreads,
+			int stride
+			);
+
+		virtual
+			~StressStrainCppIterativeSolverPlain();
+
+#pragma region overriden
+
+		virtual
+			void InitialSolve
+			(
+			);
+
+		virtual	void Solve(const int nIteratons);
+		virtual void SolveFull(const int nIteratons);
+
+		/**
+		* Расчет первой стадии метода Рунге-Кутты
+		*/
+		virtual
+			void Solve1();
+
+		/**
+		* Расчет второй стадии метода Рунге-Кутты
+		*/
+		virtual
+			void Solve2();
+
+		/**
+		* Расчет третьей стадии метода Рунге-Кутты
+		*/
+		virtual
+			void Solve3();
+
+		/**
+		* Расчет четвертой стадии метода Рунге-Кутты
+		*/
+		virtual
+			void Solve4();
+
+		/**
+		* Расчет пятой стадии метода Рунге-Кутты
+		*/
+		virtual
+			void Solve5();
+
+		/** Получить смещения
+		* @param data - массив для записи смещений как скалярного параметра
+		*/
+		virtual
+			void GetDisplacement
+			(
+			float* data
+			);
+
+		/** Получить напряжения по первой теории прочности
+		* @param data - массив для записи напряжений как скалярного параметра
+		*/
+		virtual
+			void GetStressesByFirstTheoryOfStrength
+			(
+			float* data
+			);
+
+		/** Получить напряжения по von Mises
+		* @param data - массив для записи напряжений как скалярного параметра
+		*/
+		virtual	void GetStressesByVonMises(float* data);
+		virtual
+			void CalculateStrains(size_t side, double* shiftStrains, double* velocityStrains, size_t nodeId1, size_t nodeId2) const;
+		virtual
+			void CalculateStrainsUa(size_t side, double* shiftStrains, double* velocityStrains, size_t nodeId1, size_t nodeId2) const;
+		/** Получить напряжения по von Mises
+				* @param data - массив для записи напряжений как скалярного параметра
+				*/
+		virtual void GetStressesX(float* data);
+		virtual void GetStressesY(float* data);
+		virtual void GetStressesZ(float* data);
+
+		virtual void GetStressesXY(float* data);
+		virtual void GetStressesXZ(float* data);
+		virtual void GetStressesYZ(float* data);
+
+#pragma endregion
+
+		double df[12]; // debug
+
+	protected:
+		// номер итерации расчетного цикла
+		int _iterationNumber;
+
+	};
+}
