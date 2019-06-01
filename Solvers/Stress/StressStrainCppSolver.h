@@ -3,6 +3,7 @@
 #include "StressStrainSolver.h"
 #include "BoundaryParams.h"
 #include "RotationSolver.h"
+#include "RotationSolverAVX.h"
 
 #include <vector>
 #include <string>
@@ -107,7 +108,7 @@ namespace Stress
 		double* _radiusVectors;
 		int* _linkedElements;
 
-		RotationSolver* _rotationSolver;// структура дл€ интегрировани€ углов Ёйлера
+		RotationSolverAVX * _rotationSolver;// структура дл€ интегрировани€ углов Ёйлера
 
 		size_t _nVariables;				// количество неизвестных
 		size_t _nIteration;				// номер итерации

@@ -173,7 +173,7 @@ StressStrainCppSolver::StressStrainCppSolver
 	//_varDDX = new double[_nVariables];
 	//RZ = new double[_nVariables];
 	//R1Z = new double[_nVariables];
-	_rotationSolver = new RotationSolver(
+	_rotationSolver = new RotationSolverAVX(
 		nElements, 
 		stride, 
 		_timeStep, 

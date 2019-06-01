@@ -56,6 +56,9 @@
     <ClCompile Include="..\..\Solvers\Stress\MathF.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Solvers\Stress\RotationSolverAVX.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Solvers\Stress\FTimer.h">
@@ -110,6 +113,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Solvers\Stress\timeMeasure.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Solvers\Stress\RotationSolverAVX.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

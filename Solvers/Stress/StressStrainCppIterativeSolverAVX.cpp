@@ -575,7 +575,7 @@ namespace Stress
 		x2 = _mm256_load_pd(GetElementVelocityAngular(nodeId2));
 		_mm256_store_pd(velocityStrains + vecStride, _mm256_sub_pd(x1, x2));
 	}
-    
+#ifndef OMP_SOLVE
     void StressStrainCppIterativeSolverAVX::CalculateForces()
     {
         _MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
@@ -634,8 +634,8 @@ namespace Stress
                 double dfl = -_dampingFactorLinear;
                 double dfa = -_dampingFactorAngular;
 
-                vecDoubleMulSub(velocityStrains, strains, _dampingFactorLinear, _elasticFactorLinear, force1);
-                vecDoubleMulSub(velocityStrains + vecStride, strains + vecStride, _dampingFactorAngular, _elasticFactorAngular, torque);
+                vecDoubleMulSub(velocityStrains, strains, dfl, _elasticFactorLinear, force1);
+                vecDoubleMulSub(velocityStrains + vecStride, strains + vecStride, dfa, _elasticFactorAngular, torque);
                 
                 
 
@@ -679,6 +679,113 @@ namespace Stress
 	ApplyBoundary(); // модифицирует силы и моменты
 	ApplyMass();	 // вычисляет ускорения делением сил на массы и моментов на моменты инерции
     }
+#else
+void StressStrainCppIterativeSolverAVX::CalculateForces()
+{
+    _MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
+    static int it = 0;
+
+    __declspec(align(64)) double strains[8], velocityStrains[8], force0[4], force1[4], force2[4], torque[4];
+
+
+    memset(_dataInternal + (_nElements * vecStride2 * 2), 0u, sizeof(double)*vecStride2*_nElements);
+    memset(_stress, 0u, sizeof(double)*vecStride2*_nElements);
+    //#define timeMeas
+
+    const int exclusive_dofs[][2] = { { 1, 2 }, { 0, 2 }, { 1, 3 } };
+#ifdef OMP_SOLVE
+#pragma omp parallel for private (strains, velocityStrains,force0,force1,force2,torque) num_threads(_numThreads)
+#endif
+    for (int elementId1 = 0; elementId1 < _nElements; elementId1++)
+    {
+        // обход x-,y-,z-
+        for (int dof = 0; dof < 3; dof++)
+        {
+            size_t elementId2 = GetLinkedElement(elementId1, dof);
+
+            if (elementId2)
+            {
+                elementId2--;
+#ifdef timeMeas
+                size_t timer1 = __rdtsc();
+#endif
+
+                CalculateStrains(dof, strains, velocityStrains, elementId1, elementId2);
+#ifdef timeMeas
+                size_t timer2 = __rdtsc();
+#endif
+
+
+
+                double * stressFactors = _elementStressFactorCache + (elementId1 * vecStride);
+                double * elementStress = _stress + (elementId1 * vecStride2);
+                double * elementStressAngularId1 = _stress + (elementId1 * vecStride2 + vecStride);
+                double * elementStressAngularId2 = _stress + (elementId2 * vecStride2 + vecStride);
+
+                // нормальные напряжения
+                elementStress[dof] += strains[dof] * stressFactors[dof] * _stressScalingFactors[dof];
+                elementStress[dof] += strains[dof] * stressFactors[dof] * _stressScalingFactors[dof];
+
+                // степени свободы смещений, участвующих в создании касательных напряжений
+                int dof0 = exclusive_dofs[dof][0];
+                int dof1 = exclusive_dofs[dof][1];
+
+                elementStressAngularId1[dof0] += strains[dof1] * GetElementStressFactors(elementId1)[dof] * _stressScalingFactors[dof];
+                elementStressAngularId1[dof1] += strains[dof0] * GetElementStressFactors(elementId1)[dof] * _stressScalingFactors[dof];
+
+                elementStressAngularId2[dof0] += strains[dof1] * (_elementStressFactorCache + (elementId2 * vecStride))[dof] * _stressScalingFactors[dof];
+                elementStressAngularId2[dof1] += strains[dof0] * (_elementStressFactorCache + (elementId2 * vecStride))[dof] * _stressScalingFactors[dof];
+
+                // сила и момент из полученных деформаций
+                double dfl = -_dampingFactorLinear;
+                double dfa = -_dampingFactorAngular;
+
+                vecDoubleMulSub(velocityStrains, strains, _dampingFactorLinear, _elasticFactorLinear, force1);
+                vecDoubleMulSub(velocityStrains + vecStride, strains + vecStride, _dampingFactorAngular, _elasticFactorAngular, torque);
+
+
+
+
+
+                double * matA01 = _dataRotationMtx + (elementId1 * matStride);
+                double * matA02 = _dataRotationMtx + (elementId2 * matStride);
+                double * accel1 = _dataInternal + (_nElements * vecStride2 * 2 + elementId1 * vecStride2);
+                double * accel2 = _dataInternal + (_nElements * vecStride2 * 2 + elementId2 * vecStride2);
+                matVecMul3x4(matA01, force1, force0);
+                matVecTMul3x4(matA02, force0, force2);
+
+                for (size_t i = 0; i < 3; i++)
+                {
+                    accel1[i] += force0[i];
+                    accel2[i] -= force0[i];
+                }
+
+
+
+                double * vR = _radiusVectors + dof * vecStride;
+                double * AccelAngul1 = _dataInternal + (_nElements * vecStride2 * 2 + elementId1 * vecStride2 + vecStride);
+                double * AccelAngul2 = _dataInternal + (_nElements * vecStride2 * 2 + elementId2 * vecStride2 + vecStride);
+
+                AccelAngul1[0] += vR[1] * force1[2] - vR[2] * force1[1] + torque[0];
+                AccelAngul1[1] += -vR[0] * force1[2] + vR[2] * force1[0] + torque[1];
+                AccelAngul1[2] += vR[0] * force1[1] - vR[1] * force1[0] + torque[2];
+
+                AccelAngul2[0] += vR[1] * force2[2] - vR[2] * force2[1] - torque[0];
+                AccelAngul2[1] += -vR[0] * force2[2] + vR[2] * force2[0] - torque[1];
+                AccelAngul2[2] += vR[0] * force2[1] - vR[1] * force2[0] - torque[2];
+
+#ifdef timeMeas
+                size_t timer3 = __rdtsc();
+                std::cout << "Strains time\t" << timer2 - timer1 << std::endl;
+                std::cout << "Force time\t" << timer3 - timer2 << std::endl;
+#endif
+            }
+        }
+    }
+    ApplyBoundary(); // модифицирует силы и моменты
+    ApplyMass();	 // вычисляет ускорения делением сил на массы и моментов на моменты инерции
+}
+#endif
 }
 //#undef OMP_SOLVE
 

@@ -15,6 +15,7 @@ namespace Stress
 
 	class RotationSolver
 	{
+    protected:
 		double* _varR;	// текущие переменные
 		double* _varDR;	// текущие производные по времени
 		double* _initR;	// значения переменных предыдущего шага

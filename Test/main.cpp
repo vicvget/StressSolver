@@ -60,7 +60,7 @@ int main(int argc, char *argv[])
 	std::cout << "Elements:" << numberOfElements << 'x' << numberOfElements
 		<< "\nIterations:" << numberOfSubiterations << 'x' << 100
 		<< "\nSolver Type:" << solverType << std::endl;
-
-	Test1xXxXa(solverType, 0.8, 0.01, numberOfElements, numberOfSubiterations);
+    //for(size_t i =0;i<10;i++)
+	    Test1xXxXa(solverType, 0.8, 0.01, numberOfElements, numberOfSubiterations);
 	return 0;
 }
